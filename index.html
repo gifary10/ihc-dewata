@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistem In House Clinic Dewata</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sistem manajemen Klinik Dewata Tirta Medika">
+
+  <!-- Preload fonts -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" as="style">
+  
+  <!-- Google Font Roboto & Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Inline CSS - Minimal -->
+  <style>
+    :root {
+      --primary: #023199;
+      --secondary: #6c757d;
+      --accent: #0dcaf0;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --radius: 12px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f8fafc;
+      color: #333;
+      padding-top: 90px;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1030;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .header-content {
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header img {
+      height: 60px;
+      width: auto;
+    }
+
+    .header-title h4 {
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .header-title small {
+      color: var(--secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Main Content */
+    .main-container {
+      max-width: 1200px;
+      margin: 40 auto;
+      padding: 0 1rem;
+    }
+
+    /* Menu Grid */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .menu-card:hover,
+    .menu-card:focus {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(42, 109, 245, 0.12);
+      border-color: rgba(42, 109, 245, 0.15);
+      outline: none;
+    }
+
+    .menu-icon-container {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .menu-icon {
+      font-size: 5rem;
+      font-weight: 700;
+      color: #f3a424;
+    }
+
+    /* Footer */
+    footer {
+      background: linear-gradient(to right, #1c2331, #2c3446);
+      color: #dee2e6;
+      margin-top: 5rem;
+      padding: 2rem 0 1.5rem;
+    }
+
+    .footer-title {
+      font-weight: 600;
+      color: white;
+      margin-bottom: 2rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    .footer-title::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+    }
+
+    .partner-logo {
+      max-height: 35px;
+      object-fit: contain;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding-top: 80px;
+      }
+      
+      .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      
+      .header-content {
+        padding: 0.75rem;
+      }
+      
+      .header img {
+        height: 50px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .menu-card {
+        padding: 1.25rem 0.75rem;
+      }
+      
+      .menu-icon-container {
+        width: 55px;
+        height: 55px;
+      }
+      
+      .menu-icon {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Header -->
+<header class="header" role="banner">
+  <div class="container">
+    <div class="header-content">
+      <img src="logo/logo.png" alt="Logo Klinik Dewata" width="60" height="60" loading="lazy">
+      <div class="header-title">
+        <h4>Klinik Dewata Tirta Medika</h4>
+        <small>Sistem Aplikasi In House Clinic</small>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-container" role="main">
+  <div class="menu-grid">
+    <button class="menu-card" onclick="navigateTo('company-data')" aria-label="Data Perusahaan">
+      <div class="menu-icon-container">
+        <i class="bi bi-building menu-icon" aria-hidden="true"></i>
+      </div>
+      <h5>Data Perusahaan</h5>
+    </button>
+
+    <button class="menu-card" onclick="navigateTo('company-monitoring')" aria-label="Monitoring Perusahaan">
+      <div class="menu-icon-container">
+        <i class="bi bi-bar-chart-line menu-icon" aria-hidden="true"></i>
+      </div>
+      <h5>Monitoring Perusahaan</h5>
+    </button>
+
+    <button class="menu-card" onclick="navigateTo('staff-data')" aria-label="Data Petugas">
+      <div class="menu-icon-container">
+        <i class="bi bi-people menu-icon" aria-hidden="true"></i>
+      </div>
+      <h5>Data Petugas</h5>
+    </button>
+
+    <button class="menu-card" onclick="navigateTo('clinic-monitoring')" aria-label="Monitoring Klinik">
+      <div class="menu-icon-container">
+        <i class="bi bi-graph-up-arrow menu-icon" aria-hidden="true"></i>
+      </div>
+      <h5>Monitoring Klinik</h5>
+    </button>
+
+    <button class="menu-card" onclick="navigateTo('clinic-staff')" aria-label="Petugas Klinik">
+      <div class="menu-icon-container">
+        <i class="bi bi-person-badge menu-icon" aria-hidden="true"></i>
+      </div>
+      <h5>Petugas Klinik</h5>
+    </button>
+
+    <button class="menu-card" onclick="navigateTo('requests')" aria-label="Permintaan Layanan">
+      <div class="menu-icon-container">
+        <i class="bi bi-journal-text menu-icon" aria-hidden="true"></i>
+      </div>
+      <h5>Permintaan Layanan</h5>
+    </button>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer role="contentinfo">
+  <div class="container">
+    <h2 class="footer-title">Partner Kami</h2>
+
+    <div class="row justify-content-center align-items-center g-3 text-center">
+      <div class="col-3 col-sm-2 col-md-2">
+        <img src="partner/partner1.png" class="partner-logo" alt="Partner 1" loading="lazy">
+      </div>
+      <div class="col-3 col-sm-2 col-md-2">
+        <img src="partner/partner2.png" class="partner-logo" alt="Partner 2" loading="lazy">
+      </div>
+      <div class="col-3 col-sm-2 col-md-2">
+        <img src="partner/partner3.png" class="partner-logo" alt="Partner 3" loading="lazy">
+      </div>
+      <div class="col-3 col-sm-2 col-md-2">
+        <img src="partner/partner4.png" class="partner-logo" alt="Partner 4" loading="lazy">
+      </div>
+      <div class="col-3 col-sm-2 col-md-2">
+        <img src="partner/partner5.png" class="partner-logo" alt="Partner 5" loading="lazy">
+      </div>
+      <div class="col-3 col-sm-2 col-md-2">
+        <img src="partner/partner6.png" class="partner-logo" alt="Partner 6" loading="lazy">
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="text-center mb-0">
+        <small>&copy; 2025 <strong>Klinik Dewata</strong></small>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+
+<script>
+  // Configuration
+  const PAGES = {
+    'company-data': { name: 'Data Perusahaan', url: '#' },
+    'company-monitoring': { name: 'Monitoring Perusahaan', url: '#' },
+    'staff-data': { name: 'Data Petugas', url: '#' },
+    'clinic-monitoring': { name: 'Monitoring Klinik', url: 'Klinik/dashboard.html' },
+    'clinic-staff': { name: 'Petugas Klinik', url: 'Petugas/petugas.html' },
+    'requests': { name: 'Permintaan Layanan', url: '#' }
+  };
+
+  // Navigation function
+  function navigateTo(pageId) {
+    const page = PAGES[pageId];
+    if (!page) {
+      console.error('Halaman tidak ditemukan:', pageId);
+      return;
+    }
+
+    if (page.url && page.url !== '#') {
+      window.location.href = page.url;
+    } else {
+      // Simulasi untuk halaman yang belum tersedia
+      console.log(`Navigasi ke: ${page.name}`);
+      alert(`Halaman "${page.name}" sedang dalam pengembangan.`);
+    }
+  }
+
+  // Add keyboard navigation
+  document.addEventListener('DOMContentLoaded', () => {
+    // Header scroll effect
+    const header = document.querySelector('.header');
+    window.addEventListener('scroll', () => {
+      header.style.boxShadow = window.scrollY > 20 
+        ? '0 6px 25px rgba(0, 0, 0, 0.08)' 
+        : '0 4px 20px rgba(0, 0, 0, 0.06)';
+    });
+
+    // Add keyboard support for menu cards
+    const menuCards = document.querySelectorAll('.menu-card');
+    menuCards.forEach(card => {
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+
+    // Focus management for better accessibility
+    menuCards[0]?.setAttribute('tabindex', '0');
+  });
+</script>
+
+</body>
+</html>
