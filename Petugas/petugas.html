@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>In House Clinic</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Modal Pilih Perusahaan -->
+    <div class="modal fade" id="modalPerusahaan" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-building"></i> Pilih Perusahaan
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group">
+                        <button class="list-group-item list-group-item-action select-perusahaan" data-nama="Delonix Hotel">
+                            <i class="bi bi-building me-2"></i> Delonix Hotel
+                        </button>
+                        <button class="list-group-item list-group-item-action select-perusahaan" data-nama="PT XYZ Manufacturing">
+                            <i class="bi bi-building me-2"></i> PT XYZ Manufacturing
+                        </button>
+                        <button class="list-group-item list-group-item-action select-perusahaan" data-nama="PT Global Teknik">
+                            <i class="bi bi-building me-2"></i> PT Global Teknik
+                        </button>
+                        <button class="list-group-item list-group-item-action select-perusahaan" data-nama="PT Maju Jaya">
+                            <i class="bi bi-building me-2"></i> PT Maju Jaya
+                        </button>
+                        <button class="list-group-item list-group-item-action select-perusahaan" data-nama="PT Sehat Sentosa">
+                            <i class="bi bi-building me-2"></i> PT Sehat Sentosa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Header dengan nama perusahaan -->
+<div class="header-section mb-4">
+  <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap">
+
+    <!-- Logo -->
+    <img src="logo.png" alt="Logo" style="height:40px;" class="img-fluid">
+
+    <!-- Title -->
+    <h4 class="mb-0">
+      IHC - <span id="namaPerusahaan">-</span>
+    </h4>
+
+    <!-- Button -->
+    <div id="namaPerusahaanContainer" class="d-none">
+      <button class="btn btn-sm btn-outline-secondary" id="btnGantiPerusahaan">
+        <i class="bi bi-arrow-repeat"></i>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+    <div class="container py-4">
+        <!-- MENU UTAMA -->
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#form">
+                    <i class="bi bi-pencil-square"></i> Form
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#laporan">
+                    <i class="bi bi-bar-chart"></i> Laporan
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- ===================== FORM ===================== -->
+            <div class="tab-pane fade show active" id="form">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        
+                        <!-- TABS JENIS KUNJUNGAN -->
+                        <ul class="nav nav-tabs nav-fill mb-4" id="jenisKunjunganTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="berobat-tab" data-bs-toggle="tab" data-bs-target="#berobat" type="button" role="tab">Berobat</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="kecelakaan-tab" data-bs-toggle="tab" data-bs-target="#kecelakaan" type="button" role="tab">Kecelakaan</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="konsultasi-tab" data-bs-toggle="tab" data-bs-target="#konsultasi" type="button" role="tab">Konsultasi</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="jenisKunjunganTabContent">
+                            
+                            <!-- ========== TAB BEROBAT ========== -->
+                            <div class="tab-pane fade show active form-tab-content" id="berobat" role="tabpanel">
+                                <!-- FORM KUNJUNGAN BEROBAT -->
+                                <div class="form-section">
+                                    <h6><i class="bi bi-person-plus"></i> Data Pasien (Berobat)</h6>
+                                    <form id="formKunjunganBerobat" class="row g-2">
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                                <input type="datetime-local" class="form-control" id="tanggalBerobat" placeholder="Tanggal & Waktu Kunjungan" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                                <input type="text" class="form-control" id="namaBerobat" placeholder="Nama" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                                <select class="form-select" id="departemenBerobat" required>
+                                                    <option value="" selected disabled>Pilih Departemen</option>
+                                                    <option>Produksi</option>
+                                                    <option>Maintenance</option>
+                                                    <option>HSE</option>
+                                                    <option>HRD</option>
+                                                    <option>Logistik</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-gender-ambiguous"></i></span>
+                                                <div class="form-control border-0 bg-transparent ps-0">
+                                                    <div class="radio-group mt-1 ms-3">
+                                                        <label class="radio-label">
+                                                            <input type="radio" name="jenisKelaminBerobat" value="Laki-laki" class="form-check-input" required>
+                                                            <span>Laki-laki</span>
+                                                        </label>
+                                                        <label class="radio-label ms-3">
+                                                            <input type="radio" name="jenisKelaminBerobat" value="Perempuan" class="form-check-input" required>
+                                                            <span>Perempuan</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-clipboard-pulse"></i></span>
+                                                <input type="text" class="form-control" value="Berobat" readonly>
+                                                <input type="hidden" id="jenisKunjunganBerobat" value="Berobat">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="bi bi-chat-dots"></i></span>
+                                                        <textarea class="form-control" id="keluhanBerobat" placeholder="Keluhan" rows="3" required></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="bi bi-heart-pulse"></i></span>
+                                                        <textarea class="form-control" id="tindakanBerobat" placeholder="Tindakan yang diberikan" rows="3"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- FORM PENYAKIT BEROBAT -->
+                                <div class="form-section">
+                                    <h6><i class="bi bi-activity"></i> Diagnosa Penyakit</h6>
+                                    <form id="formPenyakitBerobat" class="row g-2">
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-list-task"></i></span>
+                                                <select class="form-select" id="kategoriPenyakitBerobat" required>
+                                                    <option value="" selected disabled>Pilih Kategori Diagnosa</option>
+                                                    <!-- Options akan diisi oleh JavaScript -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-heart-pulse"></i></span>
+                                                <select class="form-select" id="namaPenyakitBerobat" required>
+                                                    <option value="" selected disabled>Pilih Diagnosis</option>
+                                                    <!-- Options akan diisi berdasarkan kategori -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                                <textarea class="form-control" id="keteranganPenyakitBerobat" 
+                                                          placeholder="Keterangan tambahan diagnosa" 
+                                                          rows="2"></textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- FORM OBAT BEROBAT -->
+                                <div class="form-section">
+                                    <h6><i class="bi bi-capsule"></i> Resep Obat</h6>
+                                    <form id="formObatBerobat" class="row g-2">
+                                        <div class="col-md-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-tags"></i></span>
+                                                <select class="form-select" id="kategoriObatBerobat" required>
+                                                    <option value="" selected disabled>Pilih Kategori Obat</option>
+                                                    <option value="obat">Obat</option>
+                                                    <option value="alat kesehatan">Alat Kesehatan</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-capsule"></i></span>
+                                                <select class="form-select" id="namaObatBerobat" required>
+                                                    <option value="" selected disabled>Pilih Obat</option>
+                                                    <!-- Options akan diisi oleh JavaScript -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-123"></i></span>
+                                                <input type="number" class="form-control" id="jumlahObatBerobat" placeholder="Jumlah" required min="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-box"></i></span>
+                                                <input type="text" class="form-control" id="satuanObatBerobat" placeholder="Tablet/Kapsul" value="Tablet">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                                                <input type="text" class="form-control" id="aturanPakaiBerobat" placeholder="Aturan Pakai (contoh: 3x1 sesudah makan)" required>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- FORM SKD (SURAT KETERANGAN DOKTER) -->
+                                <div class="form-section">
+                                    <h6><i class="bi bi-file-medical"></i> Surat Keterangan Dokter (SKD)</h6>
+                                    <form id="formSKDBerobat" class="row g-2">
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text">Apakah perlu istirahat</span>
+                                                <div class="form-control border-0 bg-transparent ps-0">
+                                                    <div class="radio-group mt-1 ms-3">
+                                                        <label class="radio-label">
+                                                            <input type="radio" name="perluIstirahat" value="Ya" class="form-check-input" required>
+                                                            <span>Ya</span>
+                                                        </label>
+                                                        <label class="radio-label ms-3">
+                                                            <input type="radio" name="perluIstirahat" value="Tidak" class="form-check-input" required>
+                                                            <span>Tidak</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-calendar-day"></i></span>
+                                                <input type="number" class="form-control" id="lamaIstirahat" placeholder="Jumlah hari istirahat" min="0" value="0">
+                                                <span class="input-group-text">hari</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                                <textarea class="form-control" id="keteranganSKD" placeholder="Keterangan tambahan untuk SKD (opsional)" rows="2"></textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- TOMBOL SIMPAN BEROBAT -->
+                                <div class="text-end mt-4">
+                                    <button class="btn btn-primary" id="btnSimpanBerobat">
+                                        <i class="bi bi-save"></i> Simpan Data Berobat
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- ========== TAB KECELAKAAN KERJA ========== -->
+                            <div class="tab-pane fade form-tab-content" id="kecelakaan" role="tabpanel">
+                                <!-- FORM KECELAKAAN KERJA (DISEDERHANAKAN) -->
+                                <div class="form-section">
+                                    <h6><i class="bi bi-exclamation-triangle"></i> Data Kecelakaan Kerja</h6>
+                                    <form id="formKecelakaan" class="row g-2">
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                                <input type="datetime-local" class="form-control" id="tanggalKecelakaan" placeholder="Tanggal Kejadian" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                                <input type="text" class="form-control" id="namaKecelakaan" placeholder="Nama Korban" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                                <select class="form-select" id="departemenKecelakaan" required>
+                                                    <option value="" selected disabled>Pilih Departemen</option>
+                                                    <option>Produksi</option>
+                                                    <option>Maintenance</option>
+                                                    <option>HSE</option>
+                                                    <option>HRD</option>
+                                                    <option>Logistik</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-gender-ambiguous"></i></span>
+                                                <select class="form-select" id="jenisKelaminKecelakaan" required>
+                                                    <option value="" selected disabled>Pilih Jenis Kelamin</option>
+                                                    <option>Laki-laki</option>
+                                                    <option>Perempuan</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-exclamation-triangle"></i></span>
+                                                <input type="text" class="form-control" value="Kecelakaan Kerja" readonly>
+                                                <input type="hidden" id="jenisKunjunganKecelakaan" value="Kecelakaan Kerja">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                                <input type="text" class="form-control" id="lokasiKecelakaan" placeholder="Lokasi Kejadian" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                                <textarea class="form-control" id="deskripsiKecelakaan" placeholder="Deskripsi Kejadian" rows="3" required></textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- TOMBOL SIMPAN KECELAKAAN -->
+                                <div class="text-end mt-4">
+                                    <button class="btn btn-danger" id="btnSimpanKecelakaan">
+                                        <i class="bi bi-save"></i> Simpan Data Kecelakaan
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- ========== TAB KONSULTASI ========== -->
+                            <div class="tab-pane fade form-tab-content" id="konsultasi" role="tabpanel">
+                                <!-- FORM KONSULTASI (DISEDERHANAKAN) -->
+                                <div class="form-section">
+                                    <h6><i class="bi bi-chat-dots"></i> Data Konsultasi</h6>
+                                    <form id="formKonsultasi" class="row g-2">
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                                <input type="datetime-local" class="form-control" id="tanggalKonsultasi" placeholder="Tanggal Konsultasi" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                                <input type="text" class="form-control" id="namaKonsultasi" placeholder="Nama" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                                <select class="form-select" id="departemenKonsultasi" required>
+                                                    <option value="" selected disabled>Pilih Departemen</option>
+                                                    <option>Produksi</option>
+                                                    <option>Maintenance</option>
+                                                    <option>HSE</option>
+                                                    <option>HRD</option>
+                                                    <option>Logistik</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-gender-ambiguous"></i></span>
+                                                <select class="form-select" id="jenisKelaminKonsultasi" required>
+                                                    <option value="" selected disabled>Pilih Jenis Kelamin</option>
+                                                    <option>Laki-laki</option>
+                                                    <option>Perempuan</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-chat-dots"></i></span>
+                                                <input type="text" class="form-control" value="Konsultasi" readonly>
+                                                <input type="hidden" id="jenisKunjunganKonsultasi" value="Konsultasi">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-chat-dots"></i></span>
+                                                <textarea class="form-control" id="keluhanKonsultasi" placeholder="Keluhan / Masalah" rows="3" required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-lightbulb"></i></span>
+                                                <textarea class="form-control" id="saranKonsultasi" placeholder="Saran / Rekomendasi" rows="3" required></textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- TOMBOL SIMPAN KONSULTASI -->
+                                <div class="text-end mt-4">
+                                    <button class="btn btn-success" id="btnSimpanKonsultasi">
+                                        <i class="bi bi-save"></i> Simpan Data Konsultasi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== LAPORAN ===================== -->
+            <div class="tab-pane fade" id="laporan">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4"><i class="bi bi-clipboard-data"></i> Laporan Lengkap</h5>
+                        
+                        <!-- Filter Laporan -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <label class="form-label small">Filter Tanggal Dari</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Dari Tanggal</i></span>
+                                    <input type="date" class="form-control" id="filterDari">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Filter Tanggal Sampai</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Sampai Tanggal</i></span>
+                                    <input type="date" class="form-control" id="filterSampai">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Filter Departemen</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                    <select class="form-select" id="filterDept">
+                                        <option value="" selected>Semua Departemen</option>
+                                        <option>Produksi</option>
+                                        <option>Maintenance</option>
+                                        <option>HSE</option>
+                                        <option>HRD</option>
+                                        <option>Logistik</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Cari Nama</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" id="searchNama" placeholder="Cari nama pasien...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB LAPORAN -->
+                        <ul class="nav nav-tabs mb-3" id="laporanTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="berobat-table-tab" data-bs-toggle="tab" data-bs-target="#berobat-table" type="button">Berobat
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="kecelakaan-table-tab" data-bs-toggle="tab" data-bs-target="#kecelakaan-table" type="button">Kecelakaan
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="konsultasi-table-tab" data-bs-toggle="tab" data-bs-target="#konsultasi-table" type="button">Konsultasi
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <!-- TABEL DATA BEROBAT -->
+                            <div class="tab-pane fade show active" id="berobat-table">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Perusahaan</th>
+                                                <th>Tanggal</th>
+                                                <th>Waktu</th>
+                                                <th>Nama</th>
+                                                <th>Departemen</th>
+                                                <th>Jenis Kelamin</th>
+                                                <th>Jenis Kunjungan</th>
+                                                <th>Keluhan</th>
+                                                <th>Tindakan</th>
+                                                <th>Kategori Diagnosa</th>
+                                                <th>Nama Penyakit</th>
+                                                <th>Keterangan Diagnosa</th>
+                                                <th>Kategori Obat</th>
+                                                <th>Nama Obat</th>
+                                                <th>Jumlah</th>
+                                                <th>Satuan</th>
+                                                <th>Aturan Pakai</th>
+                                                <th>SKD</th>
+                                                <th>Jumlah Hari SKD</th>
+                                                <th>Keterangan SKD</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableBerobatBody">
+                                            <!-- Data akan diisi oleh JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="text-muted text-end small mt-2">
+                                    Total: <span id="totalBerobat">0</span> data
+                                </div>
+                            </div>
+
+                            <!-- TABEL DATA KECELAKAAN -->
+                            <div class="tab-pane fade" id="kecelakaan-table">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-danger">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Perusahaan</th>
+                                                <th>Tanggal</th>
+                                                <th>Waktu</th>
+                                                <th>Nama</th>
+                                                <th>Departemen</th>
+                                                <th>Jenis Kelamin</th>
+                                                <th>Jenis Kunjungan</th>
+                                                <th>Lokasi Kejadian</th>
+                                                <th>Deskripsi Kejadian</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableKecelakaanBody">
+                                            <!-- Data akan diisi oleh JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="text-muted text-end small mt-2">
+                                    Total: <span id="totalKecelakaan">0</span> data
+                                </div>
+                            </div>
+
+                            <!-- TABEL DATA KONSULTASI -->
+                            <div class="tab-pane fade" id="konsultasi-table">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-success">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Perusahaan</th>
+                                                <th>Tanggal</th>
+                                                <th>Waktu</th>
+                                                <th>Nama</th>
+                                                <th>Departemen</th>
+                                                <th>Jenis Kelamin</th>
+                                                <th>Jenis Kunjungan</th>
+                                                <th>Keluhan</th>
+                                                <th>Saran</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableKonsultasiBody">
+                                            <!-- Data akan diisi oleh JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="text-muted text-end small mt-2">
+                                    Total: <span id="totalKonsultasi">0</span> data
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TOTAL KESELURUHAN -->
+                        <div class="report-header mt-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small">
+                                    Total Semua Kunjungan: <span id="totalIntegrasi" class="fw-bold">0</span>
+                                    (<span id="totalBerobatSummary">0</span> Berobat, 
+                                    <span id="totalKecelakaanSummary">0</span> Kecelakaan, 
+                                    <span id="totalKonsultasiSummary">0</span> Konsultasi)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

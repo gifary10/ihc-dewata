@@ -1,0 +1,316 @@
+/* ========== VARIABLES ========== */
+:root {
+    --primary-color: #023199;
+    --danger-color: #e74c3c;
+    --success-color: #2ecc71;
+    --dark-color: #2c3e50;
+    --light-color: #f5f7fa;
+    --gray-color: #7f8c8d;
+    --border-radius: 14px;
+}
+
+/* ========== BASE STYLES ========== */
+body {
+    background: var(--light-color);
+    font-family: 'Roboto', sans-serif;
+}
+
+/* ========== COMPONENT STYLES ========== */
+.card {
+    border-radius: var(--border-radius);
+}
+
+/* ========== FORM STYLES ========== */
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.form-section h6 {
+    margin-bottom: 1.2rem;
+    color: var(--dark-color);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* ========== REPORT STYLES ========== */
+.report-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.report-title {
+    color: var(--dark-color);
+    font-weight: 600;
+}
+
+/* ========== TABLE STYLES ========== */
+.table-responsive {
+    border-radius: 8px;
+    overflow: auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 0.85rem;
+}
+
+.table {
+    margin-bottom: 0;
+    min-width: 100%;
+}
+
+.table th {
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table td {
+    padding: 0.6rem 0.5rem;
+    vertical-align: middle;
+    font-size: 0.8rem;
+}
+
+.table thead th {
+    border-bottom: 2px solid #dee2e6;
+    color: var(--dark-color);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.table-primary thead th {
+    background-color: rgba(52, 152, 219, 0.15);
+    color: var(--primary-color);
+}
+
+.table-danger thead th {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: var(--danger-color);
+}
+
+.table-success thead th {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: var(--success-color);
+}
+
+/* ========== HEADER STYLES ========== */
+.header-section {
+    padding: 1rem;
+    background: #f5f7fa ;
+    color: dark;
+}
+
+#namaPerusahaanContainer {
+    animation: fadeIn 0.5s ease;
+}
+
+/* ========== MODAL STYLES ========== */
+.modal-content {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.list-group-item {
+    border: 1px solid #e0e0e0;
+    margin-bottom: 0.5rem;
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+    padding: 1rem;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ========== INPUT GROUP TEXT STYLES ========== */
+.input-group-text {
+    background-color: #f3a424;
+    border: 1px solid #dee2e6;
+    color: #fff;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-group:focus-within .input-group-text {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.input-group-text i {
+    font-size: 1rem;
+}
+
+/* ========== FORM SELECT STYLES ========== */
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+/* ========== FORM INPUT STYLES ========== */
+.form-control::placeholder {
+    color: #6c757d;
+    opacity: 0.8;
+}
+
+.form-control:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* ========== DRUG SELECT STYLES ========== */
+#namaObatBerobat option {
+    padding: 8px;
+}
+
+#namaObatBerobat option[value=""] {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== TABLE COLUMN WIDTHS ========== */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 50px; /* No */
+    text-align: center;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    width: 120px; /* Perusahaan */
+}
+
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    width: 100px; /* Tanggal */
+}
+
+.table th:nth-child(4),
+.table td:nth-child(4) {
+    width: 80px; /* Waktu */
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .header-section {
+        padding: 1rem;
+    }
+    
+    .header-section h4 {
+        font-size: 1.25rem;
+    }
+    
+    .form-section h6 {
+        font-size: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.75rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.4rem 0.3rem;
+        font-size: 0.75rem;
+    }
+    
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 40px;
+    }
+    
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 100px;
+    }
+    
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 80px;
+    }
+    
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 70px;
+    }
+    
+    .input-group-text {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* ===== NAV TABS CUSTOM ===== */
+.nav-tabs {
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: -1px;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.08);
+}
+
+.nav-tabs .nav-link.active {
+    color: white;
+    background-color: #023199;
+    font-weight: 600;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ===== FORM LABEL REMOVAL STYLES ===== */
+.form-label {
+    display: none;
+}
+
+.input-group {
+    margin-bottom: 0.75rem;
+}
+
+.form-text {
+    margin-left: 3rem;
+    font-size: 0.75rem;
+}
