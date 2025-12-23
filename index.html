@@ -2,14 +2,22 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Sistem In House Clinic Dewata</title>
+  <title>Sistem In House Clinic - Klinik Dewata Tirta Medika</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Sistem manajemen Klinik Dewata Tirta Medika">
-
-  <!-- Preload fonts -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" as="style">
+  <meta name="description" content="Sistem manajemen klinik untuk Klinik Dewata Tirta Medika. Aplikasi in-house untuk monitoring perusahaan, data petugas, dan layanan klinik.">
+  <meta name="keywords" content="klinik, kesehatan, sistem klinik, dewata, medika, manajemen klinik">
+  <meta name="author" content="Klinik Dewata Tirta Medika">
   
-  <!-- Google Font Roboto & Inter -->
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="Sistem In House Clinic - Klinik Dewata Tirta Medika">
+  <meta property="og:description" content="Sistem manajemen klinik untuk Klinik Dewata Tirta Medika">
+  <meta property="og:type" content="website">
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" as="style">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" as="style">
+  
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
   <!-- Bootstrap CSS -->
@@ -18,24 +26,40 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-  <!-- Inline CSS - Minimal -->
+  <!-- Inline CSS - Optimized -->
   <style>
     :root {
       --primary: #023199;
+      --primary-light: #2a6df5;
       --secondary: #6c757d;
       --accent: #0dcaf0;
+      --accent-light: #0dcaf01a;
       --light: #f8f9fa;
       --dark: #212529;
       --radius: 12px;
       --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
       font-family: 'Roboto', sans-serif;
       background-color: #f8fafc;
+      background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+      background-size: 20px 20px;
       color: #333;
-      padding-top: 90px;
+      padding-top: 120px;
       line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     /* Header */
@@ -46,9 +70,14 @@
       z-index: 1030;
       background: rgba(255, 255, 255, 0.98);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      transition: box-shadow 0.3s ease;
+      transition: var(--transition);
+    }
+
+    .header.scrolled {
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
     }
 
     .header-content {
@@ -56,35 +85,63 @@
       display: flex;
       align-items: center;
       gap: 20px;
+      min-height: 80px;
     }
 
     .header img {
       height: 60px;
       width: auto;
+      transition: var(--transition);
     }
 
     .header-title h4 {
+      font-family: 'Inter', sans-serif;
       font-weight: 700;
       color: var(--primary);
       margin: 0;
+      line-height: 1.2;
     }
 
     .header-title small {
       color: var(--secondary);
       font-size: 0.85rem;
+      display: block;
+      margin-top: 0.25rem;
     }
 
     /* Main Content */
     .main-container {
       max-width: 1200px;
-      margin: 50 auto;
+      margin: 0 auto;
       padding: 0 1rem;
+      flex: 1;
+    }
+
+    .section-title {
+      font-family: 'Inter', sans-serif;
+      color: var(--primary);
+      margin-bottom: 2rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      border-radius: 2px;
     }
 
     /* Menu Grid */
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(6, 1fr);
       gap: 1.5rem;
       margin-bottom: 3rem;
     }
@@ -96,20 +153,40 @@
       text-align: center;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       border: 1px solid rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
+      transition: var(--transition);
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       height: 100%;
+      position: relative;
+      overflow: hidden;
+      outline: none;
+    }
+
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      opacity: 0;
+      transition: var(--transition);
     }
 
     .menu-card:hover,
-    .menu-card:focus {
+    .menu-card:focus,
+    .menu-card:active {
       transform: translateY(-5px);
       box-shadow: 0 15px 35px rgba(42, 109, 245, 0.12);
       border-color: rgba(42, 109, 245, 0.15);
-      outline: none;
+    }
+
+    .menu-card:hover::before,
+    .menu-card:focus::before {
+      opacity: 1;
     }
 
     .menu-icon-container {
@@ -120,23 +197,59 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 1rem;
+      background: var(--accent-light);
+      transition: var(--transition);
+    }
+
+    .menu-card:hover .menu-icon-container {
+      transform: scale(1.05);
+      background: rgba(13, 202, 240, 0.15);
     }
 
     .menu-icon {
-      font-size: 5rem;
+      font-size: 2.5rem;
       font-weight: 700;
-      color: #f3a424;
+      color: var(--primary);
+      transition: var(--transition);
+    }
+
+    .menu-card:hover .menu-icon {
+      color: var(--primary-light);
+    }
+
+    .menu-card h5 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: var(--dark);
+      margin: 0.5rem 0 0;
+      transition: var(--transition);
+    }
+
+    .menu-card:hover h5 {
+      color: var(--primary);
     }
 
     /* Footer */
     footer {
-      background: linear-gradient(to right, #1c2331, #2c3446);
+      background: linear-gradient(135deg, #1c2331 0%, #2c3446 100%);
       color: #dee2e6;
-      margin-top: 5rem;
-      padding: 2rem 0 1.5rem;
+      margin-top: auto;
+      padding: 2.5rem 0 1.5rem;
+      position: relative;
+    }
+
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
     }
 
     .footer-title {
+      font-family: 'Inter', sans-serif;
       font-weight: 600;
       color: white;
       margin-bottom: 2rem;
@@ -153,43 +266,111 @@
       transform: translateX(-50%);
       width: 80px;
       height: 3px;
-      background: linear-gradient(to right, var(--primary), var(--accent));
+      background: linear-gradient(to right, var(--accent), #ffffff);
     }
 
     .partner-logo {
       max-height: 35px;
+      width: auto;
       object-fit: contain;
+      filter: grayscale(100%) brightness(0) invert(1);
+      opacity: 0.8;
+      transition: var(--transition);
+    }
+
+    .partner-logo:hover {
+      opacity: 1;
+      filter: grayscale(0) brightness(1) invert(0);
     }
 
     .footer-bottom {
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       padding-top: 1.5rem;
       margin-top: 2rem;
+      font-size: 0.9rem;
+    }
+
+    /* Loading State */
+    .loading {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--accent);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Accessibility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     /* Responsive */
+    @media (max-width: 992px) {
+      .menu-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
     @media (max-width: 768px) {
       body {
-        padding-top: 80px;
+        padding-top: 100px;
       }
       
       .menu-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
       }
       
       .header-content {
         padding: 0.75rem;
+        min-height: 70px;
       }
       
       .header img {
         height: 50px;
       }
+      
+      .header-title h4 {
+        font-size: 1.1rem;
+      }
+      
+      .menu-icon-container {
+        width: 65px;
+        height: 65px;
+      }
+      
+      .menu-icon {
+        font-size: 2rem;
+      }
     }
 
     @media (max-width: 576px) {
       .menu-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
       
       .menu-card {
@@ -202,7 +383,32 @@
       }
       
       .menu-icon {
-        font-size: 2rem;
+        font-size: 1.75rem;
+      }
+      
+      .menu-card h5 {
+        font-size: 0.95rem;
+      }
+      
+      .header-title small {
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+        padding: 0.5rem;
+      }
+      
+      .header-title small {
+        display: none;
       }
     }
   </style>
@@ -210,13 +416,16 @@
 
 <body>
 
+<!-- Skip to main content for accessibility -->
+<a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
 <!-- Header -->
 <header class="header" role="banner">
   <div class="container">
     <div class="header-content">
-      <img src="logo/logo.png" alt="Logo Klinik Dewata" width="60" height="60" loading="lazy">
+      <img src="logo/logo.png" alt="Logo Klinik Dewata" width="60" height="60" loading="lazy" decoding="async">
       <div class="header-title">
-        <h4>Klinik Dewata Tirta Medika</h4>
+        <h1 class="h4">Klinik Dewata Tirta Medika</h1>
         <small>Sistem Aplikasi In House Clinic</small>
       </div>
     </div>
@@ -224,48 +433,56 @@
 </header>
 
 <!-- Main Content -->
-<main class="main-container" role="main">
+<main id="main-content" class="main-container" role="main">
+  <h2 class="section-title">Menu Utama</h2>
+  
   <div class="menu-grid">
-    <button class="menu-card" onclick="navigateTo('company-data')" aria-label="Data Perusahaan">
+    <button class="menu-card" onclick="navigateTo('company-data')" aria-label="Buka halaman Data Perusahaan" data-page="company-data">
       <div class="menu-icon-container">
         <i class="bi bi-building menu-icon" aria-hidden="true"></i>
       </div>
       <h5>Data Perusahaan</h5>
+      <span class="sr-only">Klik untuk membuka halaman Data Perusahaan</span>
     </button>
 
-    <button class="menu-card" onclick="navigateTo('company-monitoring')" aria-label="Monitoring Perusahaan">
+    <button class="menu-card" onclick="navigateTo('company-monitoring')" aria-label="Buka halaman Monitoring Perusahaan" data-page="company-monitoring">
       <div class="menu-icon-container">
         <i class="bi bi-bar-chart-line menu-icon" aria-hidden="true"></i>
       </div>
       <h5>Monitoring Perusahaan</h5>
+      <span class="sr-only">Klik untuk membuka halaman Monitoring Perusahaan</span>
     </button>
 
-    <button class="menu-card" onclick="navigateTo('staff-data')" aria-label="Data Petugas">
+    <button class="menu-card" onclick="navigateTo('staff-data')" aria-label="Buka halaman Data Petugas" data-page="staff-data">
       <div class="menu-icon-container">
         <i class="bi bi-people menu-icon" aria-hidden="true"></i>
       </div>
       <h5>Data Petugas</h5>
+      <span class="sr-only">Klik untuk membuka halaman Data Petugas</span>
     </button>
 
-    <button class="menu-card" onclick="navigateTo('clinic-monitoring')" aria-label="Monitoring Klinik">
+    <button class="menu-card" onclick="navigateTo('clinic-monitoring')" aria-label="Buka halaman Monitoring Klinik" data-page="clinic-monitoring">
       <div class="menu-icon-container">
         <i class="bi bi-graph-up-arrow menu-icon" aria-hidden="true"></i>
       </div>
       <h5>Monitoring Klinik</h5>
+      <span class="sr-only">Klik untuk membuka halaman Monitoring Klinik</span>
     </button>
 
-    <button class="menu-card" onclick="navigateTo('clinic-staff')" aria-label="Petugas Klinik">
+    <button class="menu-card" onclick="navigateTo('clinic-staff')" aria-label="Buka halaman Petugas Klinik" data-page="clinic-staff">
       <div class="menu-icon-container">
         <i class="bi bi-person-badge menu-icon" aria-hidden="true"></i>
       </div>
       <h5>Petugas Klinik</h5>
+      <span class="sr-only">Klik untuk membuka halaman Petugas Klinik</span>
     </button>
 
-    <button class="menu-card" onclick="navigateTo('requests')" aria-label="Permintaan Layanan">
+    <button class="menu-card" onclick="navigateTo('requests')" aria-label="Buka halaman Permintaan Layanan" data-page="requests">
       <div class="menu-icon-container">
         <i class="bi bi-journal-text menu-icon" aria-hidden="true"></i>
       </div>
       <h5>Permintaan Layanan</h5>
+      <span class="sr-only">Klik untuk membuka halaman Permintaan Layanan</span>
     </button>
   </div>
 </main>
@@ -275,30 +492,21 @@
   <div class="container">
     <h2 class="footer-title">Partner Kami</h2>
 
-    <div class="row justify-content-center align-items-center g-3 text-center">
-      <div class="col-3 col-sm-2 col-md-2">
-        <img src="partner/partner1.png" class="partner-logo" alt="Partner 1" loading="lazy">
+    <div class="row justify-content-center align-items-center g-4 text-center">
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <img src="partner/partner1.png" class="partner-logo" alt="Logo Partner 1" loading="lazy" decoding="async">
       </div>
-      <div class="col-3 col-sm-2 col-md-2">
-        <img src="partner/partner2.png" class="partner-logo" alt="Partner 2" loading="lazy">
-      </div>
-      <div class="col-3 col-sm-2 col-md-2">
-        <img src="partner/partner3.png" class="partner-logo" alt="Partner 3" loading="lazy">
-      </div>
-      <div class="col-3 col-sm-2 col-md-2">
-        <img src="partner/partner4.png" class="partner-logo" alt="Partner 4" loading="lazy">
-      </div>
-      <div class="col-3 col-sm-2 col-md-2">
-        <img src="partner/partner5.png" class="partner-logo" alt="Partner 5" loading="lazy">
-      </div>
-      <div class="col-3 col-sm-2 col-md-2">
-        <img src="partner/partner6.png" class="partner-logo" alt="Partner 6" loading="lazy">
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <img src="partner/partner2.png" class="partner-logo" alt="Logo Partner 2" loading="lazy" decoding="async">
       </div>
     </div>
 
     <div class="footer-bottom">
       <p class="text-center mb-0">
-        <small>&copy; 2025 <strong>Klinik Dewata</strong></small>
+        <small>&copy; <span id="current-year">2025</span> <strong>Klinik Dewata Tirta Medika</strong>. Semua hak dilindungi.</small>
+      </p>
+      <p class="text-center mb-0 mt-1">
+        <small><i class="bi bi-shield-check me-1"></i>Sistem Terjamin | <i class="bi bi-clock-history me-1"></i>24/7 Support</small>
       </p>
     </div>
   </div>
@@ -310,58 +518,201 @@
 <script>
   // Configuration
   const PAGES = {
-    'company-data': { name: 'Data Perusahaan', url: '#' },
-    'company-monitoring': { name: 'Monitoring Perusahaan', url: '#' },
-    'staff-data': { name: 'Data Petugas', url: '#' },
-    'clinic-monitoring': { name: 'Monitoring Klinik', url: 'klinik/dashboard.html' },
-    'clinic-staff': { name: 'Petugas Klinik', url: 'Petugas/petugas.html' },
-    'requests': { name: 'Permintaan Layanan', url: '#' }
+    'company-data': { 
+      name: 'Data Perusahaan', 
+      url: '#',
+      description: 'Manajemen data perusahaan dan informasi terkait'
+    },
+    'company-monitoring': { 
+      name: 'Monitoring Perusahaan', 
+      url: '#',
+      description: 'Pemantauan aktivitas dan performa perusahaan'
+    },
+    'staff-data': { 
+      name: 'Data Petugas', 
+      url: '#',
+      description: 'Manajemen data dan informasi petugas'
+    },
+    'clinic-monitoring': { 
+      name: 'Monitoring Klinik', 
+      url: 'Klinik/dashboard.html',
+      description: 'Dashboard pemantauan aktivitas klinik'
+    },
+    'clinic-staff': { 
+      name: 'Petugas Klinik', 
+      url: 'Petugas/petugas.html',
+      description: 'Manajemen petugas klinik dan jadwal'
+    },
+    'requests': { 
+      name: 'Permintaan Layanan', 
+      url: '#',
+      description: 'Pengelolaan permintaan layanan pasien'
+    }
   };
 
-  // Navigation function
+  // Navigation function with improved UX
   function navigateTo(pageId) {
     const page = PAGES[pageId];
     if (!page) {
       console.error('Halaman tidak ditemukan:', pageId);
+      showNotification('Halaman tidak ditemukan', 'error');
       return;
     }
 
+    // Get the clicked button
+    const button = document.querySelector(`[data-page="${pageId}"]`);
+    
+    // Show loading state
+    if (button) {
+      button.classList.add('loading');
+      button.setAttribute('aria-busy', 'true');
+    }
+
     if (page.url && page.url !== '#') {
-      window.location.href = page.url;
+      // Simulate loading delay for better UX
+      setTimeout(() => {
+        window.location.href = page.url;
+      }, 300);
     } else {
-      // Simulasi untuk halaman yang belum tersedia
-      console.log(`Navigasi ke: ${page.name}`);
-      alert(`Halaman "${page.name}" sedang dalam pengembangan.`);
+      // Simulate API call for pages under development
+      setTimeout(() => {
+        if (button) {
+          button.classList.remove('loading');
+          button.setAttribute('aria-busy', 'false');
+        }
+        showNotification(`Halaman "${page.name}" sedang dalam pengembangan.`, 'info');
+        console.log(`Navigasi ke: ${page.name} - ${page.description}`);
+      }, 500);
     }
   }
 
-  // Add keyboard navigation
+  // Initialize on DOM loaded
   document.addEventListener('DOMContentLoaded', () => {
+    // Set current year in footer
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    
     // Header scroll effect
     const header = document.querySelector('.header');
     window.addEventListener('scroll', () => {
-      header.style.boxShadow = window.scrollY > 20 
-        ? '0 6px 25px rgba(0, 0, 0, 0.08)' 
-        : '0 4px 20px rgba(0, 0, 0, 0.06)';
+      if (window.scrollY > 20) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
     });
 
-    // Add keyboard support for menu cards
+    // Add keyboard navigation and focus management
     const menuCards = document.querySelectorAll('.menu-card');
-    menuCards.forEach(card => {
+    menuCards.forEach((card, index) => {
+      // Set tabindex for better keyboard navigation
+      card.setAttribute('tabindex', '0');
+      
+      // Keyboard support
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           card.click();
         }
+        
+        // Arrow key navigation between cards
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const nextCard = menuCards[Math.min(index + 1, menuCards.length - 1)];
+          nextCard.focus();
+        }
+        
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prevCard = menuCards[Math.max(index - 1, 0)];
+          prevCard.focus();
+        }
+      });
+      
+      // Focus styles
+      card.addEventListener('focus', () => {
+        card.style.outline = '2px solid var(--primary)';
+        card.style.outlineOffset = '2px';
+      });
+      
+      card.addEventListener('blur', () => {
+        card.style.outline = 'none';
       });
     });
 
-    // Focus management for better accessibility
-    menuCards[0]?.setAttribute('tabindex', '0');
+    // Set focus to first menu card for better accessibility
+    menuCards[0]?.focus();
+    
+    // Add hover effect for touch devices
+    let isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints;
+    if (isTouchDevice) {
+      document.body.classList.add('touch-device');
+    }
+  });
+
+  // Notification system
+  function showNotification(message, type = 'info') {
+    // Remove existing notification
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification alert alert-${type === 'error' ? 'danger' : 'info'} position-fixed`;
+    notification.style.cssText = `
+      top: 100px;
+      right: 20px;
+      z-index: 1050;
+      min-width: 300px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      border: none;
+      animation: slideIn 0.3s ease;
+    `;
+    
+    notification.innerHTML = `
+      <div class="d-flex align-items-center">
+        <i class="bi ${type === 'error' ? 'bi-exclamation-triangle' : 'bi-info-circle'} me-2"></i>
+        <span>${message}</span>
+        <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()" aria-label="Close"></button>
+      </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 5000);
+    
+    // Add animation styles
+    if (!document.querySelector('#notification-styles')) {
+      const style = document.createElement('style');
+      style.id = 'notification-styles';
+      style.textContent = `
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  // Error handling
+  window.addEventListener('error', (e) => {
+    console.error('Application error:', e.error);
+    showNotification('Terjadi kesalahan dalam aplikasi. Silakan refresh halaman.', 'error');
   });
 </script>
 
 </body>
-
 </html>
-
