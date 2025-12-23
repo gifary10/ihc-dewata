@@ -20,7 +20,7 @@ const PAGES = {
   },
   'clinic-monitoring': { 
     name: 'Monitoring Klinik', 
-    url: 'klinik/dashboard.html',
+    url: 'https://gifary10.github.io/ihc-dewata/klinik/dashboard.html',
     status: 'ready',
     requiresAccess: true,
     accessCode: 'dewata'
@@ -405,4 +405,5 @@ function showNotification(message, type = 'info') {
 window.addEventListener('error', (e) => {
   console.error('Application error:', e.error);
   showNotification('Terjadi kesalahan dalam aplikasi. Silakan refresh halaman.', 'error');
+
 });
