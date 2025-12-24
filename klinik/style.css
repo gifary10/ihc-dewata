@@ -124,6 +124,7 @@ body {
 }
 
 .header-content {
+	margin-left: 1rem;
     padding: 1rem 0;
     display: flex;
     align-items: center;
@@ -484,43 +485,6 @@ body {
     height: 250px;
 }
 
-/* Custom chart legend styling */
-.custom-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 15px;
-    padding: 12px;
-    background: rgba(2, 49, 153, 0.02);
-    border-radius: 8px;
-    border: 1px solid rgba(2, 49, 153, 0.05);
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: white;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    transition: var(--transition);
-}
-
-.legend-item:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
 /* Chart loading state */
 .chart-loading {
     position: absolute;
@@ -545,6 +509,7 @@ body {
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
+
 
 /* Animation for chart updates */
 @keyframes chartFadeIn {
