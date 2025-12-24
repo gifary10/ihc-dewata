@@ -115,68 +115,62 @@
         <div class="row mb-4 g-3">
             <div class="col-md-3 col-6">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(0, 123, 255, 0.1); color: #007bff;">
-                        <i class="bi bi-person"></i>
+                    <div class="stat-icon" style="background-color: rgba(23, 162, 184, 0.5); color: #17a2b8;">
+                        <div class="stat-value" id="statTotalKunjungan">0</div>
                     </div>
-                    <div class="stat-value" id="statTotalLaki">0</div>
+                    <div class="stat-label">Kunjungan</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: rgba(0, 123, 255, 0.5); color: #007bff;">
+                        <div class="stat-value" id="statTotalLaki">0</div>
+                    </div>
                     <div class="stat-label">Laki-Laki</div>
                 </div>
             </div>
             <div class="col-md-3 col-6">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
-                        <i class="bi bi-person-fill"></i>
+                    <div class="stat-icon" style="background-color: rgba(220, 53, 69, 0.5); color: #dc3545;">
+                        <div class="stat-value" id="statTotalPerempuan">0</div>
                     </div>
-                    <div class="stat-value" id="statTotalPerempuan">0</div>
                     <div class="stat-label">Perempuan</div>
                 </div>
             </div>
             <div class="col-md-3 col-6">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(255, 193, 7, 0.1); color: #ffc107;">
-                        <i class="bi bi-file-medical"></i>
+                    <div class="stat-icon" style="background-color: rgba(255, 193, 7, 0.5); color: #ffc107;">
+                        <div class="stat-value" id="statTotalSKD">0</div>
                     </div>
-                    <div class="stat-value" id="statTotalSKD">0</div>
                     <div class="stat-label">Total SKD</div>
                 </div>
             </div>
-            <div class="col-md-3 col-6">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(23, 162, 184, 0.1); color: #17a2b8;">
-                        <i class="bi bi-people"></i>
-                    </div>
-                    <div class="stat-value" id="statTotalKunjungan">0</div>
-                    <div class="stat-label">Total Kunjungan</div>
-                </div>
-            </div>
+            
         </div>
         
         <!-- Row 2: Jenis Kunjungan -->
         <div class="row mb-4 g-3">
             <div class="col-md-4 col-6">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
-                        <i class="bi bi-clipboard-check"></i>
+                    <div class="stat-icon" style="background-color: rgba(40, 167, 69, 0.5); color: #28a745;">
+                        <div class="stat-value" id="statBerobat">0</div>
                     </div>
-                    <div class="stat-value" id="statBerobat">0</div>
                     <div class="stat-label">Kunjungan Berobat</div>
                 </div>
             </div>
             <div class="col-md-4 col-6">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
-                        <i class="bi bi-exclamation-triangle"></i>
+                    <div class="stat-icon" style="background-color: rgba(220, 53, 69, 0.5); color: #dc3545;">
+                        <div class="stat-value" id="statKecelakaan">0</div>
                     </div>
-                    <div class="stat-value" id="statKecelakaan">0</div>
                     <div class="stat-label">Kecelakaan Kerja</div>
                 </div>
             </div>
             <div class="col-md-4 col-6">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(23, 162, 184, 0.1); color: #17a2b8;">
-                        <i class="bi bi-chat-dots"></i>
+                    <div class="stat-icon" style="background-color: rgba(23, 162, 184, 0.5); color: #17a2b8;">
+                        <div class="stat-value" id="statKonsultasi">0</div>
                     </div>
-                    <div class="stat-value" id="statKonsultasi">0</div>
                     <div class="stat-label">Konsultasi</div>
                 </div>
             </div>
@@ -194,7 +188,6 @@
                         <div class="chart-canvas-container">
                             <canvas id="genderChart"></canvas>
                         </div>
-                        <!-- Custom legend will be added by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -209,7 +202,51 @@
                         <div class="chart-canvas-container">
                             <canvas id="visitTypeChart"></canvas>
                         </div>
-                        <!-- Custom legend will be added by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bar Charts for Monthly Statistics -->
+        <div class="row mb-4 g-3">
+            <!-- Berobat per Bulan -->
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">
+                        <i class="bi bi-clipboard-check me-2"></i>Berobat per Bulan
+                    </h5>
+                    <div class="bar-chart-container">
+                        <div class="chart-canvas-container">
+                            <canvas id="monthlyBerobatChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Kecelakaan per Bulan -->
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Kecelakaan per Bulan
+                    </h5>
+                    <div class="bar-chart-container">
+                        <div class="chart-canvas-container">
+                            <canvas id="monthlyKecelakaanChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Konsultasi per Bulan -->
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">
+                        <i class="bi bi-chat-dots me-2"></i>Konsultasi per Bulan
+                    </h5>
+                    <div class="bar-chart-container">
+                        <div class="chart-canvas-container">
+                            <canvas id="monthlyKonsultasiChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -218,7 +255,7 @@
         <!-- Bar Charts for Department Statistics -->
         <div class="row mb-4 g-3">
             <!-- Departemen vs Kunjungan Berobat -->
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="chart-container">
                     <h5 class="chart-title">
                         <i class="bi bi-clipboard-check me-2"></i>Berobat per Departemen
@@ -232,7 +269,7 @@
             </div>
             
             <!-- Departemen vs Kecelakaan -->
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="chart-container">
                     <h5 class="chart-title">
                         <i class="bi bi-exclamation-triangle me-2"></i>Kecelakaan per Departemen
@@ -246,7 +283,7 @@
             </div>
             
             <!-- Departemen vs Konsultasi -->
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="chart-container">
                     <h5 class="chart-title">
                         <i class="bi bi-chat-dots me-2"></i>Konsultasi per Departemen
