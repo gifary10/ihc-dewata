@@ -98,27 +98,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 function setupEventListeners() {
-    // Apply Filter button
-    document.getElementById('btnApplyFilter').addEventListener('click', async () => {
-        loadingManager.showMiniOnButton('btnApplyFilter', true);
-        try {
-            await uiManager.applyFilter();
-        } finally {
-            loadingManager.showMiniOnButton('btnApplyFilter', false);
-        }
-    });
-    
-    // Reset Filter button
-    document.getElementById('btnResetFilter').addEventListener('click', async () => {
-        uiManager.resetFilter();
-        loadingManager.showMiniOnButton('btnResetFilter', true);
-        try {
-            await uiManager.applyFilter();
-        } finally {
-            loadingManager.showMiniOnButton('btnResetFilter', false);
-        }
-    });
-    
     // Download PDF button
     document.getElementById('btnDownloadPDF').addEventListener('click', async () => {
         loadingManager.showMiniOnButton('btnDownloadPDF', true);
@@ -160,27 +139,6 @@ function setupEventListeners() {
     document.getElementById('filterDepartemen').addEventListener('change', handleFilterChange);
     document.getElementById('filterTahun').addEventListener('change', handleFilterChange);
     document.getElementById('filterBulan').addEventListener('change', handleFilterChange);
-    
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        // Ctrl + F untuk apply filter
-        if (e.ctrlKey && e.key === 'f') {
-            e.preventDefault();
-            document.getElementById('btnApplyFilter').click();
-        }
-        
-        // Ctrl + R untuk reset filter
-        if (e.ctrlKey && e.key === 'r') {
-            e.preventDefault();
-            document.getElementById('btnResetFilter').click();
-        }
-        
-        // Ctrl + P untuk download PDF
-        if (e.ctrlKey && e.key === 'p') {
-            e.preventDefault();
-            document.getElementById('btnDownloadPDF').click();
-        }
-    });
 }
 
 // Auto-refresh data setiap 5 menit
