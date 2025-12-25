@@ -159,31 +159,31 @@ export const uiManager = {
         };
     },
 
-    // Tambahkan method untuk mengelola loading tombol PDF
-async applyFilter() {
-    const { perusahaan, departemen, tahun, bulan } = this.getCurrentFilterValues();
-    filterManager.applyFilter(perusahaan, departemen, tahun, bulan);
-    await this.updateDashboard();
-},
+    // Method untuk mengelola loading tombol PDF
+    async applyFilter() {
+        const { perusahaan, departemen, tahun, bulan } = this.getCurrentFilterValues();
+        filterManager.applyFilter(perusahaan, departemen, tahun, bulan);
+        await this.updateDashboard();
+    },
 
-// Tambahkan method baru untuk toggle loading tombol PDF
-togglePDFLoading(show) {
-    const btn = document.getElementById('btnDownloadPDF');
-    if (!btn) return;
+    // Method untuk toggle loading tombol PDF
+    togglePDFLoading(show) {
+        const btn = document.getElementById('btnDownloadPDF');
+        if (!btn) return;
 
-    if (show) {
-        if (!btn.querySelector('.mini-loading')) {
-            const spinner = document.createElement('span');
-            spinner.className = 'mini-loading';
-            btn.appendChild(spinner);
-            btn.disabled = true;
-        }
-    } else {
-        const spinner = btn.querySelector('.mini-loading');
-        if (spinner) {
-            spinner.remove();
-            btn.disabled = false;
+        if (show) {
+            if (!btn.querySelector('.mini-loading')) {
+                const spinner = document.createElement('span');
+                spinner.className = 'mini-loading';
+                btn.appendChild(spinner);
+                btn.disabled = true;
+            }
+        } else {
+            const spinner = btn.querySelector('.mini-loading');
+            if (spinner) {
+                spinner.remove();
+                btn.disabled = false;
+            }
         }
     }
-}
 };
