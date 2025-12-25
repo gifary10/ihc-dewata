@@ -26,9 +26,6 @@ export const chartManager = {
         const totalPerempuan = allData.filter(d => d['Jenis Kelamin'] === 'Perempuan').length;
         const totalUnknown = allData.length - totalLaki - totalPerempuan;
         
-        // Add center text
-        const total = totalLaki + totalPerempuan + totalUnknown;
-        
         if (this.genderChart) this.genderChart.destroy();
         
         this.genderChart = new Chart(ctx, {
@@ -47,9 +44,7 @@ export const chartManager = {
                         'rgba(255, 99, 132, 1)',
                         'rgba(201, 203, 207, 1)'
                     ],
-                    borderWidth: 2,
-                    borderJoinStyle: 'round',
-                    hoverOffset: 15
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -60,23 +55,15 @@ export const chartManager = {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            padding: 15,
+                            padding: 20,
                             usePointStyle: true,
                             pointStyle: 'circle',
                             font: {
-                                size: 11,
-                                weight: '500'
-                            },
-                            color: '#343a40'
+                                size: 12
+                            }
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#023199',
-                        bodyColor: '#333',
-                        borderColor: 'rgba(2, 49, 153, 0.1)',
-                        borderWidth: 1,
-                        boxPadding: 5,
                         callbacks: {
                             label: function(context) {
                                 const label = context.label || '';
@@ -93,45 +80,7 @@ export const chartManager = {
                     animateRotate: true,
                     duration: 1000
                 }
-            },
-            plugins: [{
-                id: 'doughnutCenterText',
-                beforeDraw: function(chart) {
-                    if (chart.config.type === 'doughnut') {
-                        const width = chart.width;
-                        const height = chart.height;
-                        const ctx = chart.ctx;
-                        
-                        ctx.restore();
-                        const fontSize = (height / 150).toFixed(2);
-                        ctx.font = `800 ${fontSize}em 'Segoe UI', sans-serif`;
-                        ctx.textBaseline = 'middle';
-                        
-                        const text = total.toLocaleString();
-                        const textX = Math.round((width - ctx.measureText(text).width) / 2);
-                        const textY = height / 2 - 10;
-                        
-                        // Background gradient
-                        const gradient = ctx.createLinearGradient(0, 0, width, 0);
-                        gradient.addColorStop(0, '#023199');
-                        gradient.addColorStop(1, '#1a4ab1');
-                        
-                        ctx.fillStyle = gradient;
-                        ctx.fillText(text, textX, textY);
-                        
-                        // Subtitle
-                        ctx.font = `500 ${fontSize/2}em 'Segoe UI', sans-serif`;
-                        const subText = 'Total';
-                        const subTextX = Math.round((width - ctx.measureText(subText).width) / 2);
-                        const subTextY = height / 2 + 15;
-                        
-                        ctx.fillStyle = '#6c757d';
-                        ctx.fillText(subText, subTextX, subTextY);
-                        
-                        ctx.save();
-                    }
-                }
-            }]
+            }
         });
     },
 
@@ -140,8 +89,6 @@ export const chartManager = {
         const berobatCount = dataService.getFilteredBerobat().length;
         const kecelakaanCount = dataService.getFilteredKecelakaan().length;
         const konsultasiCount = dataService.getFilteredKonsultasi().length;
-        
-        const total = berobatCount + kecelakaanCount + konsultasiCount;
         
         if (this.visitTypeChart) this.visitTypeChart.destroy();
         
@@ -161,8 +108,7 @@ export const chartManager = {
                         'rgba(255, 99, 132, 1)',
                         'rgba(54, 162, 235, 1)'
                     ],
-                    borderWidth: 2,
-                    hoverOffset: 15
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -172,22 +118,15 @@ export const chartManager = {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            padding: 15,
+                            padding: 20,
                             usePointStyle: true,
                             pointStyle: 'circle',
                             font: {
-                                size: 11,
-                                weight: '500'
-                            },
-                            color: '#343a40'
+                                size: 12
+                            }
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#023199',
-                        bodyColor: '#333',
-                        borderColor: 'rgba(2, 49, 153, 0.1)',
-                        borderWidth: 1,
                         callbacks: {
                             label: function(context) {
                                 const label = context.label || '';
@@ -204,36 +143,7 @@ export const chartManager = {
                     animateRotate: true,
                     duration: 1000
                 }
-            },
-            plugins: [{
-                id: 'pieCenterText',
-                beforeDraw: function(chart) {
-                    if (chart.config.type === 'pie') {
-                        const width = chart.width;
-                        const height = chart.height;
-                        const ctx = chart.ctx;
-                        
-                        ctx.restore();
-                        const fontSize = (height / 150).toFixed(2);
-                        ctx.font = `800 ${fontSize}em 'Segoe UI', sans-serif`;
-                        ctx.textBaseline = 'middle';
-                        
-                        const text = total.toLocaleString();
-                        const textX = Math.round((width - ctx.measureText(text).width) / 2);
-                        const textY = height / 2;
-                        
-                        // Background gradient
-                        const gradient = ctx.createLinearGradient(0, 0, width, 0);
-                        gradient.addColorStop(0, '#023199');
-                        gradient.addColorStop(1, '#1a4ab1');
-                        
-                        ctx.fillStyle = gradient;
-                        ctx.fillText(text, textX, textY);
-                        
-                        ctx.save();
-                    }
-                }
-            }]
+            }
         });
     },
 
@@ -277,35 +187,18 @@ export const chartManager = {
         // Hancurkan chart lama jika ada
         this.destroyChart(canvasId);
         
-        // Buat gradient
-        const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, color + 'CC');
-        gradient.addColorStop(1, color + '33');
-        
-        // Tentukan warna teks berdasarkan kecerahan warna background
-        const getTextColor = (bgColor) => {
-            // Untuk warna hijau (#28a745), merah (#dc3545), biru (#17a2b8)
-            // Gunakan warna putih untuk kontras
-            return '#ffffff';
-        };
-        
-        const textColor = getTextColor(color);
-        
-        // Buat chart baru
+        // Buat chart baru dengan styling default
         const chartConfig = {
             type: 'bar',
             data: {
                 labels: BULAN_NAMES,
                 datasets: [{
-                    label: `Jumlah ${label}`,
+                    label: label,
                     data: monthlyCounts,
-                    backgroundColor: gradient,
+                    backgroundColor: color + '80', // 50% opacity
                     borderColor: color,
                     borderWidth: 1,
-                    borderRadius: 6,
-                    borderSkipped: false,
-                    barPercentage: 0.8,
-                    categoryPercentage: 0.9
+                    borderRadius: 4
                 }]
             },
             options: {
@@ -314,116 +207,25 @@ export const chartManager = {
                 plugins: {
                     legend: {
                         display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#023199',
-                        bodyColor: '#333',
-                        borderColor: 'rgba(2, 49, 153, 0.1)',
-                        borderWidth: 1,
-                        callbacks: {
-                            title: function(tooltipItems) {
-                                return BULAN_NAMES[tooltipItems[0].dataIndex];
-                            },
-                            label: function(context) {
-                                return `Jumlah: ${context.parsed.y}`;
-                            }
-                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
                             drawBorder: false
                         },
                         ticks: {
-                            color: '#6c757d',
-                            font: {
-                                size: 11
-                            },
-                            stepSize: 1,
-                            precision: 0
-                        },
-                        title: {
-                            display: true,
-                            text: 'Jumlah',
-                            color: '#343a40',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            }
+                            stepSize: 1
                         }
                     },
                     x: {
                         grid: {
-                            display: false,
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                            font: {
-                                size: 11
-                            },
-                            maxRotation: 45,
-                            minRotation: 45
-                        },
-                        title: {
-                            display: true,
-                            text: 'Bulan',
-                            color: '#343a40',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            }
+                            display: false
                         }
                     }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
                 }
-            },
-            plugins: [{
-                id: 'barLabels',
-                afterDatasetsDraw: function(chart) {
-                    const ctx = chart.ctx;
-                    const meta = chart.getDatasetMeta(0);
-                    
-                    ctx.save();
-                    ctx.fillStyle = textColor;
-                    ctx.font = 'bold 12px "Segoe UI", sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    meta.data.forEach((bar, index) => {
-                        const value = chart.data.datasets[0].data[index];
-                        if (value > 0) {
-                            const x = bar.x;
-                            const y = bar.y;
-                            const barHeight = bar.height;
-                            
-                            // Cek apakah bar cukup tinggi untuk menampilkan teks di dalamnya
-                            if (barHeight > 20) {
-                                // Jika bar cukup tinggi, letakkan teks di tengah bar
-                                const textY = y - (barHeight / 2) + 1;
-                                ctx.fillText(value, x, textY);
-                            } else {
-                                // Jika bar terlalu pendek, letakkan teks di atas bar
-                                ctx.textBaseline = 'bottom';
-                                ctx.fillText(value, x, bar.y - 3);
-                            }
-                        }
-                    });
-                    
-                    ctx.restore();
-                }
-            }]
+            }
         };
         
         const newChart = new Chart(ctx, chartConfig);
@@ -459,33 +261,18 @@ export const chartManager = {
         // Hancurkan chart lama jika ada
         this.destroyChart(canvasId);
         
-        // Buat gradient
-        const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, color + 'CC');
-        gradient.addColorStop(1, color + '33');
-        
-        // Tentukan warna teks
-        const getTextColor = (bgColor) => {
-            return '#ffffff'; // Putih untuk kontras dengan warna-warna cerah
-        };
-        
-        const textColor = getTextColor(color);
-        
-        // Buat chart baru
+        // Buat chart baru dengan styling default
         const chartConfig = {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: `Jumlah ${label}`,
+                    label: label,
                     data: counts,
-                    backgroundColor: gradient,
+                    backgroundColor: color + '80', // 50% opacity
                     borderColor: color,
                     borderWidth: 1,
-                    borderRadius: 6,
-                    borderSkipped: false,
-                    barPercentage: 0.7,
-                    categoryPercentage: 0.8
+                    borderRadius: 4
                 }]
             },
             options: {
@@ -494,115 +281,28 @@ export const chartManager = {
                 plugins: {
                     legend: {
                         display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#023199',
-                        bodyColor: '#333',
-                        borderColor: 'rgba(2, 49, 153, 0.1)',
-                        borderWidth: 1,
-                        callbacks: {
-                            title: function(tooltipItems) {
-                                return tooltipItems[0].label;
-                            },
-                            label: function(context) {
-                                return `Jumlah: ${context.parsed.y}`;
-                            }
-                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
                             drawBorder: false
                         },
                         ticks: {
-                            color: '#6c757d',
-                            font: {
-                                size: 11
-                            },
                             stepSize: 1
-                        },
-                        title: {
-                            display: true,
-                            text: 'Jumlah',
-                            color: '#343a40',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            }
                         }
                     },
                     x: {
                         grid: {
-                            display: false,
-                            drawBorder: false
+                            display: false
                         },
                         ticks: {
-                            color: '#6c757d',
-                            font: {
-                                size: 11
-                            },
-                            maxRotation: 45,
-                            minRotation: 45
-                        },
-                        title: {
-                            display: true,
-                            text: 'Departemen',
-                            color: '#343a40',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            }
+                            maxRotation: 45
                         }
                     }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
                 }
-            },
-            plugins: [{
-                id: 'barLabels',
-                afterDatasetsDraw: function(chart) {
-                    const ctx = chart.ctx;
-                    const meta = chart.getDatasetMeta(0);
-                    
-                    ctx.save();
-                    ctx.fillStyle = textColor;
-                    ctx.font = 'bold 12px "Segoe UI", sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    meta.data.forEach((bar, index) => {
-                        const value = chart.data.datasets[0].data[index];
-                        if (value > 0) {
-                            const x = bar.x;
-                            const y = bar.y;
-                            const barHeight = bar.height;
-                            
-                            // Cek apakah bar cukup tinggi untuk menampilkan teks di dalamnya
-                            if (barHeight > 20) {
-                                // Jika bar cukup tinggi, letakkan teks di tengah bar
-                                const textY = y - (barHeight / 2) + 1;
-                                ctx.fillText(value, x, textY);
-                            } else {
-                                // Jika bar terlalu pendek, letakkan teks di atas bar
-                                ctx.textBaseline = 'bottom';
-                                ctx.fillText(value, x, bar.y - 3);
-                            }
-                        }
-                    });
-                    
-                    ctx.restore();
-                }
-            }]
+            }
         };
         
         const newChart = new Chart(ctx, chartConfig);
