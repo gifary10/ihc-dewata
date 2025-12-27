@@ -1,6 +1,7 @@
 import { dataService } from './dataService.js';
 import { BULAN_NAMES } from './config.js';
 import { utils } from './utils.js';
+import { chartManager } from './chartManager.js';
 
 export const pdfGenerator = {
     async generatePDF() {
@@ -9,7 +10,8 @@ export const pdfGenerator = {
                 window.loadingManager.show('Menyiapkan laporan PDF...');
             }
 
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Tunggu sedikit untuk memastikan semua chart selesai dirender
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             const currentDate = new Date();
             const formattedDate = utils.formatDate(currentDate);
@@ -35,7 +37,35 @@ export const pdfGenerator = {
                 html2canvas: { 
                     scale: 2,
                     useCORS: true,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    onclone: function(clonedDoc) {
+                        // Pastikan semua elemen terlihat
+                        clonedDoc.body.style.visibility = 'visible';
+                        clonedDoc.body.style.opacity = '1';
+                        
+                        // Update teks statistik di cloned document
+                        const stats = pdfGenerator.calculateStatistics();
+                        const topPenyakit = pdfGenerator.calculateTopPenyakit();
+                        const topObat = pdfGenerator.calculateTopObat();
+                        const skdData = pdfGenerator.calculateSKDData();
+                        
+                        // Update konten statistik
+                        const statElements = {
+                            'total-kunjungan': stats.totalKunjungan,
+                            'berobat-count': stats.berobatCount,
+                            'kecelakaan-count': stats.kecelakaanCount,
+                            'konsultasi-count': stats.konsultasiCount,
+                            'total-skd': stats.totalSKD
+                        };
+                        
+                        for (const [id, value] of Object.entries(statElements)) {
+                            const elem = clonedDoc.getElementById(id);
+                            if (elem) {
+                                elem.textContent = value.toLocaleString();
+                            }
+                        }
+                    }
                 },
                 jsPDF: { 
                     unit: 'mm', 
@@ -44,12 +74,16 @@ export const pdfGenerator = {
                 }
             };
 
+            console.log('Generating PDF with options:', options);
+            
+            // Generate PDF
             await html2pdf().set(options).from(pdfContent).save();
 
             if (window.loadingManager) {
                 setTimeout(() => window.loadingManager.hide(), 300);
             }
 
+            // Bersihkan elemen setelah selesai
             setTimeout(() => {
                 if (pdfContent.parentNode) {
                     pdfContent.parentNode.removeChild(pdfContent);
@@ -71,34 +105,40 @@ export const pdfGenerator = {
 
     createPDFContent(namaPerusahaan, judulBulan, currentDate) {
         const pdfDiv = document.createElement('div');
+        pdfDiv.id = 'pdf-content-container';
         pdfDiv.style.cssText = `
             font-family: 'Arial', 'Helvetica', sans-serif;
             color: #333;
-            max-width: 210mm;
+            width: 210mm;
             margin: 0 auto;
             background: white;
             padding: 20px;
+            box-sizing: border-box;
+            visibility: visible;
+            opacity: 1;
         `;
 
-        pdfDiv.innerHTML = this.generatePDFHTML(namaPerusahaan, judulBulan, currentDate);
+        const stats = this.calculateStatistics();
+        const topPenyakit = this.calculateTopPenyakit();
+        const topObat = this.calculateTopObat();
+        const skdData = this.calculateSKDData();
         
-        pdfDiv.style.position = 'fixed';
+        pdfDiv.innerHTML = this.generatePDFHTML(stats, topPenyakit, topObat, skdData, namaPerusahaan, judulBulan, currentDate);
+        
+        // Sembunyikan sementara sebelum rendering
+        pdfDiv.style.position = 'absolute';
         pdfDiv.style.left = '-9999px';
         pdfDiv.style.top = '0';
+        pdfDiv.style.width = '210mm';
         
         document.body.appendChild(pdfDiv);
         
         return pdfDiv;
     },
 
-    generatePDFHTML(namaPerusahaan, judulBulan, currentDate) {
-        const stats = this.calculateStatistics();
-        const topPenyakit = this.calculateTopPenyakit();
-        const topObat = this.calculateTopObat();
-        const skdData = this.calculateSKDData();
-        
+    generatePDFHTML(stats, topPenyakit, topObat, skdData, namaPerusahaan, judulBulan, currentDate) {
         return `
-            <div class="pdf-content">
+            <div class="pdf-content" style="width: 100%;">
                 <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #023199; padding-bottom: 20px;">
                     <h1 style="color: #023199; font-size: 24px; margin-bottom: 10px;">LAPORAN IHC</h1>
                     ${judulBulan ? `<h2 style="color: #666; font-size: 18px; margin-bottom: 15px;">${judulBulan}</h2>` : ''}
@@ -112,50 +152,66 @@ export const pdfGenerator = {
                     <h3 style="color: #023199; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
                         Ringkasan Data
                     </h3>
-                    <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px;">
                         <tr style="background-color: #f8f9fa;">
-                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; width: 70%;">Total Kunjungan</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #023199;">${stats.totalKunjungan.toLocaleString()}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Total Kunjungan</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #023199;" id="total-kunjungan">
+                                ${stats.totalKunjungan.toLocaleString()}
+                            </td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd;">Kunjungan Berobat</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${stats.berobatCount.toLocaleString()} (${(stats.berobatCount / stats.totalKunjungan * 100).toFixed(1)}%)</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Kunjungan Berobat</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;" id="berobat-count">
+                                ${stats.berobatCount.toLocaleString()} (${stats.totalKunjungan > 0 ? ((stats.berobatCount / stats.totalKunjungan * 100).toFixed(1)) : '0.0'}%)
+                            </td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd;">Kecelakaan Kerja</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${stats.kecelakaanCount.toLocaleString()} (${(stats.kecelakaanCount / stats.totalKunjungan * 100).toFixed(1)}%)</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Kecelakaan Kerja</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;" id="kecelakaan-count">
+                                ${stats.kecelakaanCount.toLocaleString()} (${stats.totalKunjungan > 0 ? ((stats.kecelakaanCount / stats.totalKunjungan * 100).toFixed(1)) : '0.0'}%)
+                            </td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd;">Konsultasi</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${stats.konsultasiCount.toLocaleString()} (${(stats.konsultasiCount / stats.totalKunjungan * 100).toFixed(1)}%)</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Konsultasi</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;" id="konsultasi-count">
+                                ${stats.konsultasiCount.toLocaleString()} (${stats.totalKunjungan > 0 ? ((stats.konsultasiCount / stats.totalKunjungan * 100).toFixed(1)) : '0.0'}%)
+                            </td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd;">Total SKD Dikeluarkan</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${stats.totalSKD.toLocaleString()} (${(stats.totalSKD / stats.berobatCount * 100).toFixed(1)}%)</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Total SKD Dikeluarkan</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;" id="total-skd">
+                                ${stats.totalSKD.toLocaleString()} (${stats.berobatCount > 0 ? ((stats.totalSKD / stats.berobatCount * 100).toFixed(1)) : '0.0'}%)
+                            </td>
                         </tr>
                     </table>
                 </div>
 
-                <div style="margin-bottom: 30px;">
+                ${topPenyakit.length > 0 ? `
+                <div style="margin-bottom: 30px; page-break-inside: avoid;">
                     <h3 style="color: #023199; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
                         Top 10 Penyakit / Diagnosa
                     </h3>
                     ${this.generateTopPenyakitTable(topPenyakit)}
                 </div>
+                ` : ''}
 
-                <div style="margin-bottom: 30px;">
+                ${topObat.length > 0 ? `
+                <div style="margin-bottom: 30px; page-break-inside: avoid;">
                     <h3 style="color: #023199; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
                         Top 10 Obat Terbanyak
                     </h3>
                     ${this.generateTopObatTable(topObat)}
                 </div>
+                ` : ''}
 
-                <div style="margin-bottom: 30px;">
+                ${skdData.length > 0 ? `
+                <div style="margin-bottom: 30px; page-break-inside: avoid;">
                     <h3 style="color: #023199; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
                         Analisis SKD per Departemen
                     </h3>
                     ${this.generateSKDTable(skdData)}
                 </div>
+                ` : ''}
 
                 <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 11px;">
                     <p>© 2025 In House Clinic Management System • ${currentDate} • Laporan dibuat otomatis dari Dashboard IHC</p>
@@ -170,12 +226,12 @@ export const pdfGenerator = {
         }
 
         let tableHTML = `
-            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 11px;">
                 <thead>
                     <tr style="background-color: #023199; color: white;">
-                        <th style="padding: 10px; text-align: left; width: 10%;">No</th>
-                        <th style="padding: 10px; text-align: left; width: 70%;">Penyakit / Diagnosa</th>
-                        <th style="padding: 10px; text-align: right; width: 20%;">Jumlah Kasus</th>
+                        <th style="padding: 8px; text-align: left; width: 10%;">No</th>
+                        <th style="padding: 8px; text-align: left; width: 70%;">Penyakit / Diagnosa</th>
+                        <th style="padding: 8px; text-align: right; width: 20%;">Jumlah Kasus</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -185,9 +241,9 @@ export const pdfGenerator = {
             const rowColor = index % 2 === 0 ? '#f8f9fa' : 'white';
             tableHTML += `
                 <tr style="background-color: ${rowColor};">
-                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${index + 1}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${this.truncateText(item.penyakit, 60)}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #023199;">
+                    <td style="padding: 6px; border: 1px solid #ddd; font-weight: bold;">${index + 1}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd;">${this.truncateText(item.penyakit, 60)}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #023199;">
                         ${item.count.toLocaleString()}
                     </td>
                 </tr>
@@ -208,12 +264,12 @@ export const pdfGenerator = {
         }
 
         let tableHTML = `
-            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 11px;">
                 <thead>
                     <tr style="background-color: #17a2b8; color: white;">
-                        <th style="padding: 10px; text-align: left; width: 10%;">No</th>
-                        <th style="padding: 10px; text-align: left; width: 70%;">Nama Obat</th>
-                        <th style="padding: 10px; text-align: right; width: 20%;">Jumlah Resep</th>
+                        <th style="padding: 8px; text-align: left; width: 10%;">No</th>
+                        <th style="padding: 8px; text-align: left; width: 70%;">Nama Obat</th>
+                        <th style="padding: 8px; text-align: right; width: 20%;">Jumlah Resep</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -223,9 +279,9 @@ export const pdfGenerator = {
             const rowColor = index % 2 === 0 ? '#f8f9fa' : 'white';
             tableHTML += `
                 <tr style="background-color: ${rowColor};">
-                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${index + 1}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${this.truncateText(item.obat, 60)}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #17a2b8;">
+                    <td style="padding: 6px; border: 1px solid #ddd; font-weight: bold;">${index + 1}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd;">${this.truncateText(item.obat, 60)}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #17a2b8;">
                         ${item.count.toLocaleString()}
                     </td>
                 </tr>
@@ -246,13 +302,13 @@ export const pdfGenerator = {
         }
 
         let tableHTML = `
-            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 11px;">
                 <thead>
                     <tr style="background-color: #28a745; color: white;">
-                        <th style="padding: 10px; text-align: left;">Departemen</th>
-                        <th style="padding: 10px; text-align: center;">Total</th>
-                        <th style="padding: 10px; text-align: center;">SKD</th>
-                        <th style="padding: 10px; text-align: center;">% SKD</th>
+                        <th style="padding: 8px; text-align: left;">Departemen</th>
+                        <th style="padding: 8px; text-align: center;">Total</th>
+                        <th style="padding: 8px; text-align: center;">SKD</th>
+                        <th style="padding: 8px; text-align: center;">% SKD</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -260,14 +316,15 @@ export const pdfGenerator = {
 
         skdData.slice(0, 10).forEach((item, index) => {
             const rowColor = index % 2 === 0 ? '#f8f9fa' : 'white';
+            const percentage = parseFloat(item.percentage);
             tableHTML += `
                 <tr style="background-color: ${rowColor};">
-                    <td style="padding: 8px; border: 1px solid #ddd;">${this.truncateText(item.dept, 30)}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${item.total}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: #28a745; font-weight: bold;">${item.skd}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                    <td style="padding: 6px; border: 1px solid #ddd;">${this.truncateText(item.dept, 30)}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${item.total}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center; color: #28a745; font-weight: bold;">${item.skd}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">
                         <div style="width: 100%; background-color: #e9ecef; border-radius: 3px; height: 6px; margin-bottom: 3px;">
-                            <div style="width: ${Math.min(item.percentage, 100)}%; height: 100%; background-color: #28a745; border-radius: 3px;"></div>
+                            <div style="width: ${Math.min(percentage, 100)}%; height: 100%; background-color: #28a745; border-radius: 3px;"></div>
                         </div>
                         <div style="font-size: 10px; color: #666;">${item.percentage}%</div>
                     </td>
@@ -338,7 +395,7 @@ export const pdfGenerator = {
         
         dataService.getFilteredBerobat().forEach(d => {
             const diagnosa = d['Diagnosa'] || d['Keterangan Diagnosa'] || 'Tidak Diketahui';
-            if (diagnosa && diagnosa !== '-') {
+            if (diagnosa && diagnosa !== '-' && diagnosa.trim() !== '') {
                 penyakitCounts[diagnosa] = (penyakitCounts[diagnosa] || 0) + 1;
             }
         });
@@ -354,10 +411,10 @@ export const pdfGenerator = {
         
         dataService.getFilteredBerobat().forEach(d => {
             const obat = d['Nama Obat'] || 'Tidak Diketahui';
-            if (obat && obat !== '-') {
+            if (obat && obat !== '-' && obat.trim() !== '') {
                 const obatList = obat.split(',').map(o => o.trim());
                 obatList.forEach(o => {
-                    if (o) {
+                    if (o && o.trim() !== '') {
                         obatCounts[o] = (obatCounts[o] || 0) + 1;
                     }
                 });
@@ -396,6 +453,6 @@ export const pdfGenerator = {
         if (parts.length > 0) fileName += '_' + parts.join('_');
         fileName += '_' + timestamp + '.pdf';
         
-        return fileName.replace(/[^a-zA-Z0-9_\-.()[\]]/g, '_');
+        return fileName;
     }
 };

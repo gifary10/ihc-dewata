@@ -15,11 +15,11 @@ export const dataService = {
             }
             const data = await res.json();
             
-            // Validasi struktur data
+            // Validasi dan sanitize data
             this.rawData = {
-                Berobat: Array.isArray(data.Berobat) ? data.Berobat : [],
-                Kecelakaan: Array.isArray(data.Kecelakaan) ? data.Kecelakaan : [],
-                Konsultasi: Array.isArray(data.Konsultasi) ? data.Konsultasi : []
+                Berobat: this.sanitizeData(Array.isArray(data.Berobat) ? data.Berobat : []),
+                Kecelakaan: this.sanitizeData(Array.isArray(data.Kecelakaan) ? data.Kecelakaan : []),
+                Konsultasi: this.sanitizeData(Array.isArray(data.Konsultasi) ? data.Konsultasi : [])
             };
             
             console.log("Data loaded successfully:", {
@@ -33,6 +33,20 @@ export const dataService = {
             console.error("Error loading data:", error);
             throw new Error("Gagal memuat data. Silakan coba lagi.");
         }
+    },
+
+    // Fungsi untuk sanitize data
+    sanitizeData(dataArray) {
+        return dataArray.map(item => {
+            const sanitized = {};
+            for (const key in item) {
+                if (item.hasOwnProperty(key)) {
+                    // Konversi nilai null/undefined ke string kosong
+                    sanitized[key] = item[key] === null || item[key] === undefined ? '' : item[key];
+                }
+            }
+            return sanitized;
+        });
     },
 
     getAllData() {

@@ -100,15 +100,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 function setupEventListeners() {
     const pdfButton = document.getElementById('btnDownloadPDF');
     if (pdfButton) {
-        pdfButton.addEventListener('click', async () => {
-            try {
-                const { pdfGenerator } = await import('./pdfGenerator.js');
-                await pdfGenerator.generatePDF();
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                utils.showError('Gagal membuat laporan PDF: ' + error.message);
-            }
-        });
+        pdfButton.addEventListener('click', handlePDFDownload);
     }
     
     let filterTimeout;
@@ -143,6 +135,27 @@ function setupEventListeners() {
             element.addEventListener('change', handleFilterChange);
         }
     });
+}
+
+async function handlePDFDownload() {
+    try {
+        // Load PDF generator secara dinamis
+        const { pdfGenerator } = await import('./pdfGenerator.js');
+        
+        // Pastikan data sudah di-update sebelum generate PDF
+        loadingManager.show('Menyiapkan laporan PDF...');
+        
+        // Tunggu sedikit untuk memastikan semua data siap
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Generate PDF
+        await pdfGenerator.generatePDF();
+        
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        utils.showError('Gagal membuat laporan PDF: ' + error.message);
+        loadingManager.hide();
+    }
 }
 
 let refreshInterval;
@@ -180,8 +193,11 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
+// Export untuk debugging
 window.loadingManager = loadingManager;
 window.dataService = dataService;
 window.uiManager = uiManager;
+window.chartManager = chartManager;
+window.tableManager = tableManager;
 
 export { loadingManager };
