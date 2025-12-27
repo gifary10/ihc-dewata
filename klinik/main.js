@@ -1,31 +1,12 @@
 // Main entry point for the dashboard application
-import { dataService } from './dataService.js';
-import { uiManager } from './uiManager.js';
-import { utils } from './utils.js';
-import { chartManager } from './chartManager.js';
-import { tableManager } from './tableManager.js';
-import { filterManager } from './filterManager.js';
-import { pdfGenerator } from './pdfGenerator.js';
+import { dataService } from './modules/dataService.js';
+import { uiManager } from './modules/uiManager.js';
+import { utils } from './modules/utils.js';
 
 class LoadingManager {
     constructor() {
         this.overlay = document.getElementById('loadingOverlay');
         this.loadingCount = 0;
-        
-        if (!this.overlay) {
-            console.error('Loading overlay element not found!');
-            this.overlay = document.createElement('div');
-            this.overlay.id = 'loadingOverlay';
-            this.overlay.className = 'loading-overlay hidden';
-            this.overlay.innerHTML = `
-                <div class="spinner-container">
-                    <div class="spinner"></div>
-                    <div class="loading-text">Memuat Data</div>
-                    <div class="loading-subtext">Silakan tunggu...</div>
-                </div>
-            `;
-            document.body.appendChild(this.overlay);
-        }
     }
 
     show(message = 'Memuat Data') {
@@ -59,58 +40,95 @@ class LoadingManager {
             loadingText.textContent = message;
         }
     }
+
+    showMiniOnButton(buttonId, show = true) {
+        const button = document.getElementById(buttonId);
+        if (!button) return;
+
+        if (show) {
+            if (!button.querySelector('.mini-loading')) {
+                const spinner = document.createElement('span');
+                spinner.className = 'mini-loading';
+                button.appendChild(spinner);
+                button.disabled = true;
+            }
+        } else {
+            const spinner = button.querySelector('.mini-loading');
+            if (spinner) {
+                spinner.remove();
+                button.disabled = false;
+            }
+        }
+    }
 }
 
+// Buat instance LoadingManager
 const loadingManager = new LoadingManager();
 
 // ================= INISIALISASI =================
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        console.log('Aplikasi dimulai...');
-        
+        // Set tanggal saat ini
         const now = new Date();
-        const currentDateElement = document.getElementById('currentDate');
-        if (currentDateElement) {
-            currentDateElement.textContent = utils.formatDate(now);
-        }
+        document.getElementById('currentDate').textContent = utils.formatDate(now);
         
-        const currentYearElement = document.getElementById('currentYear');
-        if (currentYearElement) {
-            currentYearElement.textContent = now.getFullYear();
-        }
-        
+        // Tampilkan loading overlay
         loadingManager.show('Memuat data dari server...');
         
-        await dataService.loadData();
-        console.log('Data berhasil dimuat');
+        // Test connection first
+        console.log("Testing connection to Google Sheets API...");
+        const testResult = await dataService.testConnection();
         
-        uiManager.initFilters();
-        console.log('Filter diinisialisasi');
-        
-        setupEventListeners();
-        console.log('Event listeners dipasang');
-        
-        await uiManager.applyFilter();
-        console.log('Filter diterapkan');
-        
-        loadingManager.hide();
-        console.log('Aplikasi siap');
-        
-        startAutoRefresh();
+        if (testResult.success) {
+            console.log("Connection successful, loading data...");
+            // Load data
+            await dataService.loadData();
+            
+            // Setup filters
+            uiManager.initFilters();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Apply initial filter
+            await uiManager.applyFilter();
+            
+            // Sembunyikan loading
+            loadingManager.hide();
+            
+            // Show success message
+            console.log("Dashboard loaded successfully with Google Sheets data");
+        } else {
+            throw new Error("Koneksi ke server gagal. Periksa koneksi internet Anda.");
+        }
         
     } catch (error) {
-        console.error('Initialization error:', error);
-        utils.showError(`Terjadi kesalahan saat memulai aplikasi: ${error.message}`);
+        console.error("Initialization error:", error);
+        utils.showError(error.message);
         loadingManager.hide();
+        
+        // Show retry button
+        showRetryButton();
     }
 });
 
 function setupEventListeners() {
-    const pdfButton = document.getElementById('btnDownloadPDF');
-    if (pdfButton) {
-        pdfButton.addEventListener('click', handlePDFDownload);
-    }
+    // Download PDF button
+    document.getElementById('btnDownloadPDF').addEventListener('click', async () => {
+        loadingManager.showMiniOnButton('btnDownloadPDF', true);
+        try {
+            // Import pdfGenerator
+            const { pdfGenerator } = await import('./modules/pdfGenerator.js');
+            await pdfGenerator.generatePDF();
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            utils.showError('Gagal membuat laporan PDF: ' + error.message);
+        } finally {
+            loadingManager.showMiniOnButton('btnDownloadPDF', false);
+        }
+    });
     
+    // Dropdown change listeners dengan debouncing
     let filterTimeout;
     
     const handleFilterChange = async () => {
@@ -121,140 +139,140 @@ function setupEventListeners() {
             try {
                 await uiManager.applyFilter();
             } catch (error) {
-                console.error('Filter error:', error);
-                utils.showError('Gagal menerapkan filter: ' + error.message);
+                console.error("Filter error:", error);
+                utils.showError("Gagal menerapkan filter: " + error.message);
             } finally {
                 loadingManager.hide();
             }
-        }, 500);
+        }, 300);
     };
     
-    const filterPerusahaan = document.getElementById('filterPerusahaan');
-    if (filterPerusahaan) {
-        filterPerusahaan.addEventListener('change', () => {
-            uiManager.updateDepartemenByPerusahaan();
-            handleFilterChange();
-        });
-    }
-    
-    ['filterDepartemen', 'filterTahun', 'filterBulan'].forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.addEventListener('change', handleFilterChange);
-        }
+    // Perusahaan dropdown change
+    document.getElementById('filterPerusahaan').addEventListener('change', () => {
+        uiManager.updateDepartemenByPerusahaan();
+        handleFilterChange();
     });
     
-    // Handle window resize untuk chart
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            if (chartManager) {
-                chartManager.destroyAllCharts();
-                chartManager.updateAllCharts();
-            }
-        }, 250);
-    });
-}
-
-async function handlePDFDownload() {
-    if (window.isGeneratingPDF) return; // ⛔ cegah klik dobel
-
-    window.isGeneratingPDF = true; // 🔒 LOCK PDF
-
-    try {
-        // Pastikan html2pdf sudah dimuat
-        if (typeof html2pdf === 'undefined') {
-            await loadHTML2PDF();
-        }
-
-        // hentikan auto-refresh sementara
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
-            refreshInterval = null;
-        }
-
-        // tunggu DOM & chart stabil
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        // generate PDF
-        await pdfGenerator.generatePDF();
-
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        utils.showError('Gagal membuat laporan PDF: ' + error.message);
-    } finally {
-        window.isGeneratingPDF = false; // 🔓 buka lock
-        startAutoRefresh(); // nyalakan auto-refresh lagi
-    }
-}
-
-// Fungsi untuk memastikan html2pdf dimuat
-function loadHTML2PDF() {
-    return new Promise((resolve, reject) => {
-        if (typeof html2pdf !== 'undefined') {
-            resolve();
-            return;
-        }
+    // Other dropdowns change
+    document.getElementById('filterDepartemen').addEventListener('change', handleFilterChange);
+    document.getElementById('filterTahun').addEventListener('change', handleFilterChange);
+    document.getElementById('filterBulan').addEventListener('change', handleFilterChange);
+    
+    // Add refresh button if not exists
+    if (!document.getElementById('btnRefresh')) {
+        const refreshBtn = document.createElement('button');
+        refreshBtn.id = 'btnRefresh';
+        refreshBtn.className = 'btn btn-info ms-2';
+        refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i> Refresh';
+        refreshBtn.addEventListener('click', handleRefresh);
         
-        // Coba muat ulang script
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-        script.onload = () => {
-            console.log('html2pdf loaded successfully');
-            resolve();
-        };
-        script.onerror = () => {
-            reject(new Error('Gagal memuat library html2pdf'));
-        };
-        document.head.appendChild(script);
+        const pdfBtn = document.getElementById('btnDownloadPDF');
+        pdfBtn.parentNode.appendChild(refreshBtn);
+    }
+}
+
+async function handleRefresh() {
+    loadingManager.show('Memperbarui data...');
+    try {
+        // Test connection first
+        const testResult = await dataService.testConnection();
+        
+        if (testResult.success) {
+            await dataService.loadData();
+            await uiManager.applyFilter();
+            console.log("Data refreshed successfully");
+        } else {
+            throw new Error("Koneksi gagal. Tidak dapat memuat data terbaru.");
+        }
+    } catch (error) {
+        console.error("Refresh error:", error);
+        utils.showError("Gagal memperbarui data: " + error.message);
+    } finally {
+        loadingManager.hide();
+    }
+}
+
+function showRetryButton() {
+    const container = document.querySelector('.container');
+    const retryDiv = document.createElement('div');
+    retryDiv.className = 'alert alert-warning text-center';
+    retryDiv.innerHTML = `
+        <h5 class="alert-heading">Gagal Memuat Data</h5>
+        <p>Terjadi kesalahan saat memuat data dari server.</p>
+        <button id="btnRetry" class="btn btn-primary mt-2">
+            <i class="bi bi-arrow-clockwise me-1"></i> Coba Lagi
+        </button>
+    `;
+    
+    // Remove old retry button if exists
+    const oldRetry = document.getElementById('retryContainer');
+    if (oldRetry) oldRetry.remove();
+    
+    retryDiv.id = 'retryContainer';
+    container.insertBefore(retryDiv, container.firstChild);
+    
+    document.getElementById('btnRetry').addEventListener('click', async () => {
+        loadingManager.show('Mencoba memuat data kembali...');
+        try {
+            const testResult = await dataService.testConnection();
+            if (testResult.success) {
+                await dataService.loadData();
+                await uiManager.applyFilter();
+                retryDiv.remove();
+            } else {
+                throw new Error("Koneksi masih gagal.");
+            }
+        } catch (error) {
+            console.error("Retry failed:", error);
+            utils.showError("Masih gagal: " + error.message);
+        } finally {
+            loadingManager.hide();
+        }
     });
 }
 
+// Auto-refresh data setiap 5 menit
 let refreshInterval;
 function startAutoRefresh() {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
+    if (refreshInterval) clearInterval(refreshInterval);
     
     refreshInterval = setInterval(async () => {
-        if (document.hidden) return;
-        
         try {
-            console.log("Auto-refresh data...");
             loadingManager.show('Memperbarui data...');
             await dataService.loadData();
             await uiManager.applyFilter();
-            console.log("Auto-refresh berhasil");
+            console.log("Auto-refreshing data...");
         } catch (error) {
             console.error("Auto-refresh failed:", error);
         } finally {
             loadingManager.hide();
         }
-    }, 5 * 60 * 1000); // 5 menit
+    }, 5 * 60 * 1000); // 5 minutes
 }
 
+// Start auto-refresh ketika halaman selesai load
+setTimeout(() => {
+    startAutoRefresh();
+}, 10000); // Mulai 10 detik setelah load
+
+// Pause auto-refresh ketika tab tidak aktif
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         if (refreshInterval) {
             clearInterval(refreshInterval);
             refreshInterval = null;
-            console.log('Auto-refresh dihentikan');
+            console.log("Auto-refresh paused");
         }
     } else {
         if (!refreshInterval) {
             startAutoRefresh();
-            console.log('Auto-refresh dimulai ulang');
+            console.log("Auto-refresh resumed");
         }
     }
 });
 
-// Export untuk debugging
+// Export untuk akses global jika diperlukan
 window.loadingManager = loadingManager;
-window.dataService = dataService;
-window.uiManager = uiManager;
-window.chartManager = chartManager;
-window.tableManager = tableManager;
-window.pdfGenerator = pdfGenerator;
 
+// Export untuk testing jika diperlukan
 export { loadingManager };

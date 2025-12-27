@@ -108,52 +108,57 @@ body {
 
 /* ============ HEADER ============ */
 .header {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-sm);
-  z-index: 1000;
-  transition: var(--transition);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 250, 0.98) 100%);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+}
+
+.header:hover {
+    box-shadow: 0 6px 40px rgba(0, 0, 0, 0.12);
 }
 
 .header-content {
-  display: flex;
-  align-items: center;
-  padding: 1rem 2rem;
-  gap: 1.25rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.header-logo {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	margin-left: 1rem;
+    padding: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .header img {
-  height: 60px;
-  width: auto;
-  object-fit: contain;
-  transition: var(--transition);
+    height: 50px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: var(--transition);
 }
 
-.header-title h1 {
-  font-size: 1.5rem;
-  color: var(--primary-color);
-  margin: 0 0 0.25rem 0;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.header img:hover {
+    transform: scale(1.05);
+}
+
+.header-title h4 {
+    font-weight: 800;
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #023199 0%, #1a4ab1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .header-title small {
-  color: var(--secondary-color);
-  font-size: 0.85rem;
-  font-weight: 400;
-  opacity: 0.9;
+    color: var(--secondary-color);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
 }
 
 .dashboard-header {
@@ -351,7 +356,7 @@ body {
     background: linear-gradient(135deg, #218838 0%, #1ba87e 100%);
 }
 
-/* ============ SIMPLIFIED CHART STYLES ============ */
+/* ============ ENHANCED CHART STYLES ============ */
 .chart-container {
     background: white;
     border-radius: var(--border-radius);
@@ -361,6 +366,8 @@ body {
     height: 100%;
     border: 1px solid rgba(0, 0, 0, 0.03);
     transition: var(--transition);
+    position: relative;
+    overflow: hidden;
 }
 
 .chart-container:hover {
@@ -368,34 +375,165 @@ body {
     box-shadow: var(--box-shadow-hover);
 }
 
+.chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--info-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.chart-container:hover::before {
+    opacity: 1;
+}
+
 .chart-title {
     color: var(--dark-color);
     font-weight: 700;
     margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(2, 49, 153, 0.08);
     font-size: 1.1rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    position: relative;
+}
+
+.chart-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
+    border-radius: 2px;
 }
 
 .chart-title i {
     color: var(--primary-color);
     font-size: 1.2rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--info-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Chart canvas container - SIMPLIFIED */
+/* Chart wrapper for better spacing */
+.chart-wrapper {
+    position: relative;
+    height: 250px;
+    padding: 10px 0;
+}
+
+/* Enhanced chart canvas */
 .chart-canvas-container {
     position: relative;
-    height: 300px;
+    height: 100%;
     width: 100%;
 }
 
-/* For specific chart types */
-.bar-chart-container,
-.doughnut-chart-container,
-.pie-chart-container {
+/* Bar chart specific styles */
+.bar-chart-container {
     position: relative;
     height: 300px;
+}
+
+.bar-chart-container .chart-title {
+    margin-bottom: 1rem;
+}
+
+/* Doughnut chart specific styles */
+.doughnut-chart-container {
+    position: relative;
+    height: 250px;
+}
+
+.doughnut-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+.doughnut-total-value {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--info-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 5px;
+}
+
+.doughnut-total-label {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+/* Pie chart specific styles */
+.pie-chart-container {
+    position: relative;
+    height: 250px;
+}
+
+/* Chart loading state */
+.chart-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+    z-index: 10;
+    backdrop-filter: blur(5px);
+}
+
+.chart-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(2, 49, 153, 0.1);
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+
+/* Animation for chart updates */
+@keyframes chartFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chart-updating {
+    animation: chartFadeIn 0.5s ease;
+}
+
+/* Chart gradient backgrounds */
+.chart-gradient-bg {
+    background: linear-gradient(135deg, 
+        rgba(2, 49, 153, 0.05) 0%, 
+        rgba(23, 162, 184, 0.05) 100%);
+    border-radius: var(--border-radius);
+    padding: 5px;
 }
 
 /* ============ TABLES ============ */
@@ -439,6 +577,8 @@ body {
 
 .table-hover tbody tr:hover {
     background-color: rgba(2, 49, 153, 0.02);
+    transform: scale(1.002);
+    transition: var(--transition);
 }
 
 /* ============ BADGES ============ */
@@ -606,28 +746,13 @@ body {
 }
 
 /* ============ FOOTER ============ */
-/* Footer */
 footer {
-  background: linear-gradient(to right, #1a1a1a, #2d2d2d);
-  color: white;
-  margin-top: auto;
-  padding: 1rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-bottom {
-  text-align: center;
-  padding-top: 0.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.footer-bottom p {
-  margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.8;
-  font-weight: 400;
+    margin-top: 3rem;
+    padding: 2rem 0;
+    text-align: center;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* ============ RESPONSIVE ============ */
@@ -676,11 +801,21 @@ footer {
         font-size: 0.9rem;
     }
     
-    .chart-canvas-container,
-    .bar-chart-container,
+    .chart-wrapper {
+        height: 220px;
+    }
+    
+    .bar-chart-container {
+        height: 250px;
+    }
+    
     .doughnut-chart-container,
     .pie-chart-container {
-        height: 250px;
+        height: 220px;
+    }
+    
+    .doughnut-total-value {
+        font-size: 1.5rem;
     }
     
     .custom-legend {
@@ -703,10 +838,11 @@ footer {
         overflow: auto;
     }
     
-    .chart-canvas-container,
-    .bar-chart-container,
-    .doughnut-chart-container,
-    .pie-chart-container {
+    .chart-wrapper {
+        height: 200px;
+    }
+    
+    .bar-chart-container {
         height: 220px;
     }
     
