@@ -53,5 +53,8 @@ export const Formatter = {
             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
         ];
         return bulan[bulanIndex] || '-';
+    },
+    escapeJson: (obj) => {
+        return JSON.stringify(obj).replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 };

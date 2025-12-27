@@ -1,4 +1,3 @@
-// File: modules/uiManager.js
 import { namaPerusahaan } from './config.js';
 import { Formatter } from './utils.js';
 import { PerusahaanManager } from './perusahaanManager.js';
@@ -23,7 +22,7 @@ export const UI = {
                 if (ObatManager && ObatManager.dataObat && ObatManager.dataObat.length > 0) {
                     setTimeout(() => {
                         if (window.EventManager) {
-                            EventManager.populateObatSelect('');
+                            window.EventManager.populateObatSelect('');
                         }
                     }, 100);
                 }
@@ -36,17 +35,27 @@ export const UI = {
     tampilkanModalPerusahaan: () => {
         const modalElement = document.getElementById('modalPerusahaan');
         
+        if (!modalElement) {
+            console.error('Modal perusahaan tidak ditemukan');
+            return;
+        }
+        
+        console.log('Menampilkan modal perusahaan');
+        
+        // Kosongkan dan isi ulang modal
         UI.populatePerusahaanModal();
         
-        if (modalElement) {
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
-        }
+        // Tampilkan modal
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
     },
 
     populatePerusahaanModal: () => {
         const perusahaanList = document.getElementById('perusahaanList');
-        if (!perusahaanList) return;
+        if (!perusahaanList) {
+            console.error('Element perusahaanList tidak ditemukan');
+            return;
+        }
         
         perusahaanList.innerHTML = '';
         
@@ -76,8 +85,42 @@ export const UI = {
                 </div>
                 <small class="text-muted">${perusahaan.departemen.length} departemen</small>
             `;
+            
+            // Tambahkan event listener langsung ke item
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const nama = item.getAttribute('data-nama');
+                console.log('Perusahaan dipilih:', nama);
+                
+                // Update variabel global
+                window.namaPerusahaan = nama;
+                localStorage.setItem('namaPerusahaan', nama);
+                
+                // Update header
+                const perusahaanElement = document.getElementById('namaPerusahaanHeader');
+                if (perusahaanElement) {
+                    perusahaanElement.textContent = nama;
+                }
+                
+                // Tutup modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalPerusahaan'));
+                if (modal) modal.hide();
+                
+                // Tampilkan notifikasi
+                UI.showNotification(`Perusahaan "${nama}" berhasil dipilih!`, 'success');
+                
+                // Refresh data
+                setTimeout(() => {
+                    location.reload(); // Reload halaman untuk update semua komponen
+                }, 500);
+            });
+            
             perusahaanList.appendChild(item);
         });
+        
+        console.log('Modal perusahaan diisi dengan', dataPerusahaan.length, 'item');
     },
 
     populateDepartemenSelects: () => {
@@ -96,28 +139,24 @@ export const UI = {
             return;
         }
         
-        // CARA 1: Gunakan fungsi getSelectedPerusahaanDepartemen()
-        let departemen = PerusahaanManager.getSelectedPerusahaanDepartemen();
-        console.log('Departemen dari getSelectedPerusahaanDepartemen():', departemen);
+        // Cari perusahaan yang sesuai
+        const perusahaan = PerusahaanManager.dataPerusahaan.find(p => 
+            p.nama_perusahaan === namaPerusahaan
+        );
         
-        // CARA 2: Jika masih kosong, cari langsung dari data
-        if (!departemen || departemen.length === 0) {
-            console.log('Mencari departemen secara manual...');
-            const perusahaan = PerusahaanManager.dataPerusahaan.find(p => 
-                p.nama_perusahaan === namaPerusahaan
-            );
-            
-            if (perusahaan && perusahaan.departemen && perusahaan.departemen.length > 0) {
-                departemen = perusahaan.departemen;
-                console.log('Departemen ditemukan secara manual:', departemen);
-            } else {
-                console.error('Perusahaan tidak ditemukan atau tidak memiliki departemen:', namaPerusahaan);
-                UI.updateDepartemenDropdowns([]);
-                return;
-            }
+        if (!perusahaan) {
+            console.error('Perusahaan tidak ditemukan:', namaPerusahaan);
+            UI.updateDepartemenDropdowns([]);
+            return;
         }
         
+        const departemen = perusahaan.departemen || [];
         console.log('Departemen untuk', namaPerusahaan, ':', departemen);
+        
+        if (departemen.length === 0) {
+            console.warn('Perusahaan tidak memiliki departemen');
+        }
+        
         UI.updateDepartemenDropdowns(departemen);
     },
 
@@ -146,54 +185,40 @@ export const UI = {
             selectElement.innerHTML = '';
             
             // Tambahkan option default berdasarkan selector
-            const defaultOption = document.createElement('option');
-            
             if (selector === 'filterDept') {
                 // Untuk filter, gunakan "Semua Departemen"
+                const defaultOption = document.createElement('option');
                 defaultOption.value = '';
                 defaultOption.textContent = 'Semua Departemen';
                 defaultOption.selected = true;
+                selectElement.appendChild(defaultOption);
+                
+                // Untuk filter, kita gunakan semua departemen dari semua perusahaan
+                const allDepartemen = PerusahaanManager.getAllDepartemen();
+                const uniqueDepartemen = [...new Set(allDepartemen)].sort();
+                
+                uniqueDepartemen.forEach(dept => {
+                    const opt = document.createElement('option');
+                    opt.value = dept;
+                    opt.textContent = dept;
+                    if (dept === currentValue) {
+                        opt.selected = true;
+                        defaultOption.selected = false;
+                    }
+                    selectElement.appendChild(opt);
+                });
+                
+                console.log(`Filter departemen diisi dengan ${uniqueDepartemen.length} item`);
             } else {
-                // Untuk form input, gunakan "Pilih Departemen"
+                // Untuk form input, gunakan hanya departemen perusahaan yang dipilih
+                const defaultOption = document.createElement('option');
                 defaultOption.value = '';
                 defaultOption.textContent = 'Pilih Departemen';
                 defaultOption.disabled = true;
                 defaultOption.selected = true;
-            }
-            
-            selectElement.appendChild(defaultOption);
-            
-            // Tambahkan departemen jika ada
-            if (departemen && departemen.length > 0) {
-                if (selector === 'filterDept') {
-                    // Untuk filter, kita gunakan semua departemen dari semua perusahaan
-                    const allDepartemen = PerusahaanManager.getAllDepartemen();
-                    
-                    // Hapus duplikat dan sort
-                    const uniqueDepartemen = [...new Set(allDepartemen)].sort();
-                    
-                    // Clear dan isi ulang dengan semua departemen
-                    selectElement.innerHTML = '';
-                    const filterDefaultOption = document.createElement('option');
-                    filterDefaultOption.value = '';
-                    filterDefaultOption.textContent = 'Semua Departemen';
-                    filterDefaultOption.selected = true;
-                    selectElement.appendChild(filterDefaultOption);
-                    
-                    uniqueDepartemen.forEach(dept => {
-                        const opt = document.createElement('option');
-                        opt.value = dept;
-                        opt.textContent = dept;
-                        if (dept === currentValue) {
-                            opt.selected = true;
-                            filterDefaultOption.selected = false;
-                        }
-                        selectElement.appendChild(opt);
-                    });
-                    
-                    console.log(`Filter departemen diisi dengan ${uniqueDepartemen.length} item`);
-                } else {
-                    // Untuk form input, gunakan hanya departemen perusahaan yang dipilih
+                selectElement.appendChild(defaultOption);
+                
+                if (departemen && departemen.length > 0) {
                     departemen.forEach(dept => {
                         const option = document.createElement('option');
                         option.value = dept;
@@ -208,14 +233,14 @@ export const UI = {
                     });
                     
                     console.log(`Dropdown ${selector} diisi dengan ${departemen.length} departemen`);
+                } else {
+                    const noOption = document.createElement('option');
+                    noOption.value = '';
+                    noOption.textContent = 'Tidak ada departemen tersedia';
+                    noOption.disabled = true;
+                    selectElement.appendChild(noOption);
+                    console.warn(`Tidak ada departemen untuk dropdown ${selector}`);
                 }
-            } else {
-                const noOption = document.createElement('option');
-                noOption.value = '';
-                noOption.textContent = 'Tidak ada departemen tersedia';
-                noOption.disabled = true;
-                selectElement.appendChild(noOption);
-                console.warn(`Tidak ada departemen untuk dropdown ${selector}`);
             }
         });
     },
@@ -392,7 +417,7 @@ export const TableBuilder = {
         const skdStatus = item.perluIstirahat === 'Ya' ? 'Ya' : 'Tidak';
         const hariSKD = item.perluIstirahat === 'Ya' ? item.lamaIstirahat : '0';
         
-        // PERBAIKAN: Row ID harus index + 2 (karena header di baris 1)
+        // Row ID harus index + 2 (karena header di baris 1)
         const rowId = index + 2;
         
         return `
@@ -422,7 +447,7 @@ export const TableBuilder = {
                     <button class="btn btn-sm btn-outline-danger btn-delete-data" 
                             data-row-id="${rowId}" 
                             data-sheet-type="berobat"
-                            data-row-data='${JSON.stringify(item)}'
+                            data-row-data='${JSON.stringify(item).replace(/'/g, "\\'")}'
                             title="Hapus data">
                         <i class="bi bi-trash"></i>
                     </button>
@@ -443,7 +468,7 @@ export const TableBuilder = {
             waktu = split.waktu;
         }
         
-        // PERBAIKAN: Row ID harus index + 2 (karena header di baris 1)
+        // Row ID harus index + 2 (karena header di baris 1)
         const rowId = index + 2;
         
         return `
@@ -462,7 +487,7 @@ export const TableBuilder = {
                     <button class="btn btn-sm btn-outline-danger btn-delete-data" 
                             data-row-id="${rowId}" 
                             data-sheet-type="kecelakaan"
-                            data-row-data='${JSON.stringify(item)}'
+                            data-row-data='${JSON.stringify(item).replace(/'/g, "\\'")}'
                             title="Hapus data">
                         <i class="bi bi-trash"></i>
                     </button>
@@ -483,7 +508,7 @@ export const TableBuilder = {
             waktu = split.waktu;
         }
         
-        // PERBAIKAN: Row ID harus index + 2 (karena header di baris 1)
+        // Row ID harus index + 2 (karena header di baris 1)
         const rowId = index + 2;
         
         return `
@@ -502,7 +527,7 @@ export const TableBuilder = {
                     <button class="btn btn-sm btn-outline-danger btn-delete-data" 
                             data-row-id="${rowId}" 
                             data-sheet-type="konsultasi"
-                            data-row-data='${JSON.stringify(item)}'
+                            data-row-data='${JSON.stringify(item).replace(/'/g, "\\'")}'
                             title="Hapus data">
                         <i class="bi bi-trash"></i>
                     </button>

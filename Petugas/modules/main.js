@@ -1,4 +1,4 @@
-import { CONFIG, namaPerusahaan, googleSheetsConfig } from './config.js';
+import { CONFIG, namaPerusahaan, googleSheetsConfig, setNamaPerusahaan } from './config.js';
 import { GoogleSheetsAPI } from './googleSheets.js';
 import { PerusahaanManager } from './perusahaanManager.js';
 import { ObatManager } from './obatManager.js';
@@ -8,33 +8,47 @@ import { EventManager } from './eventManager.js';
 import { Laporan } from './laporanManager.js';
 import { DeleteManager } from './deleteManager.js';
 
-UI.setupHeaderFooter = () => {
+// Fungsi untuk setup header dan footer
+const setupHeaderFooter = () => {
     const yearElement = document.getElementById('currentYear');
     if (yearElement) {
         yearElement.textContent = new Date().getFullYear();
     }
     
+    // Update header perusahaan
     const updateHeaderPerusahaan = () => {
         const perusahaanElement = document.getElementById('namaPerusahaanHeader');
-        const gantiBtn = document.getElementById('btnGantiPerusahaanHeader');
-        
         if (perusahaanElement) {
             perusahaanElement.textContent = namaPerusahaan || '-';
-        }
-        
-        if (gantiBtn) {
-            gantiBtn.addEventListener('click', UI.tampilkanModalPerusahaan);
         }
     };
     
     updateHeaderPerusahaan();
+    
+    // Setup tombol ganti perusahaan di header
+    const gantiBtn = document.getElementById('btnGantiPerusahaanHeader');
+    if (gantiBtn) {
+        // Hapus event listener lama jika ada
+        const newGantiBtn = gantiBtn.cloneNode(true);
+        gantiBtn.parentNode.replaceChild(newGantiBtn, gantiBtn);
+        
+        // Tambahkan event listener baru
+        newGantiBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Tombol Ganti diklik, membuka modal perusahaan');
+            UI.tampilkanModalPerusahaan();
+        });
+        
+        console.log('Tombol Ganti Perusahaan di header sudah di-setup');
+    }
 };
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
         console.log('Memulai inisialisasi aplikasi...');
         
-        UI.setupHeaderFooter();
+        setupHeaderFooter();
         
         const loadPromises = [
             PerusahaanManager.loadPerusahaanData().catch(err => {
@@ -60,10 +74,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         if (!namaPerusahaan) {
             console.log('Perusahaan belum dipilih, menampilkan modal...');
-            UI.tampilkanModalPerusahaan();
+            // Tunggu sebentar agar DOM selesai render
+            setTimeout(() => {
+                UI.tampilkanModalPerusahaan();
+            }, 500);
         } else {
             console.log('Perusahaan sudah dipilih:', namaPerusahaan);
-            UI.tampilkanNamaPerusahaan();
             
             if (PerusahaanManager.dataPerusahaan && PerusahaanManager.dataPerusahaan.length > 0) {
                 const perusahaanExists = PerusahaanManager.dataPerusahaan.some(
@@ -72,9 +88,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
                 if (!perusahaanExists) {
                     localStorage.removeItem(CONFIG.STORAGE_KEYS.PERUSAHAAN);
+                    setNamaPerusahaan('');
                     setTimeout(() => UI.tampilkanModalPerusahaan(), 500);
                 }
             }
+            
+            UI.tampilkanNamaPerusahaan();
         }
         
         GoogleSheetsAPI.configure(googleSheetsConfig);

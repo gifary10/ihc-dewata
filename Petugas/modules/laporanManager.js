@@ -1,9 +1,11 @@
+// File: laporanManager.js
 import { GoogleSheetsAPI } from './googleSheets.js';
 import { namaPerusahaan } from './config.js';
 import { Formatter } from './utils.js';
 import { TableBuilder } from './uiManager.js';
 import { UI } from './uiManager.js';
 
+// Ekspor objek Laporan
 export const Laporan = {
     async getFilteredData() {
         try {
@@ -270,3 +272,6 @@ export const Laporan = {
         }
     }
 };
+
+// Ekspor default juga jika diperlukan
+export default Laporan;

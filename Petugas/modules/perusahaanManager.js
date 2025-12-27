@@ -5,7 +5,7 @@ export const PerusahaanManager = {
     
     loadPerusahaanData: async () => {
         try {
-            const response = await fetch('../data/data.json');
+            const response = await fetch('data/data.json');
             PerusahaanManager.dataPerusahaan = await response.json();
             console.log('Data perusahaan dimuat:', PerusahaanManager.dataPerusahaan);
             return PerusahaanManager.dataPerusahaan;
@@ -18,14 +18,18 @@ export const PerusahaanManager = {
     
     getDepartemenByPerusahaan: (namaPerusahaan) => {
         console.log('getDepartemenByPerusahaan mencari:', namaPerusahaan);
-        console.log('Data perusahaan yang tersedia:', PerusahaanManager.dataPerusahaan);
+        
+        if (!namaPerusahaan || !PerusahaanManager.dataPerusahaan) {
+            console.log('Nama perusahaan tidak valid atau data belum dimuat');
+            return [];
+        }
         
         const perusahaan = PerusahaanManager.dataPerusahaan.find(
             p => p.nama_perusahaan === namaPerusahaan
         );
         
         console.log('Perusahaan ditemukan:', perusahaan);
-        return perusahaan ? perusahaan.departemen : [];
+        return perusahaan ? (perusahaan.departemen || []) : [];
     },
     
     getSelectedPerusahaanDepartemen: () => {
@@ -48,6 +52,4 @@ export const PerusahaanManager = {
         console.log('Semua departemen unik:', sorted);
         return sorted;
     }
-
 };
-

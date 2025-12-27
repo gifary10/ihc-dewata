@@ -27,8 +27,24 @@ export let googleSheetsConfig = {
 // Setters untuk state
 export function setNamaPerusahaan(nama) {
     namaPerusahaan = nama;
+    localStorage.setItem(CONFIG.STORAGE_KEYS.PERUSAHAAN, nama);
+    
+    // Update header jika ada
+    const perusahaanElement = document.getElementById('namaPerusahaanHeader');
+    if (perusahaanElement) {
+        perusahaanElement.textContent = nama;
+    }
+    
+    console.log('Nama perusahaan diperbarui:', nama);
+    return nama;
 }
 
 export function setGoogleSheetsConfig(config) {
     googleSheetsConfig = { ...googleSheetsConfig, ...config };
+    localStorage.setItem(CONFIG.STORAGE_KEYS.GOOGLE_SHEETS_CONFIG, JSON.stringify(googleSheetsConfig));
+}
+
+// Fungsi helper untuk update nama perusahaan
+export function updateNamaPerusahaan(nama) {
+    return setNamaPerusahaan(nama);
 }

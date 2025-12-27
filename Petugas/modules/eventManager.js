@@ -8,13 +8,18 @@ import { namaPerusahaan } from './config.js';
 
 export const EventManager = {
     setupPerusahaanEvents: () => {
+        // Setup event untuk modal perusahaan
         const modalElement = document.getElementById('modalPerusahaan');
         if (modalElement) {
+            // Refresh data saat modal dibuka
             modalElement.addEventListener('show.bs.modal', () => {
-                UI.populatePerusahaanModal();
+                console.log('Modal perusahaan dibuka');
+                // Tidak perlu memanggil populatePerusahaanModal() lagi karena sudah di handle di UI.tampilkanModalPerusahaan()
             });
             
+            // Setup departemen setelah modal ditutup
             modalElement.addEventListener('hidden.bs.modal', () => {
+                console.log('Modal perusahaan ditutup');
                 if (namaPerusahaan && PerusahaanManager.dataPerusahaan.length > 0) {
                     setTimeout(() => {
                         PerusahaanManager.loadPerusahaanData().then(() => {
@@ -29,32 +34,6 @@ export const EventManager = {
                     }, 300);
                 }
             });
-        }
-        
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.select-perusahaan')) {
-                const button = e.target.closest('.select-perusahaan');
-                const nama = button.getAttribute('data-nama');
-                
-                if (window.Storage) {
-                    window.Storage.simpanPerusahaan(nama);
-                }
-                
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalPerusahaan'));
-                if (modal) modal.hide();
-                UI.showNotification(`Perusahaan "${nama}" berhasil dipilih!`, 'success');
-                
-                setTimeout(() => {
-                    PerusahaanManager.loadPerusahaanData().then(() => {
-                        UI.populateDepartemenSelects();
-                    });
-                }, 100);
-            }
-        });
-        
-        const btnGantiPerusahaan = document.getElementById('btnGantiPerusahaan');
-        if (btnGantiPerusahaan) {
-            btnGantiPerusahaan.addEventListener('click', UI.tampilkanModalPerusahaan);
         }
     },
 
@@ -158,10 +137,10 @@ export const EventManager = {
     },
     
     setupAllEvents: () => {
-        EventManager.setupPerusahaanEvents();
         EventManager.setupFormEvents();
         EventManager.setupFilterEvents();
         EventManager.setupRefreshButton();
+        EventManager.setupPerusahaanEvents();
         
         const kategoriSelect = document.getElementById('kategoriObatBerobat');
         if (kategoriSelect) {
