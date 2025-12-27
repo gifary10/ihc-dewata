@@ -13,9 +13,8 @@ body {
     background: linear-gradient(
     to bottom,
     var(--light-color) 0%,
-    #f5f9fc 60%,
-    var(--dark-color) 100%
-);
+    #f5f9fc 80%,
+    var(--dark-color) 100%);
     font-family: 'Roboto', sans-serif;
     min-height: 100vh;
     display: flex;
@@ -97,7 +96,7 @@ body {
 }
 
 .footer-copyright {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.9rem;
     margin-top: 0.5rem;
 }
