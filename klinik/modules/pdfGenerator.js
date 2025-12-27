@@ -1,4 +1,4 @@
-// pdfGenerator.js - UPDATED VERSION WITH CONSISTENT STYLING
+// pdfGenerator.js - FIXED VERSION WITHOUT GRADIENT METHOD
 import { dataService } from './dataService.js';
 import { BULAN_NAMES } from './config.js';
 import { utils } from './utils.js';
@@ -123,20 +123,13 @@ export const pdfGenerator = {
             console.log('Logo tidak ditemukan, lanjut tanpa logo');
         }
         
-        // Judul utama dengan gradient effect simulation
+        // Judul utama dengan efek teks
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(28);
         
-        // Create gradient-like text effect
+        // Primary color text
         doc.setTextColor(...colors.primary);
         doc.text('LAPORAN IHC', 105, 120, { align: 'center' });
-        
-        // Shadow effect
-        doc.setTextColor(2, 49, 153, 0.3);
-        doc.text('LAPORAN IHC', 105.3, 120.3, { align: 'center' });
-        
-        // Reset to primary color
-        doc.setTextColor(...colors.primary);
         
         // Sub judul bulan
         if (judulBulan) {
@@ -145,12 +138,8 @@ export const pdfGenerator = {
             doc.text(judulBulan, 105, 140, { align: 'center' });
         }
         
-        // Garis pemisah dengan gradient effect
-        const gradient = doc.setGradient([0, 0, 0, 0], 
-            colors.primary.map(c => c/255), 
-            colors.info.map(c => c/255), 
-            [60, 150], [150, 150], [90, 0]);
-        
+        // Garis pemisah tanpa gradient
+        doc.setDrawColor(...colors.primary);
         doc.setLineWidth(2);
         doc.line(60, 150, 150, 150);
         
@@ -1142,7 +1131,7 @@ export const pdfGenerator = {
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
             
-            // Footer line dengan gradient effect
+            // Footer line
             doc.setDrawColor(...colors.primary);
             doc.setLineWidth(0.3);
             doc.line(20, 280, 190, 280);
