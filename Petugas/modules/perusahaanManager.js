@@ -5,7 +5,7 @@ export const PerusahaanManager = {
     
     loadPerusahaanData: async () => {
         try {
-            const response = await fetch('data/data.json');
+            const response = await fetch('/data/data.json');
             PerusahaanManager.dataPerusahaan = await response.json();
             console.log('Data perusahaan dimuat:', PerusahaanManager.dataPerusahaan);
             return PerusahaanManager.dataPerusahaan;
@@ -48,4 +48,5 @@ export const PerusahaanManager = {
         console.log('Semua departemen unik:', sorted);
         return sorted;
     }
+
 };
