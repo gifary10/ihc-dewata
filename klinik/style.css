@@ -108,57 +108,52 @@ body {
 
 /* ============ HEADER ============ */
 .header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1030;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 250, 0.98) 100%);
-    backdrop-filter: blur(15px);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    transition: var(--transition);
-}
-
-.header:hover {
-    box-shadow: 0 6px 40px rgba(0, 0, 0, 0.12);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+  z-index: 1000;
+  transition: var(--transition);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .header-content {
-    margin-left: 1rem;
-    padding: 1rem 0;
-    display: flex;
-    align-items: center;
-    gap: 20px;
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  gap: 1.25rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .header img {
-    height: 50px;
-    width: auto;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    transition: var(--transition);
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transition: var(--transition);
 }
 
-.header img:hover {
-    transform: scale(1.05);
-}
-
-.header-title h4 {
-    font-weight: 800;
-    color: var(--primary-color);
-    margin: 0;
-    font-size: 1.5rem;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #023199 0%, #1a4ab1 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.header-title h1 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin: 0 0 0.25rem 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .header-title small {
-    color: var(--secondary-color);
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.3px;
+  color: var(--secondary-color);
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.9;
 }
 
 .dashboard-header {
@@ -611,13 +606,28 @@ body {
 }
 
 /* ============ FOOTER ============ */
+/* Footer */
 footer {
-    margin-top: 3rem;
-    padding: 2rem 0;
-    text-align: center;
-    color: var(--secondary-color);
-    font-size: 0.9rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: linear-gradient(to right, #1a1a1a, #2d2d2d);
+  color: white;
+  margin-top: auto;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 0.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-bottom p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  font-weight: 400;
 }
 
 /* ============ RESPONSIVE ============ */
