@@ -20,15 +20,23 @@ export const chartManager = {
 
     updateGenderChart() {
         const ctx = document.getElementById('genderChart');
+        if (!ctx) {
+            console.warn('Canvas genderChart tidak ditemukan');
+            return;
+        }
+        
         const allData = dataService.getAllFilteredData();
         
         const totalLaki = allData.filter(d => d['Jenis Kelamin'] === 'Laki-laki').length;
         const totalPerempuan = allData.filter(d => d['Jenis Kelamin'] === 'Perempuan').length;
         const totalUnknown = allData.length - totalLaki - totalPerempuan;
         
-        if (this.genderChart) this.genderChart.destroy();
+        if (this.genderChart) {
+            this.genderChart.destroy();
+            this.genderChart = null;
+        }
         
-        this.genderChart = new Chart(ctx, {
+        this.genderChart = new Chart(ctx.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: ['Laki-laki', 'Perempuan', 'Tidak Diketahui'],
@@ -86,13 +94,21 @@ export const chartManager = {
 
     updateVisitTypeChart() {
         const ctx = document.getElementById('visitTypeChart');
+        if (!ctx) {
+            console.warn('Canvas visitTypeChart tidak ditemukan');
+            return;
+        }
+        
         const berobatCount = dataService.getFilteredBerobat().length;
         const kecelakaanCount = dataService.getFilteredKecelakaan().length;
         const konsultasiCount = dataService.getFilteredKonsultasi().length;
         
-        if (this.visitTypeChart) this.visitTypeChart.destroy();
+        if (this.visitTypeChart) {
+            this.visitTypeChart.destroy();
+            this.visitTypeChart = null;
+        }
         
-        this.visitTypeChart = new Chart(ctx, {
+        this.visitTypeChart = new Chart(ctx.getContext('2d'), {
             type: 'pie',
             data: {
                 labels: ['Berobat', 'Kecelakaan', 'Konsultasi'],
@@ -155,7 +171,10 @@ export const chartManager = {
 
     updateMonthlyChart(canvasId, data, label, color) {
         const ctx = document.getElementById(canvasId);
-        if (!ctx) return;
+        if (!ctx) {
+            console.warn(`Canvas ${canvasId} tidak ditemukan`);
+            return;
+        }
         
         // Hitung per bulan (1-12)
         const monthlyCounts = Array(12).fill(0);
@@ -259,7 +278,7 @@ export const chartManager = {
             }
         };
         
-        const newChart = new Chart(ctx, chartConfig);
+        const newChart = new Chart(ctx.getContext('2d'), chartConfig);
         
         // Simpan instance chart
         this.setChartInstance(canvasId, newChart);
@@ -273,7 +292,10 @@ export const chartManager = {
 
     updateDepartmentChart(canvasId, data, label, color) {
         const ctx = document.getElementById(canvasId);
-        if (!ctx) return;
+        if (!ctx) {
+            console.warn(`Canvas ${canvasId} tidak ditemukan`);
+            return;
+        }
         
         // Hitung per departemen
         const deptCounts = {};
@@ -350,7 +372,7 @@ export const chartManager = {
             }
         };
         
-        const newChart = new Chart(ctx, chartConfig);
+        const newChart = new Chart(ctx.getContext('2d'), chartConfig);
         
         // Simpan instance chart
         this.setChartInstance(canvasId, newChart);
@@ -363,9 +385,10 @@ export const chartManager = {
         if (hex.startsWith('rgb')) return hex.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
         
         // Proses hex color
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
+        const hexColor = hex.startsWith('#') ? hex : `#${hex}`;
+        const r = parseInt(hexColor.slice(1, 3), 16);
+        const g = parseInt(hexColor.slice(3, 5), 16);
+        const b = parseInt(hexColor.slice(5, 7), 16);
         
         return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     },

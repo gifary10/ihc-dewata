@@ -3,10 +3,16 @@ import { dataService } from './dataService.js';
 export const filterManager = {
     filterCondition(data, perusahaan, departemen, tahun, bulan) {
         // Filter perusahaan
-        if (perusahaan !== 'all' && data['Perusahaan'] !== perusahaan) return false;
+        if (perusahaan !== 'all') {
+            const dataPerusahaan = (data['Perusahaan'] || '').toString().trim();
+            if (dataPerusahaan !== perusahaan) return false;
+        }
         
         // Filter departemen
-        if (departemen !== 'all' && data['Departemen'] !== departemen) return false;
+        if (departemen !== 'all') {
+            const dataDepartemen = (data['Departemen'] || '').toString().trim();
+            if (dataDepartemen !== departemen) return false;
+        }
         
         // Filter tahun dan bulan
         if (tahun !== 'all' || bulan !== 'all') {
@@ -14,20 +20,54 @@ export const filterManager = {
             
             // Coba ambil dari TimeStamp
             if (data['TimeStamp']) {
-                dateToCheck = new Date(data['TimeStamp']);
-            }
-            // Coba ambil dari Tanggal
-            else if (data['Tanggal']) {
-                const dateParts = data['Tanggal'].split('-');
-                if (dateParts.length >= 3) {
-                    dateToCheck = new Date(`${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`);
+                const timestamp = data['TimeStamp'].toString().trim();
+                if (timestamp) {
+                    dateToCheck = new Date(timestamp);
+                    if (isNaN(dateToCheck.getTime())) {
+                        dateToCheck = null;
+                    }
                 }
             }
             
-            // Jika ada tanggal yang valid
+            // Coba ambil dari Tanggal jika TimeStamp tidak valid
+            if (!dateToCheck && data['Tanggal']) {
+                const tanggal = data['Tanggal'].toString().trim();
+                if (tanggal) {
+                    // Format: YYYY-MM-DD atau DD-MM-YYYY
+                    const dateParts = tanggal.split(/[-/]/);
+                    if (dateParts.length >= 3) {
+                        // Coba format YYYY-MM-DD
+                        if (dateParts[0].length === 4) {
+                            dateToCheck = new Date(`${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`);
+                        } 
+                        // Coba format DD-MM-YYYY
+                        else if (dateParts[2].length === 4) {
+                            dateToCheck = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+                        }
+                        
+                        if (dateToCheck && isNaN(dateToCheck.getTime())) {
+                            dateToCheck = null;
+                        }
+                    }
+                }
+            }
+            
+            // Jika ada tanggal yang valid, terapkan filter
             if (dateToCheck && !isNaN(dateToCheck.getTime())) {
-                if (tahun !== 'all' && dateToCheck.getFullYear().toString() !== tahun) return false;
-                if (bulan !== 'all' && (dateToCheck.getMonth() + 1).toString() !== bulan) return false;
+                if (tahun !== 'all') {
+                    const dataTahun = dateToCheck.getFullYear().toString();
+                    if (dataTahun !== tahun) return false;
+                }
+                
+                if (bulan !== 'all') {
+                    const dataBulan = (dateToCheck.getMonth() + 1).toString();
+                    if (dataBulan !== bulan) return false;
+                }
+            } else {
+                // Jika tidak ada tanggal yang valid dan filter tanggal aktif, kecualikan data
+                if (tahun !== 'all' || bulan !== 'all') {
+                    return false;
+                }
             }
         }
         
@@ -35,7 +75,7 @@ export const filterManager = {
     },
 
     applyFilter(perusahaan, departemen, tahun, bulan) {
-        console.log("Memulai filter...");
+        console.log("Memulai filter dengan parameter:", { perusahaan, departemen, tahun, bulan });
         
         const filteredData = {
             Berobat: (dataService.rawData.Berobat || []).filter(d => 
@@ -55,7 +95,7 @@ export const filterManager = {
             Berobat: filteredData.Berobat.length,
             Kecelakaan: filteredData.Kecelakaan.length,
             Konsultasi: filteredData.Konsultasi.length,
-            filters: { perusahaan, departemen, tahun, bulan }
+            Total: filteredData.Berobat.length + filteredData.Kecelakaan.length + filteredData.Konsultasi.length
         });
 
         return filteredData;

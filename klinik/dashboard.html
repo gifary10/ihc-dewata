@@ -15,9 +15,6 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Preload HTML2PDF -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -33,7 +30,7 @@
     <header class="header">
         <div class="header-content">
             <div class="header-logo">
-                <img src="logo.png" alt="Logo Klinik Dewata Tirta Medika" width="60" height="60">
+                <img src="logo.png" alt="Logo Klinik Dewata Tirta Medika" width="60" height="60" onerror="this.style.display='none'">
                 <div class="header-title">
                     <h1>Sistem Aplikasi In House Clinic</h1>
                     <small>Klinik Dewata Tirta Medika</small>
@@ -67,6 +64,7 @@
                         <label class="form-label">Perusahaan</label>
                         <select class="form-select" id="filterPerusahaan">
                             <option value="all">Semua Perusahaan</option>
+                            <!-- Options akan diisi oleh JavaScript -->
                         </select>
                     </div>
                 </div>
@@ -75,6 +73,7 @@
                         <label class="form-label">Departemen</label>
                         <select class="form-select" id="filterDepartemen">
                             <option value="all">Semua Departemen</option>
+                            <!-- Options akan diisi oleh JavaScript -->
                         </select>
                     </div>
                 </div>
@@ -83,6 +82,7 @@
                         <label class="form-label">Tahun</label>
                         <select class="form-select" id="filterTahun">
                             <option value="all">Semua Tahun</option>
+                            <!-- Options akan diisi oleh JavaScript -->
                         </select>
                     </div>
                 </div>
@@ -161,7 +161,7 @@
                     </h5>
                     <div class="doughnut-chart-container">
                         <div class="chart-canvas-container">
-                            <canvas id="genderChart"></canvas>
+                            <canvas id="genderChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -175,7 +175,7 @@
                     </h5>
                     <div class="pie-chart-container">
                         <div class="chart-canvas-container">
-                            <canvas id="visitTypeChart"></canvas>
+                            <canvas id="visitTypeChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -192,7 +192,7 @@
                     </h5>
                     <div class="bar-chart-container">
                         <div class="chart-canvas-container">
-                            <canvas id="monthlyBerobatChart"></canvas>
+                            <canvas id="monthlyBerobatChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -206,7 +206,7 @@
                     </h5>
                     <div class="bar-chart-container">
                         <div class="chart-canvas-container">
-                            <canvas id="monthlyKecelakaanChart"></canvas>
+                            <canvas id="monthlyKecelakaanChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -220,7 +220,7 @@
                     </h5>
                     <div class="bar-chart-container">
                         <div class="chart-canvas-container">
-                            <canvas id="monthlyKonsultasiChart"></canvas>
+                            <canvas id="monthlyKonsultasiChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -237,7 +237,7 @@
                     </h5>
                     <div class="bar-chart-container">
                         <div class="chart-canvas-container">
-                            <canvas id="deptBerobatChart"></canvas>
+                            <canvas id="deptBerobatChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -251,7 +251,7 @@
                     </h5>
                     <div class="bar-chart-container">
                         <div class="chart-canvas-container">
-                            <canvas id="deptKecelakaanChart"></canvas>
+                            <canvas id="deptKecelakaanChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -265,7 +265,7 @@
                     </h5>
                     <div class="bar-chart-container">
                         <div class="chart-canvas-container">
-                            <canvas id="deptKonsultasiChart"></canvas>
+                            <canvas id="deptKonsultasiChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                 </div>

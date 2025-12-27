@@ -2,14 +2,23 @@ import { dataService } from './dataService.js';
 
 export const tableManager = {
     updateAllTables() {
-        this.updateDepartmentStats();
-        this.updateTopPenyakit();
-        this.updateTopObat();
-        this.updateSKDTable();
+        try {
+            this.updateDepartmentStats();
+            this.updateTopPenyakit();
+            this.updateTopObat();
+            this.updateSKDTable();
+        } catch (error) {
+            console.error('Error updating tables:', error);
+        }
     },
 
     updateDepartmentStats() {
         const container = document.getElementById('departmentStats');
+        if (!container) {
+            console.warn('Container departmentStats tidak ditemukan');
+            return;
+        }
+        
         const allData = dataService.getAllFilteredData();
         
         // Hitung statistik per departemen
@@ -36,7 +45,7 @@ export const tableManager = {
         sortedStats.forEach(([dept, stats]) => {
             html += `
                 <div class="department-row">
-                    <div class="department-name">${dept}</div>
+                    <div class="department-name">${this.escapeHtml(dept)}</div>
                     <div class="department-stats">
                         <span>Total: <strong>${stats.total}</strong></span>
                     </div>
@@ -49,6 +58,11 @@ export const tableManager = {
 
     updateTopPenyakit() {
         const container = document.getElementById('topPenyakit');
+        if (!container) {
+            console.warn('Container topPenyakit tidak ditemukan');
+            return;
+        }
+        
         const penyakitCounts = {};
         
         dataService.getFilteredBerobat().forEach(d => {
@@ -72,6 +86,11 @@ export const tableManager = {
 
     updateTopObat() {
         const container = document.getElementById('topObat');
+        if (!container) {
+            console.warn('Container topObat tidak ditemukan');
+            return;
+        }
+        
         const obatCounts = {};
         
         dataService.getFilteredBerobat().forEach(d => {
@@ -79,7 +98,7 @@ export const tableManager = {
             if (obat && obat !== '-') {
                 const obatList = obat.split(',').map(o => o.trim());
                 obatList.forEach(o => {
-                    if (o) {
+                    if (o && o !== '-') {
                         obatCounts[o] = (obatCounts[o] || 0) + 1;
                     }
                 });
@@ -100,6 +119,11 @@ export const tableManager = {
 
     updateSKDTable() {
         const tbody = document.getElementById('skdTableBody');
+        if (!tbody) {
+            console.warn('Tabel SKD tidak ditemukan');
+            return;
+        }
+        
         const allData = dataService.getAllFilteredData();
         
         const deptSKDStats = {};
@@ -111,7 +135,7 @@ export const tableManager = {
             }
             deptSKDStats[dept].total++;
             
-            if (d['Jenis Kunjungan'] && d['Jenis Kunjungan'].includes('Berobat')) {
+            if (d['Jenis Kunjungan'] && d['Jenis Kunjungan'].toString().toLowerCase().includes('berobat')) {
                 const isSKD = d['SKD'] && d['SKD'].toString().toLowerCase() === 'ya';
                 if (isSKD) {
                     deptSKDStats[dept].skd++;
@@ -135,7 +159,7 @@ export const tableManager = {
         return `
             <div class="no-data">
                 <i class="bi ${icon}"></i>
-                <p>${message}</p>
+                <p>${this.escapeHtml(message)}</p>
             </div>
         `;
     },
@@ -147,7 +171,7 @@ export const tableManager = {
             html += `
                 <li>
                     <div class="rank">${rank}</div>
-                    <div class="item-name">${item}</div>
+                    <div class="item-name">${this.escapeHtml(item)}</div>
                     <div class="item-count">${count}</div>
                 </li>
             `;
@@ -160,16 +184,17 @@ export const tableManager = {
         let html = '';
         sortedDepts.forEach(([dept, stats]) => {
             const persentaseSKD = stats.total > 0 ? ((stats.skd / stats.total) * 100).toFixed(1) : '0.0';
+            const width = Math.min(parseFloat(persentaseSKD), 100);
             
             html += `
                 <tr>
-                    <td>${dept}</td>
+                    <td>${this.escapeHtml(dept)}</td>
                     <td>${stats.total}</td>
                     <td>${stats.skd}</td>
                     <td>
                         <div class="progress" style="height: 6px;">
                             <div class="progress-bar" role="progressbar" 
-                                 style="width: ${persentaseSKD}%" 
+                                 style="width: ${width}%" 
                                  aria-valuenow="${persentaseSKD}" 
                                  aria-valuemin="0" 
                                  aria-valuemax="100"></div>
@@ -182,5 +207,12 @@ export const tableManager = {
             `;
         });
         return html;
+    },
+
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 };

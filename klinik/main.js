@@ -5,6 +5,7 @@ import { utils } from './utils.js';
 import { chartManager } from './chartManager.js';
 import { tableManager } from './tableManager.js';
 import { filterManager } from './filterManager.js';
+import { pdfGenerator } from './pdfGenerator.js';
 
 class LoadingManager {
     constructor() {
@@ -65,6 +66,8 @@ const loadingManager = new LoadingManager();
 // ================= INISIALISASI =================
 document.addEventListener('DOMContentLoaded', async function() {
     try {
+        console.log('Aplikasi dimulai...');
+        
         const now = new Date();
         const currentDateElement = document.getElementById('currentDate');
         if (currentDateElement) {
@@ -79,20 +82,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         loadingManager.show('Memuat data dari server...');
         
         await dataService.loadData();
+        console.log('Data berhasil dimuat');
         
         uiManager.initFilters();
+        console.log('Filter diinisialisasi');
         
         setupEventListeners();
+        console.log('Event listeners dipasang');
         
         await uiManager.applyFilter();
+        console.log('Filter diterapkan');
         
         loadingManager.hide();
+        console.log('Aplikasi siap');
         
         startAutoRefresh();
         
     } catch (error) {
         console.error('Initialization error:', error);
-        utils.showError(error.message);
+        utils.showError(`Terjadi kesalahan saat memulai aplikasi: ${error.message}`);
         loadingManager.hide();
     }
 });
@@ -118,7 +126,7 @@ function setupEventListeners() {
             } finally {
                 loadingManager.hide();
             }
-        }, 300);
+        }, 500);
     };
     
     const filterPerusahaan = document.getElementById('filterPerusahaan');
@@ -135,12 +143,27 @@ function setupEventListeners() {
             element.addEventListener('change', handleFilterChange);
         }
     });
+    
+    // Handle window resize untuk chart
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (chartManager) {
+                chartManager.destroyAllCharts();
+                chartManager.updateAllCharts();
+            }
+        }, 250);
+    });
 }
 
 async function handlePDFDownload() {
     try {
-        // Load PDF generator secara dinamis
-        const { pdfGenerator } = await import('./pdfGenerator.js');
+        // Pastikan html2pdf sudah dimuat
+        if (typeof html2pdf === 'undefined') {
+            console.warn('html2pdf belum dimuat, mencoba memuat ulang...');
+            await loadHTML2PDF();
+        }
         
         // Pastikan data sudah di-update sebelum generate PDF
         loadingManager.show('Menyiapkan laporan PDF...');
@@ -158,6 +181,28 @@ async function handlePDFDownload() {
     }
 }
 
+// Fungsi untuk memastikan html2pdf dimuat
+function loadHTML2PDF() {
+    return new Promise((resolve, reject) => {
+        if (typeof html2pdf !== 'undefined') {
+            resolve();
+            return;
+        }
+        
+        // Coba muat ulang script
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        script.onload = () => {
+            console.log('html2pdf loaded successfully');
+            resolve();
+        };
+        script.onerror = () => {
+            reject(new Error('Gagal memuat library html2pdf'));
+        };
+        document.head.appendChild(script);
+    });
+}
+
 let refreshInterval;
 function startAutoRefresh() {
     if (refreshInterval) {
@@ -168,16 +213,17 @@ function startAutoRefresh() {
         if (document.hidden) return;
         
         try {
+            console.log("Auto-refresh data...");
             loadingManager.show('Memperbarui data...');
             await dataService.loadData();
             await uiManager.applyFilter();
-            console.log("Auto-refreshing data...");
+            console.log("Auto-refresh berhasil");
         } catch (error) {
             console.error("Auto-refresh failed:", error);
         } finally {
             loadingManager.hide();
         }
-    }, 5 * 60 * 1000);
+    }, 5 * 60 * 1000); // 5 menit
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -185,10 +231,12 @@ document.addEventListener('visibilitychange', () => {
         if (refreshInterval) {
             clearInterval(refreshInterval);
             refreshInterval = null;
+            console.log('Auto-refresh dihentikan');
         }
     } else {
         if (!refreshInterval) {
             startAutoRefresh();
+            console.log('Auto-refresh dimulai ulang');
         }
     }
 });
@@ -199,5 +247,6 @@ window.dataService = dataService;
 window.uiManager = uiManager;
 window.chartManager = chartManager;
 window.tableManager = tableManager;
+window.pdfGenerator = pdfGenerator;
 
 export { loadingManager };
