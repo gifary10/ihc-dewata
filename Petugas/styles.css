@@ -10,11 +10,10 @@
 
 /* ========== BASE STYLES ========== */
 body {
-    background: linear-gradient(
-    to bottom,
-    var(--light-color) 0%,
-    #f5f9fc 80%,
-    var(--dark-color) 100%);
+    background-color: #f8fafc;
+    background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+    background-size: 20px 20px;
+    color: #333;
     font-family: 'Roboto', sans-serif;
     min-height: 100vh;
     display: flex;
@@ -55,8 +54,8 @@ body {
 }
 
 .header-logo h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
     margin: 0;
     display: none;
 }
@@ -89,7 +88,7 @@ body {
 
 /* Footer */
 .main-footer {
-    background: var(--dark-color);
+    background: linear-gradient(135deg, #1c2331 0%, #2c3446 100%);
     color: white;
     padding: 0.5rem;
     text-align: center;
