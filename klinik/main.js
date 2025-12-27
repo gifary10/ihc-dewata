@@ -158,26 +158,34 @@ function setupEventListeners() {
 }
 
 async function handlePDFDownload() {
+    if (window.isGeneratingPDF) return; // ⛔ cegah klik dobel
+
+    window.isGeneratingPDF = true; // 🔒 LOCK PDF
+
     try {
         // Pastikan html2pdf sudah dimuat
         if (typeof html2pdf === 'undefined') {
-            console.warn('html2pdf belum dimuat, mencoba memuat ulang...');
             await loadHTML2PDF();
         }
-        
-        // Pastikan data sudah di-update sebelum generate PDF
-        loadingManager.show('Menyiapkan laporan PDF...');
-        
-        // Tunggu sedikit untuk memastikan semua data siap
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Generate PDF
+
+        // hentikan auto-refresh sementara
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+        }
+
+        // tunggu DOM & chart stabil
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // generate PDF
         await pdfGenerator.generatePDF();
-        
+
     } catch (error) {
         console.error('Error generating PDF:', error);
         utils.showError('Gagal membuat laporan PDF: ' + error.message);
-        loadingManager.hide();
+    } finally {
+        window.isGeneratingPDF = false; // 🔓 buka lock
+        startAutoRefresh(); // nyalakan auto-refresh lagi
     }
 }
 

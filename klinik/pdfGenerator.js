@@ -90,9 +90,11 @@ export const pdfGenerator = {
             box-sizing: border-box;
             visibility: visible;
             opacity: 1;
-            position: absolute;
-            left: -9999px;
+            position: fixed;
+            left: 0;
             top: 0;
+            z-index: -1;
+            opacity: 0.01;
         `;
 
         const stats = this.calculateStatistics();
