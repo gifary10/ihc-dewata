@@ -1,9 +1,8 @@
-/* ========== VARIABLES ========== */
 :root {
     --primary-color: #023199;
     --danger-color: #e74c3c;
     --success-color: #2ecc71;
-    --dark-color: #2c3e50;
+    --dark-color: #616161;
     --light-color: #f5f7fa;
     --gray-color: #7f8c8d;
     --border-radius: 14px;
@@ -11,8 +10,96 @@
 
 /* ========== BASE STYLES ========== */
 body {
-    background: var(--light-color);
+    background: linear-gradient(
+    to bottom,
+    var(--light-color) 0%,
+    #f5f9fc 60%,
+    var(--dark-color) 100%
+);
     font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========== HEADER & FOOTER STYLES ========== */
+
+/* Header Utama */
+.main-header {
+    background: linear-gradient(0deg, var(--primary-color) 0%, #1a4fb8 100%);
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: white;
+}
+
+.header-logo img {
+    height: 40px;
+    filter: brightness(0) invert(1);
+}
+
+.header-logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    display: none;
+}
+
+.header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.company-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.company-info .badge {
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+}
+
+.company-info .badge:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Footer */
+.main-footer {
+    background: var(--dark-color);
+    color: white;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.footer-copyright {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
 }
 
 /* ========== COMPONENT STYLES ========== */
@@ -102,13 +189,7 @@ body {
     color: var(--success-color);
 }
 
-/* ========== HEADER STYLES ========== */
-.header-section {
-    padding: 1rem;
-    background: #f5f7fa ;
-    color: dark;
-}
-
+/* ========== NAMA PERUSAHAAN CONTAINER ANIMATION ========== */
 #namaPerusahaanContainer {
     animation: fadeIn 0.5s ease;
 }
@@ -222,16 +303,76 @@ body {
     width: 80px; /* Waktu */
 }
 
+/* ========== FILTER INFO STYLES ========== */
+.filter-info {
+    background-color: #e7f3ff;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #0d6efd;
+    font-size: 0.9rem;
+    color: #0d6efd;
+}
+
+.filter-info i {
+    margin-right: 0.5rem;
+}
+
+/* ========== NOTIFICATION STYLES ========== */
+.custom-notification {
+    animation: slideInRight 0.3s ease-out;
+    max-width: 400px;
+    word-wrap: break-word;
+}
+
+.custom-notification.fade {
+    animation: slideOutRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
-    .header-section {
-        padding: 1rem;
+    /* Header */
+    .main-header {
+        padding: 0.75rem 0;
     }
     
-    .header-section h4 {
-        font-size: 1.25rem;
+    .header-logo h1 {
+        display: none;
     }
     
+    .header-info {
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .company-info {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    /* General responsive */
     .form-section h6 {
         font-size: 1rem;
     }
@@ -269,11 +410,46 @@ body {
         padding: 0.375rem 0.75rem;
         font-size: 0.875rem;
     }
+    
+    .filter-info {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .custom-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: calc(100% - 20px);
+        min-width: unset;
+    }
+    
+    /* Footer */
+    .footer-copyright span.d-none.d-sm-inline {
+        display: none !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .header-logo h1 {
+        display: block;
+    }
+    
+    .header-logo {
+        gap: 1.5rem;
+    }
+    
+    .header-info {
+        flex-direction: row;
+        align-items: center;
+        gap: 1.5rem;
+    }
 }
 
 /* ===== NAV TABS CUSTOM ===== */
 .nav-tabs {
     border-bottom: 2px solid #e5e7eb;
+    margin-top: 1rem;
 }
 
 .nav-tabs .nav-item {
@@ -313,4 +489,32 @@ body {
 .form-text {
     margin-left: 3rem;
     font-size: 0.75rem;
+}
+
+/* ========== DELETE BUTTON STYLES ========== */
+.btn-delete-data {
+    transition: all 0.3s ease;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.btn-delete-data:hover {
+    background-color: var(--danger-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.btn-delete-data:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Loading animation for delete button */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.btn-delete-data .bi-hourglass-split {
+    animation: spin 1s linear infinite;
 }
