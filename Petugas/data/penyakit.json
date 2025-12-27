@@ -1,0 +1,172 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "Peredaran Darah",
+      "diagnoses": [
+        "Anemia",
+        "Febris",
+        "Hipertensi",
+        "Hipotensi",
+        "Leukimia",
+        "Talasemia",
+        "Tension Type Headache/CHEPALGIA",
+        "Varises",
+        "Vertigo"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Gigi & Mulut",
+      "diagnoses": [
+        "Calculus/Karang Gigi",
+        "Caries Dentis",
+        "Gingivitis",
+        "Pulpitis",
+        "Stomatitis",
+        "Tonsilitis"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Kulit & Kelamin",
+      "diagnoses": [
+        "AIDS",
+        "Alergi",
+        "Campak",
+        "Clavus(Mata Ikan)",
+        "Dermatitis",
+        "Furunkel(Bisul)",
+        "Gonorrhea & Chlamydia",
+        "Herpes",
+        "Insect Bite",
+        "Kutu Air",
+        "Rinitis",
+        "Syphilis",
+        "Urtikaria",
+        "Vaginitis",
+        "Variola(Cacar)"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Otot & Rangka",
+      "diagnoses": [
+        "Low Back Pain",
+        "Myalgia",
+        "Osteoartritis",
+        "Osteoporosis",
+        "Polio",
+        "Stifness (Kekakuan)",
+        "Upper Back Pain"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Penyakit Mata",
+      "diagnoses": [
+        "Buta Warna",
+        "Eye Iritation",
+        "Hordeolum(Bintitan)",
+        "Katarak",
+        "Konjungtivitis",
+        "Periorbital Edema",
+        "Selulitis Orbitalis"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Saluran Pencernaan",
+      "diagnoses": [
+        "Apenditis",
+        "Diare",
+        "Dyspepsia",
+        "Gas Pain",
+        "Gerd",
+        "Hemoroid",
+        "Konstipasi",
+        "Maag",
+        "Meteorismus"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Saluran Pernapasan",
+      "diagnoses": [
+        "Asma",
+        "Bronkitis",
+        "Influenza",
+        "ISPA",
+        "Pneumonia",
+        "Radang Tenggorakan/ Faringitis",
+        "Rhinofaringitis Akut/RFA",
+        "Tubercolosis"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Syaraf",
+      "diagnoses": [
+        "Meningitis",
+        "Migrain",
+        "Neuritis",
+        "Stroke"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "THT",
+      "diagnoses": [
+        "Amandel",
+        "Infeksi Telinga",
+        "Maniere",
+        "Polip Hidung",
+        "Sinusitis",
+        "Tinnitus"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Lainnya",
+      "diagnoses": [
+        "Abses post op lipom",
+        "Ambeien/Wasir",
+        "Chest Pain",
+        "CKR",
+        "Colic Abdomen",
+        "Combustio",
+        "Common Cold",
+        "Covid",
+        "Disminore",
+        "Dry Eye",
+        "Food poisning",
+        "General Weakness",
+        "Haemoptosis ec susp TB dd pneumonia",
+        "Iritasi mata",
+        "ISK",
+        "Kehamilan (g2p1a0 uk 9 mg)",
+        "Malaise",
+        "Menstruasi",
+        "Minta vitamin/masker/pembalut/alkohol swab/MKP",
+        "Otalgia",
+        "Otoitis Eksterna",
+        "Paronychia/cantengen",
+        "Pruritus",
+        "Sprain&strain",
+        "Stomachace",
+        "Tifoid",
+        "Tindinitis",
+        "Tinea Cruris",
+        "Tortikolis spasmodik",
+        "Ulkus",
+        "Urtikaria",
+        "Vesikel post trauma",
+        "Vulnus Abrasio",
+        "Vulnus combutio",
+        "Vulnus Excoriasi",
+        "Vulnus Laceratum",
+        "Vulnus scissum"
+      ]
+    }
+  ]
+}

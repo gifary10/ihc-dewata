@@ -1,0 +1,33 @@
+[
+  {
+    "nama_perusahaan": "PT. Sankei Dharma Indonesia",
+    "departemen": [
+      "Admin",
+      "Bending",
+      "Engineering",
+      "Guest",
+      "HRGA",
+      "IT",
+      "Maintenance",
+      "Produksi",
+      "QC",
+      "Security",
+      "Warehouse"
+    ]
+  },
+  {
+    "nama_perusahaan": "Delonix Hotel Karawang",
+    "departemen": [
+      "Engineering",
+      "Executive",
+      "Finance & Accounting",
+      "Food & Beverage",
+      "Front Office",
+      "Guest",
+      "Housekeeping",
+      "HR",
+      "Sales & Marketing",
+      "Security"
+    ]
+  }
+]
