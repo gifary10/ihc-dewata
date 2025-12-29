@@ -14,7 +14,7 @@ export const chartManager = {
     updateAllCharts() {
         this.updateGenderChart();
         this.updateVisitTypeChart();
-        this.updateMonthlyCharts();
+        this.updateMonthlyCharts(); // Ini yang akan berubah dari bar ke line
         this.updateDepartmentCharts();
     },
 
@@ -277,23 +277,21 @@ export const chartManager = {
         // Hancurkan chart lama jika ada
         this.destroyChart(canvasId);
         
-        // Buat gradient
+        // Buat gradient untuk line chart
         const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, color + 'CC');
+        gradient.addColorStop(0, color + 'FF');
         gradient.addColorStop(1, color + '33');
         
-        // Tentukan warna teks berdasarkan kecerahan warna background
+        // Tentukan warna teks
         const getTextColor = (bgColor) => {
-            // Untuk warna hijau (#28a745), merah (#dc3545), biru (#17a2b8)
-            // Gunakan warna putih untuk kontras
-            return '#ffffff';
+            return '#023199';
         };
         
         const textColor = getTextColor(color);
         
-        // Buat chart baru
+        // Buat LINE chart baru (berubah dari 'bar' menjadi 'line')
         const chartConfig = {
-            type: 'bar',
+            type: 'line', // DIUBAH: dari 'bar' menjadi 'line'
             data: {
                 labels: BULAN_NAMES,
                 datasets: [{
@@ -301,11 +299,17 @@ export const chartManager = {
                     data: monthlyCounts,
                     backgroundColor: gradient,
                     borderColor: color,
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    borderSkipped: false,
-                    barPercentage: 0.8,
-                    categoryPercentage: 0.9
+                    borderWidth: 3, // DIUBAH: lebih tebal untuk line chart
+                    fill: true, // DIUBAH: isi area di bawah garis
+                    tension: 0.4, // DIUBAH: kurva yang lebih smooth
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: color,
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 3
                 }]
             },
             options: {
@@ -313,7 +317,18 @@ export const chartManager = {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false
+                        display: true, // DIUBAH: tampilkan legend untuk line chart
+                        position: 'top',
+                        labels: {
+                            color: '#343a40',
+                            font: {
+                                size: 11,
+                                weight: '600'
+                            },
+                            padding: 10,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
                     },
                     tooltip: {
                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -326,7 +341,7 @@ export const chartManager = {
                                 return BULAN_NAMES[tooltipItems[0].dataIndex];
                             },
                             label: function(context) {
-                                return `Jumlah: ${context.parsed.y}`;
+                                return `${context.dataset.label}: ${context.parsed.y}`;
                             }
                         }
                     }
@@ -358,7 +373,7 @@ export const chartManager = {
                     },
                     x: {
                         grid: {
-                            display: false,
+                            color: 'rgba(0, 0, 0, 0.03)',
                             drawBorder: false
                         },
                         ticks: {
@@ -387,43 +402,13 @@ export const chartManager = {
                 interaction: {
                     intersect: false,
                     mode: 'index'
+                },
+                elements: {
+                    line: {
+                        cubicInterpolationMode: 'monotone' // DIUBAH: kurva yang lebih smooth
+                    }
                 }
-            },
-            plugins: [{
-                id: 'barLabels',
-                afterDatasetsDraw: function(chart) {
-                    const ctx = chart.ctx;
-                    const meta = chart.getDatasetMeta(0);
-                    
-                    ctx.save();
-                    ctx.fillStyle = textColor;
-                    ctx.font = 'bold 12px "Segoe UI", sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    meta.data.forEach((bar, index) => {
-                        const value = chart.data.datasets[0].data[index];
-                        if (value > 0) {
-                            const x = bar.x;
-                            const y = bar.y;
-                            const barHeight = bar.height;
-                            
-                            // Cek apakah bar cukup tinggi untuk menampilkan teks di dalamnya
-                            if (barHeight > 20) {
-                                // Jika bar cukup tinggi, letakkan teks di tengah bar
-                                const textY = y - (barHeight / 2) + 1;
-                                ctx.fillText(value, x, textY);
-                            } else {
-                                // Jika bar terlalu pendek, letakkan teks di atas bar
-                                ctx.textBaseline = 'bottom';
-                                ctx.fillText(value, x, bar.y - 3);
-                            }
-                        }
-                    });
-                    
-                    ctx.restore();
-                }
-            }]
+            }
         };
         
         const newChart = new Chart(ctx, chartConfig);
@@ -471,7 +456,7 @@ export const chartManager = {
         
         const textColor = getTextColor(color);
         
-        // Buat chart baru
+        // Buat chart baru (TETAP bar chart untuk departemen)
         const chartConfig = {
             type: 'bar',
             data: {
