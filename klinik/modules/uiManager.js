@@ -210,5 +210,16 @@ export const uiManager = {
                 btn.disabled = false;
             }
         }
+    },
+
+    // Method untuk update tanggal saat ini
+    updateCurrentDate() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = now.toLocaleDateString('id-ID', options);
+        document.getElementById('currentDate').textContent = formattedDate;
+        
+        // Update tahun di footer
+        document.getElementById('currentYear').textContent = now.getFullYear();
     }
 };

@@ -14,7 +14,7 @@ export const chartManager = {
     updateAllCharts() {
         this.updateGenderChart();
         this.updateVisitTypeChart();
-        this.updateMonthlyCharts(); // Ini yang akan berubah dari bar ke line
+        this.updateMonthlyCharts();
         this.updateDepartmentCharts();
     },
 
@@ -264,7 +264,7 @@ export const chartManager = {
             if (month === null && d['Tanggal']) {
                 const dateParts = d['Tanggal'].split('-');
                 if (dateParts.length >= 2) {
-                    month = parseInt(dateParts[1]) - 1; // Convert to 0-11
+                    month = parseInt(dateParts[1]) - 1;
                 }
             }
             
@@ -289,9 +289,8 @@ export const chartManager = {
         
         const textColor = getTextColor(color);
         
-        // Buat LINE chart baru (berubah dari 'bar' menjadi 'line')
         const chartConfig = {
-            type: 'line', // DIUBAH: dari 'bar' menjadi 'line'
+            type: 'line',
             data: {
                 labels: BULAN_NAMES,
                 datasets: [{
@@ -299,9 +298,9 @@ export const chartManager = {
                     data: monthlyCounts,
                     backgroundColor: gradient,
                     borderColor: color,
-                    borderWidth: 3, // DIUBAH: lebih tebal untuk line chart
-                    fill: true, // DIUBAH: isi area di bawah garis
-                    tension: 0.4, // DIUBAH: kurva yang lebih smooth
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
                     pointBackgroundColor: color,
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
@@ -317,7 +316,7 @@ export const chartManager = {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: true, // DIUBAH: tampilkan legend untuk line chart
+                        display: true,
                         position: 'top',
                         labels: {
                             color: '#343a40',
@@ -451,12 +450,11 @@ export const chartManager = {
         
         // Tentukan warna teks
         const getTextColor = (bgColor) => {
-            return '#ffffff'; // Putih untuk kontras dengan warna-warna cerah
+            return '#ffffff';
         };
         
         const textColor = getTextColor(color);
         
-        // Buat chart baru (TETAP bar chart untuk departemen)
         const chartConfig = {
             type: 'bar',
             data: {
