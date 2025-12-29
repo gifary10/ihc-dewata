@@ -46,18 +46,37 @@
                     <h1>In House Clinic</h1>
                 </a>
                 
+                <!-- Spinner Status Header -->
+                <div class="header-status">
+                    <div class="header-spinner"></div>
+                    <span class="header-status-text"></span>
+                </div>
+                
                 <div class="header-info">
                     <div class="company-info">
                         <i class="bi bi-building"></i>
                         <span id="namaPerusahaanHeader">-</span>
-                        <button class="btn btn-sm btn-light text-primary ms-2" id="btnGantiPerusahaanHeader">
-                            <i class="bi bi-arrow-repeat"></i> Ganti
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Seleksi Perusahaan-->
+    <div class="container-fluid py-2 bg-light border-bottom">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-building text-primary me-2"></i>
+                    <span class="fw-medium me-2"></span>
+                    <span id="perusahaanDisplay" class="text-dark fw-bold">-</span>
+                </div>
+                <button class="btn btn-sm btn-primary" id="btnPilihPerusahaan">
+                    <i class="bi bi-arrow-repeat"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- MENU UTAMA -->
     <div class="container py-3">
