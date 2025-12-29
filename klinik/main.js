@@ -68,9 +68,8 @@ const loadingManager = new LoadingManager();
 // ================= INISIALISASI =================
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        // Set tanggal saat ini
-        const now = new Date();
-        document.getElementById('currentDate').textContent = utils.formatDate(now);
+        // Update tanggal saat ini
+        uiManager.updateCurrentDate();
         
         // Tampilkan loading overlay
         loadingManager.show('Memuat data dari server...');
@@ -157,18 +156,6 @@ function setupEventListeners() {
     document.getElementById('filterDepartemen').addEventListener('change', handleFilterChange);
     document.getElementById('filterTahun').addEventListener('change', handleFilterChange);
     document.getElementById('filterBulan').addEventListener('change', handleFilterChange);
-    
-    // Add refresh button if not exists
-    if (!document.getElementById('btnRefresh')) {
-        const refreshBtn = document.createElement('button');
-        refreshBtn.id = 'btnRefresh';
-        refreshBtn.className = 'btn btn-info ms-2';
-        refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i> Refresh';
-        refreshBtn.addEventListener('click', handleRefresh);
-        
-        const pdfBtn = document.getElementById('btnDownloadPDF');
-        pdfBtn.parentNode.appendChild(refreshBtn);
-    }
 }
 
 async function handleRefresh() {

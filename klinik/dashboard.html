@@ -36,20 +36,25 @@
     </div>
 </header>
 
-    <!-- Header -->
-    <div class="dashboard-header">
-        <div class="container">
-            <div>
-                <div class="text-end">
-                    <div id="currentDate" class="mb-1"></div>
-                    <div id="dataRangeInfo" class="small"></div>
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Informasi Periode -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="info-section">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div id="currentDate" class="mb-1"></div>
+                            <div id="dataRangeInfo" class="small"></div>
+                        </div>
+                        <button class="btn btn-success" id="btnDownloadPDF">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Main Content -->
-    <div class="container">
+
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="row g-3">
@@ -97,12 +102,6 @@
                         </select>
                     </div>
                 </div>
-
-<div class="col-12 text-end mt-3">
-    <button class="btn btn-success" id="btnDownloadPDF">
-        <i class="bi bi-file-earmark-pdf me-1"></i> PDF
-    </button>
-</div>
             </div>
         </div>
         
