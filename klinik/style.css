@@ -409,7 +409,7 @@ body {
     background-clip: text;
 }
 
-/* Chart wrapper for better spacing */
+/* Chart wrapper untuk semua jenis chart */
 .chart-wrapper {
     position: relative;
     height: 250px;
@@ -423,13 +423,23 @@ body {
     width: 100%;
 }
 
-/* Bar chart specific styles */
+/* Bar chart specific styles (masih untuk chart departemen) */
 .bar-chart-container {
     position: relative;
     height: 300px;
 }
 
 .bar-chart-container .chart-title {
+    margin-bottom: 1rem;
+}
+
+/* Line chart specific styles (tambahan baru) */
+.line-chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.line-chart-container .chart-title {
     margin-bottom: 1rem;
 }
 
@@ -796,7 +806,8 @@ body {
         height: 220px;
     }
     
-    .bar-chart-container {
+    .bar-chart-container,
+    .line-chart-container {
         height: 250px;
     }
     
@@ -833,7 +844,8 @@ body {
         height: 200px;
     }
     
-    .bar-chart-container {
+    .bar-chart-container,
+    .line-chart-container {
         height: 220px;
     }
     
