@@ -198,12 +198,12 @@ export const GoogleSheetsAPI = {
             clearTimeout(timeoutId);
             return { 
                 success: true, 
-                message: "Connection test successful (no-cors)" 
+                message: "Koneksi Google Sheets berhasil" 
             };
         } catch (error) {
             return { 
                 success: false, 
-                message: `Connection test failed: ${error.message}` 
+                message: `Koneksi gagal: ${error.message}` 
             };
         }
     },

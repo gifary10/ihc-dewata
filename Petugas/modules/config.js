@@ -16,27 +16,36 @@ export const CONFIG = {
     }
 };
 
-// State global
+// State global - diinisialisasi dari localStorage
 export let namaPerusahaan = localStorage.getItem(CONFIG.STORAGE_KEYS.PERUSAHAAN) || '';
-export let googleSheetsConfig = {
-    enabled: true,
-    url: 'https://script.google.com/macros/s/AKfycbwIhrhgZkIcXsv9gY5BSbxEXMTjT_J26NfZ8MNOtXCxs1B1GO8jigp7l3d0dsGlEefI/exec',
-    syncEnabled: true
-};
+export let googleSheetsConfig = JSON.parse(
+    localStorage.getItem(CONFIG.STORAGE_KEYS.GOOGLE_SHEETS_CONFIG) || 
+    '{"enabled": true, "url": "https://script.google.com/macros/s/AKfycbwIhrhgZkIcXsv9gY5BSbxEXMTjT_J26NfZ8MNOtXCxs1B1GO8jigp7l3d0dsGlEefI/exec", "syncEnabled": true}'
+);
 
 // Setters untuk state
 export function setNamaPerusahaan(nama) {
-    namaPerusahaan = nama;
-    localStorage.setItem(CONFIG.STORAGE_KEYS.PERUSAHAAN, nama);
+    if (!nama || nama.trim() === '') {
+        console.warn('Nama perusahaan tidak valid:', nama);
+        return;
+    }
+    
+    namaPerusahaan = nama.trim();
+    localStorage.setItem(CONFIG.STORAGE_KEYS.PERUSAHAAN, namaPerusahaan);
     
     // Update header jika ada
     const perusahaanElement = document.getElementById('namaPerusahaanHeader');
     if (perusahaanElement) {
-        perusahaanElement.textContent = nama;
+        perusahaanElement.textContent = namaPerusahaan;
     }
     
-    console.log('Nama perusahaan diperbarui:', nama);
-    return nama;
+    const perusahaanDisplay = document.getElementById('perusahaanDisplay');
+    if (perusahaanDisplay) {
+        perusahaanDisplay.textContent = namaPerusahaan;
+    }
+    
+    console.log('Nama perusahaan diperbarui:', namaPerusahaan);
+    return namaPerusahaan;
 }
 
 export function setGoogleSheetsConfig(config) {

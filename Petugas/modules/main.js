@@ -18,29 +18,30 @@ const setupHeaderFooter = () => {
     // Update header perusahaan
     const updateHeaderPerusahaan = () => {
         const perusahaanElement = document.getElementById('namaPerusahaanHeader');
+        const perusahaanDisplay = document.getElementById('perusahaanDisplay');
+        
         if (perusahaanElement) {
             perusahaanElement.textContent = namaPerusahaan || '-';
+        }
+        
+        if (perusahaanDisplay) {
+            perusahaanDisplay.textContent = namaPerusahaan || '-';
         }
     };
     
     updateHeaderPerusahaan();
     
-    // Setup tombol ganti perusahaan di header
-    const gantiBtn = document.getElementById('btnGantiPerusahaanHeader');
-    if (gantiBtn) {
-        // Hapus event listener lama jika ada
-        const newGantiBtn = gantiBtn.cloneNode(true);
-        gantiBtn.parentNode.replaceChild(newGantiBtn, gantiBtn);
-        
-        // Tambahkan event listener baru
-        newGantiBtn.addEventListener('click', (e) => {
+    // Setup tombol ganti perusahaan baru
+    const pilihBtn = document.getElementById('btnPilihPerusahaan');
+    if (pilihBtn) {
+        pilihBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Tombol Ganti diklik, membuka modal perusahaan');
+            console.log('Tombol Ganti Perusahaan diklik, membuka modal perusahaan');
             UI.tampilkanModalPerusahaan();
         });
         
-        console.log('Tombol Ganti Perusahaan di header sudah di-setup');
+        console.log('Tombol Pilih Perusahaan sudah di-setup');
     }
 };
 
@@ -49,6 +50,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('Memulai inisialisasi aplikasi...');
         
         setupHeaderFooter();
+        
+        // Tampilkan loading awal
+        UI.showLoading('Memulai aplikasi...');
         
         const loadPromises = [
             PerusahaanManager.loadPerusahaanData().catch(err => {
@@ -74,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         if (!namaPerusahaan) {
             console.log('Perusahaan belum dipilih, menampilkan modal...');
-            // Tunggu sebentar agar DOM selesai render
+            UI.hideLoading();
             setTimeout(() => {
                 UI.tampilkanModalPerusahaan();
             }, 500);
@@ -89,6 +93,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (!perusahaanExists) {
                     localStorage.removeItem(CONFIG.STORAGE_KEYS.PERUSAHAAN);
                     setNamaPerusahaan('');
+                    UI.hideLoading();
                     setTimeout(() => UI.tampilkanModalPerusahaan(), 500);
                 }
             }
@@ -124,6 +129,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         DeleteManager.setupDeleteButtons();
         
+        UI.hideLoading();
+        
         setTimeout(() => {
             Laporan.tampilkan();
         }, 1000);
@@ -132,6 +139,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
     } catch (error) {
         console.error('Error initializing application:', error);
+        UI.hideLoading();
         UI.showNotification('Gagal menginisialisasi aplikasi: ' + error.message, 'danger');
         setTimeout(() => UI.tampilkanModalPerusahaan(), 1000);
     }

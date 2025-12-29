@@ -24,7 +24,7 @@ export const DeleteManager = {
     // Fungsi untuk menghapus data dari Google Sheets
     deleteData: async function(rowId, sheetType) {
         try {
-            UI.showNotification('Menghapus data...', 'info');
+            UI.showLoading('Menghapus data...');
             
             // Kirim permintaan hapus ke Google Sheets
             const result = await DeleteManager.sendDeleteRequest(sheetType, rowId);

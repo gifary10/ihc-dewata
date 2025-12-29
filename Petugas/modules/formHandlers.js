@@ -11,8 +11,8 @@ export const FormHandlers = {
         const btn = document.getElementById('btnSimpanBerobat');
         if (btn.disabled) return;
         
-        // Tampilkan notification menyimpan data
-        UI.showNotification('Menyimpan data berobat...', 'info');
+        // Tampilkan spinner di header (menggantikan notification)
+        UI.showSaving('Menyimpan data berobat...');
         btn.disabled = true;
         
         try {
@@ -34,6 +34,7 @@ export const FormHandlers = {
             
             // Validasi form
             if (!Validator.validateForm(formData)) {
+                UI.hideSaving();
                 UI.showNotification('Harap lengkapi semua field yang wajib diisi!', 'warning');
                 btn.disabled = false;
                 return;
@@ -41,6 +42,7 @@ export const FormHandlers = {
             
             // Validasi SKD
             if (!formData.perluIstirahat) {
+                UI.hideSaving();
                 UI.showNotification('Harap pilih apakah pasien perlu istirahat!', 'warning');
                 btn.disabled = false;
                 return;
@@ -49,6 +51,7 @@ export const FormHandlers = {
             if (formData.perluIstirahat === 'Ya' && 
                 (!document.getElementById('lamaIstirahat').value || 
                  document.getElementById('lamaIstirahat').value === '0')) {
+                UI.hideSaving();
                 UI.showNotification('Harap isi jumlah hari istirahat!', 'warning');
                 btn.disabled = false;
                 return;
@@ -76,9 +79,10 @@ export const FormHandlers = {
             const sheetsResult = await GoogleSheetsAPI.sendData('berobat', data);
             
             btn.disabled = false;
+            UI.hideSaving();
             
             if (sheetsResult.success) {
-                UI.showNotification('Data berobat berhasil disimpan ke Google Sheets!', 'success');
+                UI.showNotification('Data berobat berhasil disimpan!', 'success');
             } else {
                 UI.showNotification(`Gagal menyimpan data: ${sheetsResult.message}`, 'danger');
                 return;
@@ -88,6 +92,7 @@ export const FormHandlers = {
             FormHandlers.resetAndNotify('berobat');
         } catch (error) {
             btn.disabled = false;
+            UI.hideSaving();
             console.error("Error in berobat handler:", error);
             UI.showNotification(`Terjadi kesalahan: ${error.message}`, 'danger');
         }
@@ -97,8 +102,8 @@ export const FormHandlers = {
         const btn = document.getElementById('btnSimpanKecelakaan');
         if (btn.disabled) return;
         
-        // Tampilkan notification menyimpan data
-        UI.showNotification('Menyimpan data kecelakaan...', 'info');
+        // Tampilkan spinner di header (menggantikan notification)
+        UI.showSaving('Menyimpan data kecelakaan...');
         btn.disabled = true;
         
         try {
@@ -113,6 +118,7 @@ export const FormHandlers = {
 
             // Validasi form
             if (!Validator.validateForm(formData)) {
+                UI.hideSaving();
                 UI.showNotification('Harap lengkapi semua field yang wajib diisi!', 'warning');
                 btn.disabled = false;
                 return;
@@ -130,9 +136,10 @@ export const FormHandlers = {
             const sheetsResult = await GoogleSheetsAPI.sendData('kecelakaan', data);
             
             btn.disabled = false;
+            UI.hideSaving();
             
             if (sheetsResult.success) {
-                UI.showNotification('Data kecelakaan berhasil disimpan ke Google Sheets!', 'success');
+                UI.showNotification('Data kecelakaan berhasil disimpan!', 'success');
             } else {
                 UI.showNotification(`Gagal menyimpan data: ${sheetsResult.message}`, 'danger');
                 return;
@@ -142,6 +149,7 @@ export const FormHandlers = {
             FormHandlers.resetAndNotify('kecelakaan');
         } catch (error) {
             btn.disabled = false;
+            UI.hideSaving();
             console.error("Error in kecelakaan handler:", error);
             UI.showNotification(`Terjadi kesalahan: ${error.message}`, 'danger');
         }
@@ -151,8 +159,8 @@ export const FormHandlers = {
         const btn = document.getElementById('btnSimpanKonsultasi');
         if (btn.disabled) return;
         
-        // Tampilkan notification menyimpan data
-        UI.showNotification('Menyimpan data konsultasi...', 'info');
+        // Tampilkan spinner di header (menggantikan notification)
+        UI.showSaving('Menyimpan data konsultasi...');
         btn.disabled = true;
         
         try {
@@ -167,6 +175,7 @@ export const FormHandlers = {
 
             // Validasi form
             if (!Validator.validateForm(formData)) {
+                UI.hideSaving();
                 UI.showNotification('Harap lengkapi semua field yang wajib diisi!', 'warning');
                 btn.disabled = false;
                 return;
@@ -184,9 +193,10 @@ export const FormHandlers = {
             const sheetsResult = await GoogleSheetsAPI.sendData('konsultasi', data);
             
             btn.disabled = false;
+            UI.hideSaving();
             
             if (sheetsResult.success) {
-                UI.showNotification('Data konsultasi berhasil disimpan ke Google Sheets!', 'success');
+                UI.showNotification('Data konsultasi berhasil disimpan!', 'success');
             } else {
                 UI.showNotification(`Gagal menyimpan data: ${sheetsResult.message}`, 'danger');
                 return;
@@ -196,6 +206,7 @@ export const FormHandlers = {
             FormHandlers.resetAndNotify('konsultasi');
         } catch (error) {
             btn.disabled = false;
+            UI.hideSaving();
             console.error("Error in konsultasi handler:", error);
             UI.showNotification(`Terjadi kesalahan: ${error.message}`, 'danger');
         }
@@ -227,10 +238,14 @@ export const FormHandlers = {
         }
 
         // Refresh laporan
-        Laporan.tampilkan();
+        setTimeout(() => {
+            Laporan.tampilkan();
+        }, 500);
         
         // Buka tab laporan
-        const laporanTab = document.querySelector('[data-bs-target="#laporan"]');
-        if (laporanTab) laporanTab.click();
+        setTimeout(() => {
+            const laporanTab = document.querySelector('[data-bs-target="#laporan"]');
+            if (laporanTab) laporanTab.click();
+        }, 1000);
     }
 };

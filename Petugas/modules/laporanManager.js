@@ -1,11 +1,8 @@
-// File: laporanManager.js
 import { GoogleSheetsAPI } from './googleSheets.js';
 import { namaPerusahaan } from './config.js';
 import { Formatter } from './utils.js';
-import { TableBuilder } from './uiManager.js';
-import { UI } from './uiManager.js';
+import { UI, PaginationManager } from './uiManager.js';
 
-// Ekspor objek Laporan
 export const Laporan = {
     async getFilteredData() {
         try {
@@ -151,7 +148,6 @@ export const Laporan = {
         
         let filteredData = [...data];
         
-        // Filter berdasarkan perusahaan yang dipilih (jika ada)
         if (namaPerusahaan) {
             filteredData = filteredData.filter(item => 
                 (item.perusahaan === namaPerusahaan || 
@@ -160,7 +156,6 @@ export const Laporan = {
             );
         }
         
-        // Filter berdasarkan tahun
         if (filters.tahun) {
             const selectedYear = parseInt(filters.tahun);
             filteredData = filteredData.filter(item => {
@@ -170,7 +165,6 @@ export const Laporan = {
             });
         }
         
-        // Filter berdasarkan bulan
         if (filters.bulan && filters.bulan !== 'all') {
             const selectedMonth = parseInt(filters.bulan);
             filteredData = filteredData.filter(item => {
@@ -201,21 +195,60 @@ export const Laporan = {
 
     async tampilkan() {
         try {
-            // Tampilkan notification memuat data
-            UI.showNotification('Memuat data laporan...', 'info');
+            // Tampilkan spinner di header
+            UI.showLoading('Memuat data laporan...');
             
             const filteredData = await this.getFilteredData();
-            TableBuilder.populateTables(filteredData);
+            this.populateTablesWithPagination(filteredData);
             
             this.displayFilterInfo();
             
-            // Tampilkan notification sukses
             UI.showNotification(`Laporan berhasil dimuat (${filteredData.length} data)`, 'success');
             
         } catch (error) {
             console.error("Error displaying report:", error);
             UI.showNotification("Gagal memuat data dari Google Sheets", "danger");
         }
+    },
+    
+    populateTablesWithPagination: function(filteredData) {
+        const dataBerobat = filteredData.filter(item => 
+            item.jenisKunjungan === 'Berobat'
+        );
+        const dataKecelakaan = filteredData.filter(item => 
+            item.jenisKunjungan === 'Kecelakaan Kerja'
+        );
+        const dataKonsultasi = filteredData.filter(item => 
+            item.jenisKunjungan === 'Konsultasi'
+        );
+
+        window.tableData = {
+            berobat: dataBerobat,
+            kecelakaan: dataKecelakaan,
+            konsultasi: dataKonsultasi
+        };
+
+        PaginationManager.setupPagination(dataBerobat, 'berobat');
+        PaginationManager.setupPagination(dataKecelakaan, 'kecelakaan');
+        PaginationManager.setupPagination(dataKonsultasi, 'konsultasi');
+
+        const totalBerobat = document.getElementById('totalBerobat');
+        const totalBerobatSummary = document.getElementById('totalBerobatSummary');
+        const totalKecelakaan = document.getElementById('totalKecelakaan');
+        const totalKecelakaanSummary = document.getElementById('totalKecelakaanSummary');
+        const totalKonsultasi = document.getElementById('totalKonsultasi');
+        const totalKonsultasiSummary = document.getElementById('totalKonsultasiSummary');
+        const totalIntegrasi = document.getElementById('totalIntegrasi');
+        
+        if (totalBerobat) totalBerobat.textContent = dataBerobat.length;
+        if (totalBerobatSummary) totalBerobatSummary.textContent = dataBerobat.length;
+        if (totalKecelakaan) totalKecelakaan.textContent = dataKecelakaan.length;
+        if (totalKecelakaanSummary) totalKecelakaanSummary.textContent = dataKecelakaan.length;
+        if (totalKonsultasi) totalKonsultasi.textContent = dataKonsultasi.length;
+        if (totalKonsultasiSummary) totalKonsultasiSummary.textContent = dataKonsultasi.length;
+        if (totalIntegrasi) totalIntegrasi.textContent = filteredData.length;
+        
+        console.log(`Report populated: ${dataBerobat.length} berobat, ${dataKecelakaan.length} kecelakaan, ${dataKonsultasi.length} konsultasi`);
     },
     
     displayFilterInfo: () => {
@@ -264,7 +297,7 @@ export const Laporan = {
 
     async refresh() {
         try {
-            UI.showNotification("Memuat data terbaru dari Google Sheets...", "info");
+            UI.showLoading("Memuat data terbaru dari Google Sheets...");
             await this.tampilkan();
         } catch (error) {
             console.error("Error refreshing report:", error);
@@ -273,5 +306,4 @@ export const Laporan = {
     }
 };
 
-// Ekspor default juga jika diperlukan
 export default Laporan;
