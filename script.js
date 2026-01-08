@@ -17,7 +17,7 @@ const PAGES = {
     },
     'clinic-monitoring': { 
         name: 'Monitoring Klinik', 
-        url: 'klinik/dashboard.html',
+        url: 'https://script.google.com/macros/s/AKfycbxua7FA1hUjqm-OnTQz7W7Mod739farlie1hcKPRdSw2TNTghJSc6DmYHNK1IWgtcsQ9w/exec',
         requiresAccess: true,
         accessCode: 'dewata'
     },
@@ -142,4 +142,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('accessModal').addEventListener('click', (e) => {
         if (e.target.id === 'accessModal') closeAccessModal();
     });
+
 });
