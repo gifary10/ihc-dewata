@@ -17,13 +17,13 @@ const PAGES = {
     },
     'clinic-monitoring': { 
         name: 'Monitoring Klinik', 
-        url: 'https://script.google.com/macros/s/AKfycbxua7FA1hUjqm-OnTQz7W7Mod739farlie1hcKPRdSw2TNTghJSc6DmYHNK1IWgtcsQ9w/exec',
+        url: 'https://script.google.com/macros/s/AKfycbzlhW84kn1qeYyku2CIF8sx4mQdkhEAsbOiTLIlpMPqQ8eljQQt01ZidqMCk7J3nqGtWQ/exec',
         requiresAccess: true,
         accessCode: 'dewata'
     },
     'clinic-staff': { 
         name: 'Petugas Klinik', 
-        url: 'https://script.google.com/macros/s/AKfycbzpw12KnM7nBhEd3d4knx9AlSzyh3wDsQ60JGB_rczmsBZp-oo5parGqpn-cdqgT7di/exec',
+        url: 'https://script.google.com/macros/s/AKfycbyOGkrcS1vNDwHvzDz23qBHOedWIHkSsLangVQrA8H_zLiM0d9CdGeYUMD1_qCTe91o/exec',
         requiresAccess: true,
         accessCode: 'ihc'
     },
@@ -144,3 +144,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
