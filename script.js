@@ -23,7 +23,7 @@ const PAGES = {
     },
     'clinic-staff': { 
         name: 'Petugas Klinik', 
-        url: 'https://script.google.com/macros/s/AKfycbyOGkrcS1vNDwHvzDz23qBHOedWIHkSsLangVQrA8H_zLiM0d9CdGeYUMD1_qCTe91o/exec',
+        url: 'https://script.google.com/macros/s/AKfycbwKp4y12GjQSOuqO7jh2kiMEd1kMJn8MON6AalA-bLtBUPtYSvj1XBqD-Srumne8Ss/exec',
         requiresAccess: true,
         accessCode: 'ihc'
     },
@@ -144,4 +144,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
 
