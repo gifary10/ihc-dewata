@@ -17,7 +17,7 @@ const PAGES = {
     },
     'clinic-monitoring': { 
         name: 'Monitoring Klinik', 
-        url: 'https://script.google.com/macros/s/AKfycbzlhW84kn1qeYyku2CIF8sx4mQdkhEAsbOiTLIlpMPqQ8eljQQt01ZidqMCk7J3nqGtWQ/exec',
+        url: 'https://script.google.com/macros/s/AKfycbw0uumKl4QNS2JMBqYpPuIhMcOhUhUBJ6nKYLYnL8JW8PnmUJmTlI_ozBH3sfgIdkZvKA/exec',
         requiresAccess: true,
         accessCode: 'dewata'
     },
@@ -144,5 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
 
 
