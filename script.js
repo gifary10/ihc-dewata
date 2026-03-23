@@ -17,7 +17,7 @@ const PAGES = {
     },
     'clinic-monitoring': { 
         name: 'Monitoring Klinik', 
-        url: 'https://script.google.com/macros/s/AKfycbwCiG0vy0-iBcpxyvUmDpdYO0w3B9BcqcVDCHHs-NfRbWCvm77sSfoi1amoDRAf5DYpFw/exec',
+        url:'https://gifary10.github.io/dewata-dashboard/',
         requiresAccess: true,
         accessCode: 'dewata'
     },
