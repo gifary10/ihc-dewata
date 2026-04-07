@@ -23,7 +23,7 @@ const PAGES = {
     },
     'clinic-staff': { 
         name: 'Petugas Klinik', 
-        url: 'https://script.google.com/macros/s/AKfycbzrI_HMUnKeoM1Vkr7d0hjWCk-8MjzO4Xy0UYMQvVgY5HKnMKdOD2OtmaQ25hy6Vj5p/exec',
+        url: 'https://script.google.com/macros/s/AKfycbxAwpSx_yIr2Y7OlSSG74N9DCtVZse_3w_qDp6DZGo-toN9H1e9h7ciNGBwm9JiErmF/exec',
         requiresAccess: true,
         accessCode: 'ihc'
     },
