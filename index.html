@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistem In House Clinic - Klinik Dewata Tirta Medika</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d9488">
+  <meta name="description" content="Sistem manajemen klinik untuk Klinik Dewata Tirta Medika.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Icons (Font Awesome 6) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-logo">
+        <img src="logo/logo.png" alt="Logo" onerror="this.style.display='none'">
+        <i class="fa-solid fa-hospital-user" style="display: none;"></i>
+      </div>
+      <div class="header-text">
+        <span class="header-subtitle">In House Clinic</span>
+        <h1 class="header-title">Klinik Dewata Tirta Medika</h1>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <h2 class="hero-heading">Portal Manajemen<br><span class="hero-accent">Klinik Digital</span></h2>
+  </div>
+</section>
+
+<!-- Main Content -->
+<main id="main-content" class="main-container">
+  <div class="section-header">
+    <div class="section-label"><i class="fa-solid fa-grid-2"></i> Menu Utama</div>
+  </div>
+
+  <div class="menu-grid">
+
+    <!-- Card: Monitoring Klinik -->
+    <button class="menu-card" onclick="navigateTo('clinic-monitoring')" aria-label="Monitoring Klinik">
+      <div class="card-lock"><i class="fa-solid fa-lock"></i></div>
+      <div class="card-icon-wrap">
+        <div class="card-icon">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Monitoring Klinik</h3>
+        <p class="card-desc">Pantau data kunjungan, statistik layanan, dan laporan klinik secara real-time.</p>
+      </div>
+      <div class="card-footer">
+        <span class="card-tag"><i class="fa-solid fa-chart-simple"></i> Dashboard</span>
+        <span class="card-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+    </button>
+
+    <!-- Card: Petugas Klinik -->
+    <button class="menu-card" onclick="navigateTo('clinic-staff')" aria-label="Petugas Klinik">
+      <div class="card-lock"><i class="fa-solid fa-lock"></i></div>
+      <div class="card-icon-wrap">
+        <div class="card-icon card-icon-alt">
+          <i class="fa-solid fa-id-card"></i>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Petugas Klinik</h3>
+        <p class="card-desc">Kelola data administrasi, input rekam medis, dan manajemen catatan petugas.</p>
+      </div>
+      <div class="card-footer">
+        <span class="card-tag card-tag-alt"><i class="fa-solid fa-users"></i> Administrasi</span>
+        <span class="card-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+    </button>
+
+  </div>
+</main>
+
+<!-- Access Code Modal -->
+<div id="accessModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="accessModalTitle">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h4 id="accessModalTitle">Verifikasi Akses</h4>
+      <p class="modal-subtitle">Masukkan kode akses untuk melanjutkan</p>
+    </div>
+
+    <form class="modal-form" id="accessForm" novalidate>
+      <div class="input-group-custom">
+        <label for="accessCodeInput" class="input-label">Kode Akses</label>
+        <div class="input-wrapper">
+          <i class="fa-solid fa-key input-icon"></i>
+          <input type="password"
+                 id="accessCodeInput"
+                 class="access-input"
+                 placeholder="••••••••"
+                 autocomplete="current-password"
+                 required>
+          <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Tampilkan sandi">
+            <i class="fa-solid fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+        <div id="accessError" class="access-error" role="alert"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeAccessModal()">Batal</button>
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-copy">
+      <p>&copy; <span id="current-year"></span> Klinik Dewata Tirta Medika. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="script.js"></script>
+
+<!-- Fallback logo icon -->
+<script>
+  // Jika gambar logo tidak ada, tampilkan ikon fallback
+  document.addEventListener('DOMContentLoaded', function() {
+    const logoImg = document.querySelector('.header-logo img');
+    const logoIcon = document.querySelector('.header-logo i');
+    
+    if (logoImg && logoIcon) {
+      logoImg.addEventListener('error', function() {
+        this.style.display = 'none';
+        logoIcon.style.display = 'flex';
+      });
+      
+      // Trigger manual jika gambar sudah gagal sebelum event listener
+      if (logoImg.complete && logoImg.naturalHeight === 0) {
+        logoImg.style.display = 'none';
+        logoIcon.style.display = 'flex';
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
