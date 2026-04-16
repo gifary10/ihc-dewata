@@ -25,40 +25,46 @@
     </div>
 </div>
 
-<!-- Login Gate -->
-<div id="login-gate" class="hidden">
-    <div class="login-card">
-        <div class="login-logo">
-            <i class="fa-solid fa-hospital-user"></i>
-        </div>
-        <h1 class="login-title">IHC Klinik</h1>
-        <p class="login-subtitle">Dashboard Monitoring Kesehatan</p>
-
-        <div class="form-field">
-            <label>Unit Perusahaan</label>
-            <div class="select-wrap">
-                <select id="company-select">
-                    <option value="">— Pilih Unit —</option>
-                </select>
-                <i class="fa-solid fa-chevron-down select-icon"></i>
+<!-- Login Modal -->
+<div id="login-modal" class="login-modal-overlay hidden">
+    <div class="login-modal-box">
+        <div class="login-modal-head">
+            <div class="login-modal-brand">
+                <div class="login-modal-icon"><i class="fa-solid fa-hospital-user"></i></div>
+                <div>
+                    <div class="login-modal-title">IHC Klinik</div>
+                    <div class="login-modal-sub">Dashboard Monitoring Kesehatan</div>
+                </div>
             </div>
         </div>
 
-        <div class="form-field">
-            <label>Password</label>
-            <div class="input-wrap">
-                <input type="password" id="company-password" placeholder="Masukkan password" autocomplete="current-password">
-                <button class="toggle-pw" type="button" onclick="togglePassword()" tabindex="-1">
-                    <i class="fa-solid fa-eye" id="pw-eye"></i>
-                </button>
+        <div class="login-modal-body">
+            <div class="form-field">
+                <label>Unit Perusahaan</label>
+                <div class="select-wrap">
+                    <select id="company-select">
+                        <option value="">— Pilih Unit —</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-icon"></i>
+                </div>
             </div>
-            <span id="pw-error" class="field-error hidden"><i class="fa-solid fa-circle-exclamation"></i> Password salah!</span>
-        </div>
 
-        <button class="btn-login" id="btn-login" onclick="app.enterDashboard()">
-            <span>Masuk Dashboard</span>
-            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-        </button>
+            <div class="form-field">
+                <label>Password</label>
+                <div class="input-wrap">
+                    <input type="password" id="company-password" placeholder="Masukkan password" autocomplete="current-password">
+                    <button class="toggle-pw" type="button" onclick="togglePassword()" tabindex="-1">
+                        <i class="fa-solid fa-eye" id="pw-eye"></i>
+                    </button>
+                </div>
+                <span id="pw-error" class="field-error hidden"><i class="fa-solid fa-circle-exclamation"></i> Password salah!</span>
+            </div>
+
+            <button class="btn-login" id="btn-login" onclick="app.enterDashboard()">
+                <span>Masuk Dashboard</span>
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+        </div>
     </div>
 </div>
 

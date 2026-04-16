@@ -13,9 +13,9 @@
     --text:        #0f172a;
     --text2:       #475569;
     --text3:       #64748b;
-    --teal:        #0d9488;
-    --teal-dim:    #ccfbf1;
-    --teal-hover:  #0f766e;
+    --teal:        #F97316;
+    --teal-dim:    #FFEDD5;
+    --teal-hover:  #EA580C;
     --blue:        #2563eb;
     --red:         #dc2626;
     --yellow:      #ca8a04;
@@ -79,63 +79,60 @@ body {
     letter-spacing: 0.05em;
 }
 
-/* ── Login Gate ─────────────────────────────────────── */
-#login-gate {
+/* ── Login Modal ─────────────────────────────────────── */
+.login-modal-overlay {
     position: fixed; inset: 0;
-    background: var(--bg);
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex; align-items: center; justify-content: center;
     z-index: 900;
     padding: 20px;
+    animation: fadeIn 0.2s ease;
 }
 
-/* subtle grid texture */
-#login-gate::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 40px 40px;
-    opacity: 0.4;
-    pointer-events: none;
-}
-
-.login-card {
+.login-modal-box {
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 40px 36px;
     width: 100%; max-width: 400px;
-    position: relative;
-    z-index: 1;
-    box-shadow: var(--shadow);
-    animation: fadeUp 0.4s ease;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+    animation: fadeUp 0.3s ease;
+    overflow: hidden;
 }
 
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+.login-modal-head {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
 }
 
-.login-logo {
-    width: 56px; height: 56px;
+.login-modal-brand {
+    display: flex; align-items: center; gap: 14px;
+}
+
+.login-modal-icon {
+    width: 44px; height: 44px;
     background: var(--teal-dim);
     border: 1px solid var(--teal);
-    border-radius: 14px;
+    border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; color: var(--teal);
-    margin-bottom: 20px;
+    font-size: 20px; color: var(--teal);
+    flex-shrink: 0;
 }
 
-.login-title {
-    font-size: 24px; font-weight: 800;
-    color: var(--text);
-    margin-bottom: 4px;
+.login-modal-title {
+    font-size: 17px; font-weight: 800; color: var(--text);
+    line-height: 1.2;
 }
 
-.login-subtitle {
-    font-size: 13px; color: var(--text2);
-    margin-bottom: 28px;
+.login-modal-sub {
+    font-size: 12px; color: var(--text3);
+    margin-top: 2px;
+}
+
+.login-modal-body {
+    padding: 24px;
 }
 
 .form-field { margin-bottom: 18px; }
@@ -386,6 +383,10 @@ body {
 .tab-panel.active { display: block; animation: fadeIn 0.25s ease; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
 /* ── KPI Cards ───────────────────────────────────────── */
 .kpi-grid {

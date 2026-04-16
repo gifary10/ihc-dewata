@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════
-//  charts.js — Chart Factories & Panel Renderers
-// ═══════════════════════════════════════════════════
-
 let charts = {};
 
 // Register after Chart.js loads
@@ -63,15 +59,14 @@ window.addEventListener('keydown', e => {
 // ── Chart Base Options ───────────────────────────────
 
 const baseChartColors = {
-    teal:   '#2dd4bf',
-    blue:   '#58a6ff',
-    red:    '#f85149',
-    yellow: '#e3b341',
-    green:  '#3fb950',
-    purple: '#bc8cff',
-    orange: '#f0883e',
+    teal:   '#14b8a6',
+    blue:   '#3b82f6',
+    red:    '#ef4444',
+    yellow: '#f59e0b',
+    green:  '#22c55e',
+    purple: '#a855f7',
+    orange: '#f97316',
 };
-
 const darkGrid = {
     color: 'rgba(255,255,255,0.05)',
 };
@@ -311,7 +306,7 @@ function makeGroupedBarChart(canvasId, chartData, onClickFn) {
                 tooltip: { backgroundColor: '#1c2430', borderColor: '#30363d', borderWidth: 1, titleColor: '#e6edf3', bodyColor: '#8b949e', padding: 10 }
             },
             scales: {
-                x: { grid: { display: false }, ticks: { ...darkTicks, maxRotation: 30 } },
+                x: { grid: { display: false }, ticks: { ...darkTicks, maxRotation: 35, autoSkip: false } },
                 y: { beginAtZero: true, grid: darkGrid, ticks: { ...darkTicks, stepSize: 1 } }
             },
             onClick: (_, els) => { if (els.length && onClickFn) onClickFn(els[0].index, els[0].datasetIndex); }
@@ -398,7 +393,7 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
         ${chartCategoryBlock(
             '<i class="fa-solid fa-stethoscope" style="color:var(--yellow)"></i>',
             'Diagnosa & Pengobatan',
-            'Menampilkan 10 diagnosa paling sering ditegakkan dan 10 obat paling banyak diresepkan, bersumber dari sheet D-Diagnosa dan D-Obat. Data ini penting untuk mengetahui pola penyakit dominan dan kebutuhan stok obat di klinik.'
+            'Menampilkan 10 diagnosa paling sering ditegakkan dan 10 obat paling banyak diresepkan (berdasarkan frekuensi), serta 20 obat dengan total kuantitas terbesar berdasarkan jumlah unit yang dikeluarkan. Data bersumber dari sheet D-Diagnosa dan D-Obat — penting untuk mengetahui pola penyakit dominan dan kebutuhan manajemen stok obat di klinik.'
         )}
         <div class="chart-grid">
             <div class="chart-card col-6">
@@ -406,8 +401,12 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
                 <div class="chart-wrap h-320"><canvas id="ch-berobat-diagnosa"></canvas></div>
             </div>
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-pills"></i> Top 10 Obat <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title"><i class="fa-solid fa-pills"></i> Top 10 Obat (Frekuensi Resep) <span class="chart-hint">klik bar → detail</span></div>
                 <div class="chart-wrap h-320"><canvas id="ch-berobat-obat"></canvas></div>
+            </div>
+            <div class="chart-card col-12">
+                <div class="chart-title"><i class="fa-solid fa-box-open"></i> Top 20 Obat — Total Jumlah Dikeluarkan <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-wrap h-320"><canvas id="ch-berobat-obat-jumlah"></canvas></div>
             </div>
         </div>
 
@@ -495,11 +494,18 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
         showDetailModal(`Diagnosa: ${val}`, dataDiagnosa.filter(r => r['Nama Diagnosa'] === val), colsDiagnosa);
     });
 
-    // ── Top 10 Obat (dari D-Obat)
+    // ── Top 10 Obat (dari D-Obat, frekuensi resep)
     const obatData = getTopData(dataObat, 'Nama Obat', 10);
     makeHBarChart('ch-berobat-obat', 'Penggunaan', obatData, baseChartColors.orange, idx => {
         const val = obatData.labels[idx];
         showDetailModal(`Obat: ${val}`, dataObat.filter(r => r['Nama Obat'] === val), colsObat);
+    });
+
+    // ── Top 20 Obat by Jumlah (total unit dikeluarkan)
+    const obatJumlahData = getTopObatByJumlah(dataObat, 20);
+    makeHBarChart('ch-berobat-obat-jumlah', 'Total Unit', obatJumlahData, baseChartColors.purple, idx => {
+        const val = obatJumlahData.labels[idx];
+        showDetailModal(`Obat (Jumlah): ${val}`, dataObat.filter(r => r['Nama Obat'] === val), colsObat);
     });
 
     // ── Status Istirahat (doughnut)
@@ -548,6 +554,12 @@ function createKecelakaanCharts(data, containerId) {
     ];
 
     container.innerHTML = `
+
+        ${chartCategoryBlock(
+            '<i class="fa-solid fa-chart-line" style="color:var(--red)"></i>',
+            'Tren Kecelakaan',
+            'Menampilkan pola kejadian kecelakaan kerja dari waktu ke waktu. Tren bulanan membantu mengidentifikasi periode dengan frekuensi kecelakaan tinggi sehingga tindakan pencegahan dapat difokuskan pada periode tersebut.'
+        )}
         <div class="chart-grid">
             <div class="chart-card col-6">
                 <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Per Bulan <span class="chart-hint">klik titik → detail</span></div>
@@ -557,6 +569,14 @@ function createKecelakaanCharts(data, containerId) {
                 <div class="chart-title"><i class="fa-solid fa-building"></i> Per Departemen <span class="chart-hint">klik bar → detail</span></div>
                 <div class="chart-wrap h-240"><canvas id="ch-kec-dept"></canvas></div>
             </div>
+        </div>
+
+        ${chartCategoryBlock(
+            '<i class="fa-solid fa-users" style="color:var(--blue)"></i>',
+            'Demografi Korban',
+            'Memetakan distribusi korban kecelakaan berdasarkan jenis kelamin. Informasi ini membantu dalam menyusun program keselamatan kerja yang lebih tepat sasaran sesuai profil tenaga kerja yang rentan.'
+        )}
+        <div class="chart-grid">
             <div class="chart-card col-4">
                 <div class="chart-title"><i class="fa-solid fa-venus-mars"></i> Jenis Kelamin <span class="chart-hint">klik slice → detail</span></div>
                 <div class="chart-wrap h-280"><canvas id="ch-kec-gender"></canvas></div>
@@ -565,6 +585,14 @@ function createKecelakaanCharts(data, containerId) {
                 <div class="chart-title"><i class="fa-solid fa-location-dot"></i> Top Lokasi Kejadian <span class="chart-hint">klik bar → detail</span></div>
                 <div class="chart-wrap h-280"><canvas id="ch-kec-lokasi"></canvas></div>
             </div>
+        </div>
+
+        ${chartCategoryBlock(
+            '<i class="fa-solid fa-person-falling-burst" style="color:var(--orange,#f0883e)"></i>',
+            'Analisis Kejadian',
+            'Menguraikan kecelakaan berdasarkan bagian tubuh yang terluka dan penyebab kejadian. Data ini sangat penting untuk menentukan prioritas pengadaan alat pelindung diri (APD) dan menyusun program pelatihan keselamatan yang relevan.'
+        )}
+        <div class="chart-grid">
             <div class="chart-card col-6">
                 <div class="chart-title"><i class="fa-solid fa-person-falling-burst"></i> Bagian Terluka <span class="chart-hint">klik bar → detail</span></div>
                 <div class="chart-wrap h-280"><canvas id="ch-kec-luka"></canvas></div>
@@ -631,6 +659,12 @@ function createKonsultasiCharts(data, containerId) {
     ];
 
     container.innerHTML = `
+
+        ${chartCategoryBlock(
+            '<i class="fa-solid fa-chart-line" style="color:var(--green)"></i>',
+            'Tren Konsultasi',
+            'Menampilkan pola kunjungan konsultasi medis dari waktu ke waktu. Analisis tren bulanan membantu mengidentifikasi periode dengan permintaan konsultasi tinggi, sehingga ketersediaan tenaga medis dapat direncanakan dengan lebih baik.'
+        )}
         <div class="chart-grid">
             <div class="chart-card col-6">
                 <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Per Bulan <span class="chart-hint">klik titik → detail</span></div>
@@ -640,6 +674,14 @@ function createKonsultasiCharts(data, containerId) {
                 <div class="chart-title"><i class="fa-solid fa-building"></i> Per Departemen <span class="chart-hint">klik bar → detail</span></div>
                 <div class="chart-wrap h-240"><canvas id="ch-kon-dept"></canvas></div>
             </div>
+        </div>
+
+        ${chartCategoryBlock(
+            '<i class="fa-solid fa-users" style="color:var(--blue)"></i>',
+            'Demografi Pasien',
+            'Menganalisis distribusi pasien konsultasi berdasarkan jenis kelamin. Data ini membantu memahami karakteristik pasien yang aktif memanfaatkan layanan konsultasi medis di klinik.'
+        )}
+        <div class="chart-grid">
             <div class="chart-card col-4">
                 <div class="chart-title"><i class="fa-solid fa-venus-mars"></i> Jenis Kelamin <span class="chart-hint">klik slice → detail</span></div>
                 <div class="chart-wrap h-280"><canvas id="ch-kon-gender"></canvas></div>

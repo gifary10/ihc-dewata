@@ -96,19 +96,17 @@ const app = {
         }
     },
 
-    // ── Login Gate ────────────────────────────────
+    // ── Login Modal ───────────────────────────────
     _showLoginGate() {
         el('loading-screen').classList.add('hidden');
-        el('dashboard').classList.add('hidden');
-        el('login-gate').classList.remove('hidden');
+        el('login-modal').classList.remove('hidden');
     },
 
     showLoginGate() {
         this._populateCompanySelect();
         el('company-password').value = '';
         el('pw-error').classList.add('hidden');
-        el('dashboard').classList.add('hidden');
-        el('login-gate').classList.remove('hidden');
+        el('login-modal').classList.remove('hidden');
     },
 
     _populateCompanySelect() {
@@ -150,7 +148,7 @@ const app = {
         this.unit = company;
         setText('active-company', company);
 
-        el('login-gate').classList.add('hidden');
+        el('login-modal').classList.add('hidden');
         el('dashboard').classList.remove('hidden');
 
         this._populateFilters();
