@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IHC Klinik Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js" defer></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+    <div class="loader-inner">
+        <div class="loader-pulse"></div>
+        <p class="loader-text">Memuat data...</p>
+    </div>
+</div>
+
+<!-- Login Gate -->
+<div id="login-gate" class="hidden">
+    <div class="login-card">
+        <div class="login-logo">
+            <i class="fa-solid fa-hospital-user"></i>
+        </div>
+        <h1 class="login-title">IHC Klinik</h1>
+        <p class="login-subtitle">Dashboard Monitoring Kesehatan</p>
+
+        <div class="form-field">
+            <label>Unit Perusahaan</label>
+            <div class="select-wrap">
+                <select id="company-select">
+                    <option value="">— Pilih Unit —</option>
+                </select>
+                <i class="fa-solid fa-chevron-down select-icon"></i>
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Password</label>
+            <div class="input-wrap">
+                <input type="password" id="company-password" placeholder="Masukkan password" autocomplete="current-password">
+                <button class="toggle-pw" type="button" onclick="togglePassword()" tabindex="-1">
+                    <i class="fa-solid fa-eye" id="pw-eye"></i>
+                </button>
+            </div>
+            <span id="pw-error" class="field-error hidden"><i class="fa-solid fa-circle-exclamation"></i> Password salah!</span>
+        </div>
+
+        <button class="btn-login" id="btn-login" onclick="app.enterDashboard()">
+            <span>Masuk Dashboard</span>
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Main Dashboard -->
+<div id="dashboard" class="hidden">
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="brand">
+                <i class="fa-solid fa-hospital-user brand-icon"></i>
+                <span class="brand-name">IHC Klinik</span>
+            </div>
+            <div class="company-chip">
+                <i class="fa-solid fa-building"></i>
+                <span id="active-company">—</span>
+            </div>
+        </div>
+
+        <div class="topbar-filters">
+            <div class="filter-item">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="filter-nama" placeholder="Cari nama..." autocomplete="off">
+            </div>
+            <div class="filter-item">
+                <i class="fa-solid fa-layer-group"></i>
+                <select id="filter-dept">
+                    <option value="">Semua Departemen</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <i class="fa-regular fa-calendar"></i>
+                <select id="filter-bulan">
+                    <option value="">Semua Bulan</option>
+                    <option value="1">Januari</option><option value="2">Februari</option>
+                    <option value="3">Maret</option><option value="4">April</option>
+                    <option value="5">Mei</option><option value="6">Juni</option>
+                    <option value="7">Juli</option><option value="8">Agustus</option>
+                    <option value="9">September</option><option value="10">Oktober</option>
+                    <option value="11">November</option><option value="12">Desember</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <i class="fa-solid fa-hashtag"></i>
+                <select id="filter-tahun">
+                    <option value="">Semua Tahun</option>
+                </select>
+            </div>
+            <button class="btn-reset" onclick="app.resetFilters()" title="Reset filter">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+        </div>
+
+        <div class="topbar-actions">
+            <button class="btn-icon" onclick="app.fetchData()" title="Sinkronisasi data">
+                <i class="fa-solid fa-arrows-rotate" id="sync-icon"></i>
+            </button>
+            <button class="btn-icon" onclick="app.showLoginGate()" title="Ganti unit">
+                <i class="fa-solid fa-right-left"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Tab Nav -->
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="Berobat" onclick="app.setTab('Berobat')">
+            <i class="fa-solid fa-suitcase-medical"></i>
+            <span>Berobat</span>
+            <span class="tab-count" id="count-Berobat">0</span>
+        </button>
+        <button class="tab-btn" data-tab="Kecelakaan" onclick="app.setTab('Kecelakaan')">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Kecelakaan</span>
+            <span class="tab-count" id="count-Kecelakaan">0</span>
+        </button>
+        <button class="tab-btn" data-tab="Konsultasi" onclick="app.setTab('Konsultasi')">
+            <i class="fa-solid fa-user-doctor"></i>
+            <span>Konsultasi</span>
+            <span class="tab-count" id="count-Konsultasi">0</span>
+        </button>
+        <button class="tab-btn" data-tab="Data" onclick="app.setTab('Data')">
+            <i class="fa-solid fa-table-list"></i>
+            <span>Data</span>
+        </button>
+        <button class="tab-btn" data-tab="Download" onclick="app.setTab('Download')">
+            <i class="fa-solid fa-download"></i>
+            <span>Download</span>
+        </button>
+    </nav>
+
+    <!-- Content Area -->
+    <main class="content-area">
+        <div id="panel-Berobat" class="tab-panel active"></div>
+        <div id="panel-Kecelakaan" class="tab-panel"></div>
+        <div id="panel-Konsultasi" class="tab-panel"></div>
+        <div id="panel-Data" class="tab-panel"></div>
+        <div id="panel-Download" class="tab-panel"></div>
+    </main>
+</div>
+
+<!-- Detail Modal -->
+<div id="detail-modal" class="modal-overlay hidden" onclick="closeDetailModal(event)">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3 id="modal-title">Detail Data</h3>
+            <div class="modal-meta">
+                <span id="modal-count" class="modal-count-badge"></span>
+                <button class="modal-close" onclick="closeDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="utils.js"></script>
+<script src="charts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
