@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>IHC Klinik Dewata Tirta Medika</title>
+<meta name="theme-color" content="#F97316">
+
+<!-- Font & Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ─────────── SIDEBAR ─────────── -->
+<nav id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-hospital"></i></div>
+    <h6>IHC Klinik Dewata<br>Tirta Medika</h6>
+    <small>Sistem Manajemen Klinik</small>
+  </div>
+
+  <div class="sidebar-company" onclick="openCompanyModal()">
+    <i class="fas fa-building company-icon"></i>
+    <span class="company-name" id="sidebar-company-name">Pilih Perusahaan</span>
+    <span class="change-btn"><i class="fas fa-chevron-right"></i></span>
+  </div>
+
+  <ul class="sidebar-nav">
+    <li><span class="nav-section-label">Menu Utama</span></li>
+    <li class="nav-item">
+      <a class="nav-link active" href="#" data-page="berobat" onclick="showPage('berobat');return false;">
+        <i class="fas fa-clipboard-list"></i>Data Berobat
+        <span class="nav-badge" id="badge-berobat">0</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#" data-page="kecelakaan" onclick="showPage('kecelakaan');return false;">
+        <i class="fas fa-exclamation-triangle"></i>Data Kecelakaan
+        <span class="nav-badge" id="badge-kecelakaan">0</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#" data-page="konsultasi" onclick="showPage('konsultasi');return false;">
+        <i class="fas fa-comment-medical"></i>Data Konsultasi
+        <span class="nav-badge" id="badge-konsultasi">0</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <i class="fas fa-circle text-success"></i>
+    Sistem aktif &middot; v1.0
+  </div>
+</nav>
+
+<!-- Sidebar overlay (mobile) -->
+<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ─────────── BOTTOM NAV (mobile) ─────────── -->
+<nav id="bottom-nav">
+  <button class="bnav-item active" id="bnav-berobat" onclick="showPage('berobat')">
+    <i class="fas fa-clipboard-list"></i><span>Berobat</span>
+    <span class="bnav-badge" id="bnav-badge-berobat" style="display:none"></span>
+  </button>
+  <button class="bnav-item" id="bnav-kecelakaan" onclick="showPage('kecelakaan')">
+    <i class="fas fa-exclamation-triangle"></i><span>Kecelakaan</span>
+    <span class="bnav-badge" id="bnav-badge-kecelakaan" style="display:none"></span>
+  </button>
+  <button class="bnav-item" id="bnav-konsultasi" onclick="showPage('konsultasi')">
+    <i class="fas fa-comment-medical"></i><span>Konsultasi</span>
+    <span class="bnav-badge" id="bnav-badge-konsultasi" style="display:none"></span>
+  </button>
+</nav>
+
+<!-- ─────────── MAIN ─────────── -->
+<div id="main">
+
+  <!-- Topbar -->
+  <header id="topbar">
+    <button id="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="topbar-titles">
+      <div class="page-title" id="topbar-title">Data Berobat</div>
+      <div class="page-breadcrumb">
+        <i class="fas fa-home"></i>
+        <span>IHC Dewata</span>
+        <i class="fas fa-chevron-right"></i>
+        <span id="topbar-breadcrumb">Data Berobat</span>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="openCompanyModal()">
+      <i class="fas fa-building"></i>
+      <span id="topbar-company" class="d-none d-md-inline">Pilih Perusahaan</span>
+    </button>
+  </header>
+
+  <!-- Content -->
+  <div id="content">
+
+    <!-- ══ BEROBAT ══ -->
+    <section id="page-berobat" class="page-section active">
+      <div class="data-card">
+        <div class="data-card-header">
+          <h5><i class="fas fa-clipboard-list me-2" style="color:var(--teal)"></i>Data Berobat</h5>
+          <div class="toolbar">
+            <div class="search-wrap">
+              <i class="fas fa-search"></i>
+              <input type="text" id="search-berobat" placeholder="Cari data..." oninput="debounceSearch('berobat')"/>
+            </div>
+            <select class="filter-select" id="filter-tahun-berobat" onchange="applyFilter('berobat')"><option value="">Semua Tahun</option></select>
+            <select class="filter-select" id="filter-bulan-berobat" onchange="applyFilter('berobat')"><option value="">Semua Bulan</option></select>
+            <select class="filter-select" id="filter-dept-berobat"  onchange="applyFilter('berobat')"><option value="">Semua Dept</option></select>
+            <button class="btn-add" onclick="openAddModal('berobat')"><i class="fas fa-plus"></i>Tambah Data</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Timestamp</th><th>ID</th><th>Tanggal</th><th>Waktu</th>
+                <th>Perusahaan</th><th>Departemen</th><th>Nama</th><th>Jenis Kelamin</th>
+                <th>Keluhan</th><th>Kat. Diagnosa</th><th>Nama Diagnosa</th>
+                <th>Kat. Obat</th><th>Nama Obat</th><th>Jumlah Obat</th><th>Satuan Obat</th>
+                <th>Tindakan</th><th>Perlu Istirahat</th><th>Jml Hari Istirahat</th>
+                <th>Keterangan</th><th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-berobat"></tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap">
+          <span class="page-info" id="info-berobat">Memuat...</span>
+          <div class="page-btns" id="pages-berobat"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ KECELAKAAN ══ -->
+    <section id="page-kecelakaan" class="page-section">
+      <div class="data-card">
+        <div class="data-card-header">
+          <h5><i class="fas fa-exclamation-triangle me-2" style="color:var(--red)"></i>Data Kecelakaan</h5>
+          <div class="toolbar">
+            <div class="search-wrap">
+              <i class="fas fa-search"></i>
+              <input type="text" id="search-kecelakaan" placeholder="Cari data..." oninput="debounceSearch('kecelakaan')"/>
+            </div>
+            <select class="filter-select" id="filter-tahun-kecelakaan" onchange="applyFilter('kecelakaan')"><option value="">Semua Tahun</option></select>
+            <select class="filter-select" id="filter-bulan-kecelakaan" onchange="applyFilter('kecelakaan')"><option value="">Semua Bulan</option></select>
+            <select class="filter-select" id="filter-dept-kecelakaan"  onchange="applyFilter('kecelakaan')"><option value="">Semua Dept</option></select>
+            <button class="btn-add" onclick="openAddModal('kecelakaan')"><i class="fas fa-plus"></i>Tambah Data</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Timestamp</th><th>ID</th><th>Tanggal</th><th>Waktu</th>
+                <th>Perusahaan</th><th>Departemen</th><th>Nama</th><th>Jenis Kelamin</th>
+                <th>Lokasi Kejadian</th><th>Penyebab</th><th>Bagian Terluka</th>
+                <th>Tindakan</th><th>Deskripsi Kejadian</th><th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-kecelakaan"></tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap">
+          <span class="page-info" id="info-kecelakaan">Memuat...</span>
+          <div class="page-btns" id="pages-kecelakaan"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ KONSULTASI ══ -->
+    <section id="page-konsultasi" class="page-section">
+      <div class="data-card">
+        <div class="data-card-header">
+          <h5><i class="fas fa-comment-medical me-2" style="color:var(--green)"></i>Data Konsultasi</h5>
+          <div class="toolbar">
+            <div class="search-wrap">
+              <i class="fas fa-search"></i>
+              <input type="text" id="search-konsultasi" placeholder="Cari data..." oninput="debounceSearch('konsultasi')"/>
+            </div>
+            <select class="filter-select" id="filter-tahun-konsultasi" onchange="applyFilter('konsultasi')"><option value="">Semua Tahun</option></select>
+            <select class="filter-select" id="filter-bulan-konsultasi" onchange="applyFilter('konsultasi')"><option value="">Semua Bulan</option></select>
+            <select class="filter-select" id="filter-dept-konsultasi"  onchange="applyFilter('konsultasi')"><option value="">Semua Dept</option></select>
+            <button class="btn-add" onclick="openAddModal('konsultasi')"><i class="fas fa-plus"></i>Tambah Data</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Timestamp</th><th>ID</th><th>Tanggal</th><th>Waktu</th>
+                <th>Perusahaan</th><th>Departemen</th><th>Nama</th><th>Jenis Kelamin</th>
+                <th>Keluhan</th><th>Riwayat Penyakit</th><th>Saran</th><th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-konsultasi"></tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap">
+          <span class="page-info" id="info-konsultasi">Memuat...</span>
+          <div class="page-btns" id="pages-konsultasi"></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ─────────── MODALS ─────────── -->
+
+<!-- Modal Pilih Perusahaan -->
+<div class="modal-overlay" id="modalPerusahaan" style="display: none;">
+  <div class="modal-box" style="max-width: 440px;">
+    <div class="modal-head">
+      <div>
+        <h3><i class="fas fa-building me-2"></i>Pilih Perusahaan</h3>
+        <p style="font-size:12px; color:var(--text3); margin:2px 0 0">Pilih perusahaan untuk memulai sesi</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalPerusahaan')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="padding: 20px;">
+        <label class="form-label">Perusahaan</label>
+        <div class="select-wrap">
+          <select class="form-select" id="select-perusahaan">
+            <option value="">-- Memuat data... --</option>
+          </select>
+          <i class="fas fa-chevron-down select-icon"></i>
+        </div>
+        <div class="info-box">
+          <i class="fas fa-info-circle me-1"></i>
+          Pilihan ini akan memfilter Departemen di semua form data.
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" onclick="closeModal('modalPerusahaan')">Batal</button>
+      <button type="button" class="btn btn-primary" onclick="saveCompany()">
+        <i class="fas fa-check me-1"></i>Konfirmasi
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Berobat -->
+<div class="modal-overlay" id="modalBerobat" style="display: none;">
+  <div class="modal-box modal-xl">
+    <div class="modal-head">
+      <h3 id="title-berobat"><i class="fas fa-clipboard-list me-2" style="color:var(--teal)"></i>Form Berobat</h3>
+      <button class="modal-close" onclick="closeModal('modalBerobat')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="padding: 20px;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Tanggal <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="b-tanggal"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Waktu</label>
+            <input type="time" class="form-control" id="b-waktu"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Perusahaan</label>
+            <input type="text" class="form-control" id="b-perusahaan" readonly/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Departemen <span class="text-danger">*</span></label>
+            <div class="select-wrap">
+              <select class="form-select" id="b-departemen"><option value="">-- Pilih --</option></select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Nama Pasien <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="b-nama" placeholder="Nama lengkap"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jenis Kelamin</label>
+            <div class="select-wrap">
+              <select class="form-select" id="b-jk">
+                <option value="">-- Pilih --</option>
+                <option>Laki-laki</option><option>Perempuan</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Perlu Istirahat</label>
+            <div class="select-wrap">
+              <select class="form-select" id="b-istirahat" onchange="toggleIstirahat()">
+                <option value="">-- Pilih --</option><option>Ya</option><option>Tidak</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group" id="wrap-hari-istirahat" style="display:none">
+            <label class="form-label">Jumlah Hari Istirahat</label>
+            <input type="number" class="form-control" id="b-hari-istirahat" min="1" placeholder="Hari"/>
+          </div>
+          <div class="form-group col-span-3">
+            <label class="form-label">Keluhan</label>
+            <textarea class="form-control" id="b-keluhan" rows="2" placeholder="Keluhan pasien..."></textarea>
+          </div>
+
+          <div class="section-divider">Diagnosa</div>
+          <div class="form-group">
+            <label class="form-label">Kategori Diagnosa</label>
+            <div class="select-wrap">
+              <select class="form-select" id="b-kat-diagnosa" onchange="filterNamaDiagnosa()">
+                <option value="">-- Pilih Kategori --</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Diagnosa</label>
+            <div class="select-wrap">
+              <select class="form-select" id="b-nama-diagnosa"><option value="">-- Pilih Nama --</option></select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group d-flex align-end">
+            <button type="button" class="btn btn-outline w-100" onclick="tambahDiagnosa()">
+              <i class="fas fa-plus me-1"></i>Tambah
+            </button>
+          </div>
+          <div class="col-span-3">
+            <div class="mini-table-wrap">
+              <table class="mini-table">
+                <thead><tr><th>#</th><th>Kategori</th><th>Nama Diagnosa</th><th></th></tr></thead>
+                <tbody id="diagnosa-list-tbody">
+                  <tr><td colspan="4" class="text-center text-muted py-3" style="font-size:12px">Belum ada diagnosa ditambahkan</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section-divider">Data Obat</div>
+          <div class="form-group">
+            <label class="form-label">Kategori Obat</label>
+            <div class="select-wrap">
+              <select class="form-select" id="b-kat-obat" onchange="filterNamaObat()">
+                <option value="">-- Pilih --</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Obat</label>
+            <div class="select-wrap">
+              <select class="form-select" id="b-nama-obat"><option value="">-- Pilih --</option></select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jumlah</label>
+            <input type="number" class="form-control" id="b-jumlah-obat" min="1" placeholder="Qty"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Satuan</label>
+            <input type="text" class="form-control" id="b-satuan-obat" placeholder="Tablet/Kapsul..."/>
+          </div>
+          <div class="form-group d-flex align-end">
+            <button type="button" class="btn btn-outline w-100" onclick="tambahObat()">
+              <i class="fas fa-plus me-1"></i>Tambah
+            </button>
+          </div>
+          <div class="col-span-3">
+            <div class="mini-table-wrap">
+              <table class="mini-table">
+                <thead><tr><th>#</th><th>Kategori</th><th>Nama Obat</th><th>Jumlah</th><th>Satuan</th><th></th></tr></thead>
+                <tbody id="obat-list-tbody">
+                  <tr><td colspan="6" class="text-center text-muted py-3" style="font-size:12px">Belum ada obat ditambahkan</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section-divider">Informasi Tambahan</div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Tindakan</label>
+            <textarea class="form-control" id="b-tindakan" rows="2" placeholder="Tindakan yang diberikan..."></textarea>
+          </div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Keterangan Berobat</label>
+            <textarea class="form-control" id="b-keterangan" rows="2" placeholder="Keterangan tambahan..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" onclick="closeModal('modalBerobat')">Batal</button>
+      <button type="button" id="btn-save-berobat" class="btn btn-primary" onclick="saveBerobat()">
+        <i class="fas fa-save me-1"></i>Simpan Data
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Kecelakaan -->
+<div class="modal-overlay" id="modalKecelakaan" style="display: none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="title-kecelakaan"><i class="fas fa-exclamation-triangle me-2" style="color:var(--red)"></i>Form Kecelakaan</h3>
+      <button class="modal-close" onclick="closeModal('modalKecelakaan')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="padding: 20px;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Tanggal <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="k-tanggal"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Waktu</label>
+            <input type="time" class="form-control" id="k-waktu"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Perusahaan</label>
+            <input type="text" class="form-control" id="k-perusahaan" readonly/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Departemen <span class="text-danger">*</span></label>
+            <div class="select-wrap">
+              <select class="form-select" id="k-departemen"><option value="">-- Pilih --</option></select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="k-nama" placeholder="Nama lengkap"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jenis Kelamin</label>
+            <div class="select-wrap">
+              <select class="form-select" id="k-jk">
+                <option value="">-- Pilih --</option>
+                <option>Laki-laki</option><option>Perempuan</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Lokasi Kejadian</label>
+            <input type="text" class="form-control" id="k-lokasi" placeholder="Lokasi kejadian..."/>
+          </div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Penyebab</label>
+            <input type="text" class="form-control" id="k-penyebab" placeholder="Penyebab kejadian..."/>
+          </div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Bagian Yang Terluka</label>
+            <input type="text" class="form-control" id="k-bagian-terluka" placeholder="Bagian tubuh yang terluka..."/>
+          </div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Tindakan</label>
+            <input type="text" class="form-control" id="k-tindakan" placeholder="Tindakan yang diberikan..."/>
+          </div>
+          <div class="form-group col-span-3">
+            <label class="form-label">Deskripsi Kejadian</label>
+            <textarea class="form-control" id="k-deskripsi" rows="3" placeholder="Deskripsi lengkap kejadian..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" onclick="closeModal('modalKecelakaan')">Batal</button>
+      <button type="button" id="btn-save-kecelakaan" class="btn btn-danger" onclick="saveKecelakaan()">
+        <i class="fas fa-save me-1"></i>Simpan Data
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konsultasi -->
+<div class="modal-overlay" id="modalKonsultasi" style="display: none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="title-konsultasi"><i class="fas fa-comment-medical me-2" style="color:var(--green)"></i>Form Konsultasi</h3>
+      <button class="modal-close" onclick="closeModal('modalKonsultasi')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="padding: 20px;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Tanggal <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="ko-tanggal"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Waktu</label>
+            <input type="time" class="form-control" id="ko-waktu"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Perusahaan</label>
+            <input type="text" class="form-control" id="ko-perusahaan" readonly/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Departemen <span class="text-danger">*</span></label>
+            <div class="select-wrap">
+              <select class="form-select" id="ko-departemen"><option value="">-- Pilih --</option></select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="ko-nama" placeholder="Nama lengkap"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jenis Kelamin</label>
+            <div class="select-wrap">
+              <select class="form-select" id="ko-jk">
+                <option value="">-- Pilih --</option>
+                <option>Laki-laki</option><option>Perempuan</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+          <div class="form-group col-span-3">
+            <label class="form-label">Keluhan</label>
+            <textarea class="form-control" id="ko-keluhan" rows="2" placeholder="Keluhan pasien..."></textarea>
+          </div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Riwayat Penyakit</label>
+            <textarea class="form-control" id="ko-riwayat" rows="2" placeholder="Riwayat penyakit..."></textarea>
+          </div>
+          <div class="form-group col-span-2">
+            <label class="form-label">Saran</label>
+            <textarea class="form-control" id="ko-saran" rows="2" placeholder="Saran dari dokter..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" onclick="closeModal('modalKonsultasi')">Batal</button>
+      <button type="button" id="btn-save-konsultasi" class="btn btn-success" onclick="saveKonsultasi()">
+        <i class="fas fa-save me-1"></i>Simpan Data
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="modalDelete" style="display: none;">
+  <div class="modal-box" style="max-width: 360px;">
+    <div class="modal-body text-center" style="padding: 30px 20px;">
+      <div class="delete-icon-wrap">
+        <i class="fas fa-trash-alt"></i>
+      </div>
+      <h4>Hapus Data?</h4>
+      <p class="text-muted">Tindakan ini tidak dapat dibatalkan.</p>
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-outline flex-1" onclick="closeModal('modalDelete')">Batal</button>
+        <button class="btn btn-danger flex-1" id="btn-confirm-delete">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <p>Memuat data...</p>
+</div>
+
+<!-- Scripts -->
+<script src="app.js"></script>
+</body>
+</html>
