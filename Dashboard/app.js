@@ -147,6 +147,7 @@ const app = {
         errEl.classList.add('hidden');
         this.unit = company;
         setText('active-company', company);
+        setText('sidebar-company-name', company);
 
         el('login-modal').classList.add('hidden');
         el('dashboard').classList.remove('hidden');
@@ -239,8 +240,13 @@ const app = {
     setTab(tab) {
         this.activeTab = tab;
 
-        // Update tab buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
+        // Update sidebar nav items
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+
+        // Update bottom nav items (mobile)
+        document.querySelectorAll('.bnav-item').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tab);
         });
 
