@@ -1,12 +1,29 @@
 // ════════════════════════════════════════════════════════
-//  CONFIG — ganti GAS_URL setelah deploy Web App
+//  IHC Klinik - Material Flat App
+//  Bootstrap 5 + Custom JS
 // ════════════════════════════════════════════════════════
-const GAS_URL  = 'https://script.google.com/macros/s/AKfycbwk5rfdyQiFVmF_n6au9ZBmAqpXX3bkfd-OyerG-jUiVT45Tdq57KY676JmHjopZhBQOA/exec';
-const PER_PAGE = 15;
 
 // ════════════════════════════════════════════════════════
-//  STATE
+//  VIEWPORT HEIGHT FIX (Mobile Browser Address Bar)
 // ════════════════════════════════════════════════════════
+function setVHVariable() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+// Set initial value
+setVHVariable();
+
+// Update on resize and orientation change
+window.addEventListener('resize', setVHVariable);
+window.addEventListener('orientationchange', setVHVariable);
+
+// ════════════════════════════════════════════════════════
+//  CONFIGURATION & STATE
+// ════════════════════════════════════════════════════════
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbwPP6UKFtsFdFI3NbxB99rdB1YOyG-NDF9Yrc6bYHHzbdjtvW1FkbmWfc3YfqNRLM1i3A/exec';
+const PER_PAGE = 15;
+
 const state = {
   master: null,
   company: '',
@@ -24,52 +41,25 @@ const state = {
   obatList:       [],
   diagnosaList:   [],
   debounceTimers: {},
+  detailRecord:   null,
+  modalInstances: {},
 };
 
-// ════════════════════════════════════════════════════════
-//  CUSTOM MODAL FUNCTIONS (Pengganti Bootstrap)
-// ════════════════════════════════════════════════════════
-
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        const firstInput = modal.querySelector('input, select, textarea, button:not(.modal-close)');
-        if (firstInput) setTimeout(() => firstInput.focus(), 100);
-    }
+// Bootstrap Modal helpers
+function getModal(id) {
+  if (!state.modalInstances[id]) {
+    const el = document.getElementById(id);
+    if (el) state.modalInstances[id] = new bootstrap.Modal(el);
+  }
+  return state.modalInstances[id];
 }
 
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-}
-
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal-overlay')) {
-        e.target.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-});
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay').forEach(m => {
-            if (m.style.display === 'flex') {
-                m.style.display = 'none';
-                document.body.style.overflow = '';
-            }
-        });
-    }
-});
+function openModal(id) { getModal(id)?.show(); }
+function closeModal(id) { getModal(id)?.hide(); }
 
 // ════════════════════════════════════════════════════════
 //  FORMAT HELPERS
 // ════════════════════════════════════════════════════════
-
 function dateToInput(str) {
   if (!str) return '';
   const p = str.split('/');
@@ -100,7 +90,7 @@ function toggleIstirahat() {
 }
 
 // ════════════════════════════════════════════════════════
-//  CORS-SAFE API
+//  API REQUEST
 // ════════════════════════════════════════════════════════
 async function gasRequest(action, payload = {}) {
   const params = new URLSearchParams({ action });
@@ -114,10 +104,13 @@ async function gasRequest(action, payload = {}) {
 //  INIT
 // ════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
-  if (GAS_URL === 'GANTI_DENGAN_URL_GAS_WEB_APP') {
+  // Set VH variable again after DOM load
+  setVHVariable();
+  
+  if (GAS_URL.includes('GANTI')) {
     hideLoading();
     toast('warning', 'Konfigurasi', 'Ganti GAS_URL dengan URL deployment Google Apps Script Anda.');
-    openCompanyModal();
+    openModal('modalPerusahaan');
     return;
   }
   try {
@@ -130,23 +123,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (saved && state.master.perusahaan.includes(saved)) {
       applyCompany(saved);
     } else {
-      openCompanyModal();
+      openModal('modalPerusahaan');
     }
   } catch (e) {
     hideLoading();
     toast('error', 'Gagal Memuat', 'Tidak dapat terhubung ke server: ' + e.message);
-    openCompanyModal();
+    openModal('modalPerusahaan');
   }
 });
 
 function hideLoading() {
-  const el = document.getElementById('loading-overlay');
-  if (el) el.style.display = 'none';
+  document.getElementById('loading-overlay')?.classList.add('d-none');
 }
 
-// ════════════════════════════════════════════════════════
-//  MASTER DROPDOWNS
-// ════════════════════════════════════════════════════════
 function populateMasterDropdowns() {
   if (!state.master) return;
   const sel = document.getElementById('select-perusahaan');
@@ -226,10 +215,7 @@ function applyCompany(company) {
   state.company = company;
   sessionStorage.setItem('selectedCompany', company);
   
-  const sidebarName = document.getElementById('sidebar-company-name');
-  const topbarCompany = document.getElementById('topbar-company');
-  if (sidebarName) sidebarName.textContent = company;
-  if (topbarCompany) topbarCompany.textContent = company;
+  document.querySelectorAll('[id$="-company-name"]').forEach(el => el.textContent = company);
   
   toast('success', 'Perusahaan Dipilih', company);
   
@@ -241,7 +227,7 @@ function applyCompany(company) {
     });
   });
   
-  loadData('berobat',    1);
+  loadData('berobat', 1);
   loadData('kecelakaan', 1);
   loadData('konsultasi', 1);
 }
@@ -249,37 +235,18 @@ function applyCompany(company) {
 // ════════════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════════════
-const pageTitles = { berobat:'Data Berobat', kecelakaan:'Data Kecelakaan', konsultasi:'Data Konsultasi' };
-
 function showPage(name) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-page]').forEach(el => el.classList.remove('active'));
   
-  const section = document.getElementById('page-' + name);
-  if (section) section.classList.add('active');
-  
-  const navLink = document.querySelector(`.nav-link[data-page="${name}"]`);
-  if (navLink) navLink.classList.add('active');
-  
-  const bnavItem = document.getElementById('bnav-' + name);
-  if (bnavItem) bnavItem.classList.add('active');
-  
-  const topbarTitle = document.getElementById('topbar-title');
-  const topbarBreadcrumb = document.getElementById('topbar-breadcrumb');
-  if (topbarTitle) topbarTitle.textContent = pageTitles[name] || name;
-  if (topbarBreadcrumb) topbarBreadcrumb.textContent = pageTitles[name] || name;
-  
-  if (window.innerWidth <= 768) toggleSidebar(false);
-}
+  document.getElementById('page-' + name)?.classList.add('active');
+  document.querySelectorAll(`[data-page="${name}"]`).forEach(el => el.classList.add('active'));
 
-function toggleSidebar(force) {
-  const s = document.getElementById('sidebar');
-  const o = document.getElementById('sidebar-overlay');
-  if (!s || !o) return;
-  const open = force !== undefined ? force : !s.classList.contains('open');
-  s.classList.toggle('open', open);
-  o.classList.toggle('visible', open);
+  // Toggle sidebar filter group
+  ['berobat','kecelakaan','konsultasi'].forEach(p => {
+    const fg = document.getElementById('sidebar-filters-' + p);
+    if (fg) fg.classList.toggle('d-none', p !== name);
+  });
 }
 
 // ════════════════════════════════════════════════════════
@@ -288,7 +255,7 @@ function toggleSidebar(force) {
 const sheetMap = { berobat:'Berobat', kecelakaan:'Kecelakaan', konsultasi:'Konsultasi' };
 
 async function loadData(type, page) {
-  if (GAS_URL === 'GANTI_DENGAN_URL_GAS_WEB_APP') return;
+  if (GAS_URL.includes('GANTI')) return;
   if (page !== undefined) state.data[type].page = page;
   renderSkeleton(type);
   const f = state.filters[type];
@@ -308,68 +275,43 @@ async function loadData(type, page) {
     state.data[type].total      = res.total || 0;
     state.data[type].page       = res.page  || 1;
     state.data[type].totalPages = res.totalPages || 1;
-    updateBadge(type, res.total);
+    updateBadges(type, res.total);
     populateFilterOptions(type, res.filterOptions || {});
     renderTable(type);
   } catch (e) {
-    const cols = colCount[type] || 10;
-    const tbody = document.getElementById('tbody-' + type);
-    if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><i class="fas fa-wifi"></i><p>Gagal memuat: ${esc(e.message)}</p></div></td></tr>`;
-    }
+    document.getElementById('tbody-' + type).innerHTML = 
+      `<tr><td colspan="6"><div class="empty-state"><i class="bi bi-wifi-off"></i><p>Gagal memuat: ${esc(e.message)}</p></div></td></tr>`;
     toast('error', 'Gagal Memuat', e.message);
   }
 }
 
-function updateBadge(type, n) {
-  const badge = document.getElementById('badge-' + type);
-  if (badge) badge.textContent = n || 0;
-  const bnav = document.getElementById('bnav-badge-' + type);
-  if (bnav) { 
-    bnav.textContent = n || 0; 
-    bnav.style.display = n ? 'block' : 'none'; 
-  }
+function updateBadges(type, n) {
+  ['badge', 'sidebar-badge', 'bnav-badge'].forEach(prefix => {
+    const el = document.getElementById(`${prefix}-${type}`);
+    if (el) { el.textContent = n || 0; el.style.display = n ? 'inline-block' : 'none'; }
+  });
 }
-
-// ════════════════════════════════════════════════════════
-//  FILTER & SEARCH
-// ════════════════════════════════════════════════════════
-const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 function populateFilterOptions(type, options) {
-  if (options.tahun) {
-    fillFilter(`filter-tahun-${type}`, options.tahun, v => v, v => v);
-    const el = document.getElementById(`filter-tahun-${type}`);
-    if (el) el.value = state.filters[type].tahun;
-  }
-  if (options.bulan) {
-    fillFilter(`filter-bulan-${type}`, options.bulan, v => v, v => BULAN[parseInt(v) - 1] || v);
-    const el = document.getElementById(`filter-bulan-${type}`);
-    if (el) el.value = state.filters[type].bulan;
-  }
-  if (options.dept) {
-    fillFilter(`filter-dept-${type}`, options.dept, v => v, v => v);
-    const el = document.getElementById(`filter-dept-${type}`);
-    if (el) el.value = state.filters[type].dept;
-  }
+  const fill = (id, arr, valFn, labelFn) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const first = el.querySelector('option:first-child')?.outerHTML || '<option value="">Semua</option>';
+    el.innerHTML = first;
+    arr.forEach(v => el.insertAdjacentHTML('beforeend', 
+      `<option value="${esc(String(valFn(v)))}">${esc(String(labelFn(v)))}</option>`));
+  };
+  if (options.tahun) fill(`filter-tahun-${type}`, options.tahun, v=>v, v=>v);
+  if (options.bulan) fill(`filter-bulan-${type}`, options.bulan, v=>v, v=>BULAN[parseInt(v)-1]||v);
+  if (options.dept) fill(`filter-dept-${type}`, options.dept, v=>v, v=>v);
 }
 
-function fillFilter(id, arr, valFn, labelFn) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const firstOption = el.querySelector('option:first-child');
-  const firstHTML = firstOption ? firstOption.outerHTML : '<option value="">Semua</option>';
-  el.innerHTML = firstHTML;
-  arr.forEach(v => el.insertAdjacentHTML('beforeend',
-    `<option value="${esc(String(valFn(v)))}">${esc(String(labelFn(v)))}</option>`
-  ));
-}
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 function debounceSearch(type) {
   clearTimeout(state.debounceTimers[type]);
   state.debounceTimers[type] = setTimeout(() => {
-    const searchInput = document.getElementById('search-' + type);
-    state.filters[type].search = searchInput?.value.trim() || '';
+    state.filters[type].search = document.getElementById(`search-${type}`)?.value.trim() || '';
     loadData(type, 1);
   }, 350);
 }
@@ -384,18 +326,15 @@ function applyFilter(type) {
 // ════════════════════════════════════════════════════════
 //  TABLE RENDERING
 // ════════════════════════════════════════════════════════
-const colCount = { berobat: 21, kecelakaan: 15, konsultasi: 13 };
-
 function renderTable(type) {
   const { rows, total, page, totalPages } = state.data[type];
   const start = (page - 1) * PER_PAGE;
-  const cols  = colCount[type] || 10;
   const tbody = document.getElementById('tbody-' + type);
   if (!tbody) return;
   
   tbody.innerHTML = rows.length
     ? rows.map((r, i) => buildRow(type, r, start + i + 1)).join('')
-    : `<tr><td colspan="${cols}"><div class="empty-state"><i class="fas fa-inbox"></i><p>Tidak ada data ditemukan</p></div></td></tr>`;
+    : `<tr><td colspan="6"><div class="empty-state"><i class="bi bi-inbox"></i><p>Tidak ada data ditemukan</p></div></td></tr>`;
   
   const info = document.getElementById('info-' + type);
   if (info) {
@@ -408,84 +347,48 @@ function renderTable(type) {
 }
 
 function renderSkeleton(type) {
-  const cols  = colCount[type] || 10;
   const tbody = document.getElementById('tbody-' + type);
   if (!tbody) return;
   tbody.innerHTML = Array(5).fill(
-    '<tr>' + Array(cols).fill('<td><div class="skeleton" style="height:13px;width:85%"></div></td>').join('') + '</tr>'
+    '<tr>' + Array(6).fill('<td><div class="skeleton"></div></td>').join('') + '</tr>'
   ).join('');
+}
+
+function formatDateDisplay(val) {
+  if (!val) return '';
+  const s = String(val).trim();
+  // Jika sudah format dd/MM/yyyy
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  // Jika Date object atau format lain, coba parse dan reformat
+  if (s.startsWith('Sat') || s.startsWith('Sun') || s.startsWith('Mon') || s.startsWith('Tue') || s.startsWith('Wed') || s.startsWith('Thu') || s.startsWith('Fri')) {
+    try {
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        // Cegah tanggal 1899 (epoch Google Sheets)
+        if (yyyy >= 1900) return `${dd}/${mm}/${yyyy}`;
+      }
+    } catch (e) { }
+  }
+  return s;
 }
 
 function buildRow(type, r, no) {
   const idx = r._rowIndex;
-  const ts  = esc(r['Timestamp'] || '');
-  const tgl = esc(r['Tanggal']   || '');
-  const wkt = esc(r['Waktu']     || '');
-
-  const act = `<div class="action-btns">
-    <button class="btn-icon btn-edit" onclick="openEditModal('${type}',${idx})" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-    <button class="btn-icon btn-delete" onclick="confirmDelete('${type}',${idx})" title="Hapus"><i class="fas fa-trash-alt"></i></button>
-  </div>`;
-
-  if (type === 'berobat') return `<tr>
-    <td style="text-align:center; width:40px">${no}</td>
-    <td class="col-ts">${ts}</td>
-    <td class="col-id">${esc(r['ID']||'')}</td>
-    <td class="col-tgl">${tgl}</td>
-    <td class="col-wkt">${wkt}</td>
-    <td>${esc(r['Perusahaan']||'')}</td>
-    <td>${esc(r['Departemen']||'')}</td>
-    <td><strong>${esc(r['Nama']||'')}</strong></td>
-    <td>${esc(r['Jenis Kelamin']||'')}</td>
-    <td class="col-wrap">${esc(r['Keluhan']||'')}</td>
-    <td class="col-wrap">${esc((r['Kategori Diagnosa']||'').replace(/\|/g,', '))}</td>
-    <td class="col-wrap">${esc((r['Nama Diagnosa']||'').replace(/\|/g,', '))}</td>
-    <td class="col-wrap">${esc((r['Kategori Obat']||'').replace(/\|/g,', '))}</td>
-    <td class="col-wrap">${esc((r['Nama Obat']||'').replace(/\|/g,', '))}</td>
-    <td>${esc((r['Jumlah Obat']||'').replace(/\|/g,', '))}</td>
-    <td>${esc((r['Satuan Obat']||'').replace(/\|/g,', '))}</td>
-    <td class="col-wrap">${esc(r['Tindakan']||'')}</td>
-    <td style="text-align:center">${esc(r['Perlu Istirahat']||'')}</td>
-    <td style="text-align:center">${esc(r['Jumlah Hari Istirahat']||'')}</td>
-    <td class="col-wrap">${esc(r['Keterangan Berobat']||'')}</td>
-    <td style="text-align:center">${act}</td>
+  return `<tr>
+    <td>${no}</td>
+    <td><small class="text-secondary">${esc(r['Timestamp'] || '')}</small></td>
+    <td>${esc(formatDateDisplay(r['Tanggal']))}</td>
+    <td><strong>${esc(r['Nama'] || '')}</strong></td>
+    <td>${esc(r['Departemen'] || '')}</td>
+    <td><div class="action-btns">
+      <button class="btn-icon-sm btn-detail" onclick="openDetailModal('${type}',${idx})" title="Detail"><i class="bi bi-eye"></i></button>
+      <button class="btn-icon-sm btn-edit" onclick="openEditModal('${type}',${idx})" title="Edit"><i class="bi bi-pencil"></i></button>
+      <button class="btn-icon-sm btn-delete" onclick="confirmDelete('${type}',${idx})" title="Hapus"><i class="bi bi-trash3"></i></button>
+    </div></td>
   </tr>`;
-
-  if (type === 'kecelakaan') return `<tr>
-    <td style="text-align:center; width:40px">${no}</td>
-    <td class="col-ts">${ts}</td>
-    <td class="col-id">${esc(r['ID']||'')}</td>
-    <td class="col-tgl">${tgl}</td>
-    <td class="col-wkt">${wkt}</td>
-    <td>${esc(r['Perusahaan']||'')}</td>
-    <td>${esc(r['Departemen']||'')}</td>
-    <td><strong>${esc(r['Nama']||'')}</strong></td>
-    <td>${esc(r['Jenis Kelamin']||'')}</td>
-    <td class="col-wrap">${esc(r['Lokasi Kejadian']||'')}</td>
-    <td class="col-wrap">${esc(r['Penyebab']||'')}</td>
-    <td class="col-wrap">${esc(r['Bagian Yang Terluka']||'')}</td>
-    <td class="col-wrap">${esc(r['Tindakan']||'')}</td>
-    <td class="col-wrap">${esc(r['Deskripsi Kejadian']||'')}</td>
-    <td style="text-align:center">${act}</td>
-  </tr>`;
-
-  if (type === 'konsultasi') return `<tr>
-    <td style="text-align:center; width:40px">${no}</td>
-    <td class="col-ts">${ts}</td>
-    <td class="col-id">${esc(r['ID']||'')}</td>
-    <td class="col-tgl">${tgl}</td>
-    <td class="col-wkt">${wkt}</td>
-    <td>${esc(r['Perusahaan']||'')}</td>
-    <td>${esc(r['Departemen']||'')}</td>
-    <td><strong>${esc(r['Nama']||'')}</strong></td>
-    <td>${esc(r['Jenis Kelamin']||'')}</td>
-    <td class="col-wrap">${esc(r['Keluhan']||'')}</td>
-    <td class="col-wrap">${esc(r['Riwayat Penyakit']||'')}</td>
-    <td class="col-wrap">${esc(r['Saran']||'')}</td>
-    <td style="text-align:center">${act}</td>
-  </tr>`;
-
-  return '';
 }
 
 function renderPagination(type, page, totalPages) {
@@ -493,319 +396,255 @@ function renderPagination(type, page, totalPages) {
   if (!wrap) return;
   if (totalPages <= 1) { wrap.innerHTML = ''; return; }
   
-  let html = `<button class="page-btn" ${page===1?'disabled':''} onclick="gotoPage('${type}',${page-1})"><i class="fas fa-chevron-left"></i></button>`;
+  let html = `<button class="page-btn" ${page===1?'disabled':''} onclick="gotoPage('${type}',${page-1})"><i class="bi bi-chevron-left"></i></button>`;
   paginationRange(page, totalPages).forEach(p => {
-    if (p === '...') html += `<button class="page-btn" disabled>…</button>`;
+    if (p === '...') html += `<span class="page-btn disabled">…</span>`;
     else html += `<button class="page-btn ${p===page?'active':''}" onclick="gotoPage('${type}',${p})">${p}</button>`;
   });
-  html += `<button class="page-btn" ${page===totalPages?'disabled':''} onclick="gotoPage('${type}',${page+1})"><i class="fas fa-chevron-right"></i></button>`;
+  html += `<button class="page-btn" ${page===totalPages?'disabled':''} onclick="gotoPage('${type}',${page+1})"><i class="bi bi-chevron-right"></i></button>`;
   wrap.innerHTML = html;
 }
 
-function paginationRange(current, total) {
-  if (total <= 7) return Array.from({length:total}, (_,i) => i+1);
-  if (current <= 4) return [1,2,3,4,5,'...',total];
-  if (current >= total-3) return [1,'...',total-4,total-3,total-2,total-1,total];
-  return [1,'...',current-1,current,current+1,'...',total];
+function paginationRange(c, t) {
+  if (t <= 7) return Array.from({length:t}, (_,i)=>i+1);
+  if (c <= 4) return [1,2,3,4,5,'...',t];
+  if (c >= t-3) return [1,'...',t-4,t-3,t-2,t-1,t];
+  return [1,'...',c-1,c,c+1,'...',t];
 }
 
-function gotoPage(type, page) {
-  loadData(type, page);
-  document.getElementById('page-' + type)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+function gotoPage(type, page) { loadData(type, page); }
 
 // ════════════════════════════════════════════════════════
-//  MODAL BEROBAT
+//  DETAIL MODAL
 // ════════════════════════════════════════════════════════
-function openAddModal(type) {
-  if (!state.company) { 
-    toast('warning','Perhatian','Pilih perusahaan terlebih dahulu.'); 
-    openCompanyModal(); 
-    return; 
-  }
+function openDetailModal(type, rowIndex) {
+  const record = state.data[type].rows.find(r => r._rowIndex === rowIndex);
+  if (!record) return toast('error','Error','Data tidak ditemukan.');
+  state.detailRecord = record;
   
-  state.editMode   = { sheet: null, rowIndex: null };
-  state.obatList     = [];
-  state.diagnosaList = [];
+  document.getElementById('detail-modal-title').innerHTML = 
+    `<i class="bi bi-${type==='berobat'?'clipboard2-pulse':type==='kecelakaan'?'exclamation-triangle':'chat-dots'} me-2"></i>Detail Data`;
+  
+  const body = document.getElementById('detail-modal-body');
+  const fields = [
+    ['ID', record['ID']], ['Timestamp', record['Timestamp']], ['Tanggal', formatDateDisplay(record['Tanggal'])],
+    ['Waktu', record['Waktu']], ['Perusahaan', record['Perusahaan']], ['Departemen', record['Departemen']],
+    ['Nama', record['Nama']], ['Jenis Kelamin', record['Jenis Kelamin']]
+  ];
   
   if (type === 'berobat') {
-    const title = document.getElementById('title-berobat');
-    if (title) title.innerHTML = '<i class="fas fa-clipboard-list me-2" style="color:var(--teal)"></i>Tambah Data Berobat';
-    resetBerobatForm();
-    openModal('modalBerobat');
+    fields.push(['Keluhan', record['Keluhan']], ['Kategori Diagnosa', (record['Kategori Diagnosa']||'').replace(/\|/g, ', ')],
+      ['Nama Diagnosa', (record['Nama Diagnosa']||'').replace(/\|/g, ', ')], ['Kategori Obat', (record['Kategori Obat']||'').replace(/\|/g, ', ')],
+      ['Nama Obat', (record['Nama Obat']||'').replace(/\|/g, ', ')], ['Tindakan', record['Tindakan']],
+      ['Perlu Istirahat', record['Perlu Istirahat']], ['Jumlah Hari Istirahat', record['Jumlah Hari Istirahat']],
+      ['Keterangan Berobat', record['Keterangan Berobat']]);
   } else if (type === 'kecelakaan') {
-    const title = document.getElementById('title-kecelakaan');
-    if (title) title.innerHTML = '<i class="fas fa-exclamation-triangle me-2" style="color:var(--red)"></i>Tambah Data Kecelakaan';
-    resetKecelakaanForm();
-    openModal('modalKecelakaan');
-  } else if (type === 'konsultasi') {
-    const title = document.getElementById('title-konsultasi');
-    if (title) title.innerHTML = '<i class="fas fa-comment-medical me-2" style="color:var(--green)"></i>Tambah Data Konsultasi';
-    resetKonsultasiForm();
-    openModal('modalKonsultasi');
+    fields.push(['Lokasi Kejadian', record['Lokasi Kejadian']], ['Penyebab', record['Penyebab']],
+      ['Bagian Yang Terluka', record['Bagian Yang Terluka']], ['Tindakan', record['Tindakan']],
+      ['Deskripsi Kejadian', record['Deskripsi Kejadian']]);
+  } else {
+    fields.push(['Keluhan', record['Keluhan']], ['Riwayat Penyakit', record['Riwayat Penyakit']], ['Saran', record['Saran']]);
   }
+  
+  body.innerHTML = fields.map(([l, v]) => `
+    <div class="detail-row"><div class="detail-label">${esc(l)}</div><div class="detail-value">${esc(v||'-')}</div></div>
+  `).join('');
+  
+  openModal('modalDetail');
+}
+
+// ════════════════════════════════════════════════════════
+//  FORM MODALS
+// ════════════════════════════════════════════════════════
+function openAddModal(type) {
+  if (!state.company) { toast('warning','Perhatian','Pilih perusahaan dahulu.'); openCompanyModal(); return; }
+  state.editMode = { sheet: null, rowIndex: null };
+  state.obatList = []; state.diagnosaList = [];
+  
+  if (type === 'berobat') {
+    resetBerobatForm();
+    document.getElementById('title-berobat').innerHTML = '<i class="bi bi-clipboard2-pulse me-2"></i>Tambah Data Berobat';
+  } else if (type === 'kecelakaan') {
+    resetKecelakaanForm();
+    document.getElementById('title-kecelakaan').innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Tambah Data Kecelakaan';
+  } else {
+    resetKonsultasiForm();
+    document.getElementById('title-konsultasi').innerHTML = '<i class="bi bi-chat-dots me-2"></i>Tambah Data Konsultasi';
+  }
+  openModal('modal' + type.charAt(0).toUpperCase() + type.slice(1));
 }
 
 function resetBerobatForm() {
-  const bTanggal = document.getElementById('b-tanggal');
-  const bWaktu = document.getElementById('b-waktu');
-  const bPerusahaan = document.getElementById('b-perusahaan');
-  if (bTanggal) bTanggal.value = todayStr();
-  if (bWaktu) bWaktu.value = nowTime();
-  if (bPerusahaan) bPerusahaan.value = state.company;
-  
+  document.getElementById('b-tanggal').value = todayStr();
+  document.getElementById('b-waktu').value = nowTime();
+  document.getElementById('b-perusahaan').value = state.company;
   fillDepartemenDropdown('b-departemen');
-  
-  ['b-nama','b-keluhan','b-tindakan','b-keterangan','b-jumlah-obat','b-satuan-obat']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  
-  const bJk = document.getElementById('b-jk');
-  const bIstirahat = document.getElementById('b-istirahat');
-  const bHari = document.getElementById('b-hari-istirahat');
-  if (bJk) bJk.value = '';
-  if (bIstirahat) bIstirahat.value = '';
-  if (bHari) bHari.value = '';
-  
-  const wrapHari = document.getElementById('wrap-hari-istirahat');
-  if (wrapHari) wrapHari.style.display = 'none';
-  
-  const bKatDiag = document.getElementById('b-kat-diagnosa');
-  if (bKatDiag) bKatDiag.value = '';
-  const bNamaDiag = document.getElementById('b-nama-diagnosa');
-  if (bNamaDiag) bNamaDiag.innerHTML = '<option value="">-- Pilih Nama --</option>';
-  
-  const bKatObat = document.getElementById('b-kat-obat');
-  if (bKatObat) bKatObat.value = '';
-  const bNamaObat = document.getElementById('b-nama-obat');
-  if (bNamaObat) bNamaObat.innerHTML = '<option value="">-- Pilih Nama --</option>';
-  
-  state.obatList = [];
-  state.diagnosaList = [];
-  renderObatList();
-  renderDiagnosaList();
+  ['b-nama','b-keluhan','b-tindakan','b-keterangan','b-jumlah-obat','b-satuan-obat'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('b-jk').value = '';
+  document.getElementById('b-istirahat').value = '';
+  document.getElementById('b-hari-istirahat').value = '';
+  document.getElementById('wrap-hari-istirahat').style.display = 'none';
+  document.getElementById('b-kat-diagnosa').value = '';
+  document.getElementById('b-nama-diagnosa').innerHTML = '<option value="">-- Pilih Nama --</option>';
+  document.getElementById('b-kat-obat').value = '';
+  document.getElementById('b-nama-obat').innerHTML = '<option value="">-- Pilih Nama --</option>';
+  renderObatList(); renderDiagnosaList();
 }
 
 function resetKecelakaanForm() {
-  const kTanggal = document.getElementById('k-tanggal');
-  const kWaktu = document.getElementById('k-waktu');
-  const kPerusahaan = document.getElementById('k-perusahaan');
-  if (kTanggal) kTanggal.value = todayStr();
-  if (kWaktu) kWaktu.value = nowTime();
-  if (kPerusahaan) kPerusahaan.value = state.company;
-  
+  document.getElementById('k-tanggal').value = todayStr();
+  document.getElementById('k-waktu').value = nowTime();
+  document.getElementById('k-perusahaan').value = state.company;
   fillDepartemenDropdown('k-departemen');
-  
-  ['k-nama','k-lokasi','k-penyebab','k-bagian-terluka','k-tindakan','k-deskripsi']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  
-  const kJk = document.getElementById('k-jk');
-  if (kJk) kJk.value = '';
+  ['k-nama','k-lokasi','k-penyebab','k-bagian-terluka','k-tindakan','k-deskripsi'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('k-jk').value = '';
 }
 
 function resetKonsultasiForm() {
-  const koTanggal = document.getElementById('ko-tanggal');
-  const koWaktu = document.getElementById('ko-waktu');
-  const koPerusahaan = document.getElementById('ko-perusahaan');
-  if (koTanggal) koTanggal.value = todayStr();
-  if (koWaktu) koWaktu.value = nowTime();
-  if (koPerusahaan) koPerusahaan.value = state.company;
-  
+  document.getElementById('ko-tanggal').value = todayStr();
+  document.getElementById('ko-waktu').value = nowTime();
+  document.getElementById('ko-perusahaan').value = state.company;
   fillDepartemenDropdown('ko-departemen');
-  
-  ['ko-nama','ko-keluhan','ko-riwayat','ko-saran']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  
-  const koJk = document.getElementById('ko-jk');
-  if (koJk) koJk.value = '';
+  ['ko-nama','ko-keluhan','ko-riwayat','ko-saran'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('ko-jk').value = '';
 }
 
-// DIAGNOSA LIST
 function tambahDiagnosa() {
-  const kat  = document.getElementById('b-kat-diagnosa')?.value;
+  const kat = document.getElementById('b-kat-diagnosa')?.value;
   const nama = document.getElementById('b-nama-diagnosa')?.value;
-  if (!nama) { toast('warning','Perhatian','Pilih nama diagnosa terlebih dahulu.'); return; }
+  if (!nama) return toast('warning','Perhatian','Pilih nama diagnosa.');
   state.diagnosaList.push({ kategori: kat, nama });
   renderDiagnosaList();
-  
-  const bKatDiag = document.getElementById('b-kat-diagnosa');
-  const bNamaDiag = document.getElementById('b-nama-diagnosa');
-  if (bKatDiag) bKatDiag.value = '';
-  if (bNamaDiag) bNamaDiag.innerHTML = '<option value="">-- Pilih Nama --</option>';
+  document.getElementById('b-kat-diagnosa').value = '';
+  document.getElementById('b-nama-diagnosa').innerHTML = '<option value="">-- Pilih Nama --</option>';
 }
-
-function hapusDiagnosa(idx) {
-  state.diagnosaList.splice(idx, 1);
-  renderDiagnosaList();
-}
-
+function hapusDiagnosa(i) { state.diagnosaList.splice(i,1); renderDiagnosaList(); }
 function renderDiagnosaList() {
   const tbody = document.getElementById('diagnosa-list-tbody');
   if (!tbody) return;
-  if (!state.diagnosaList.length) {
-    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3" style="font-size:12px">Belum ada diagnosa ditambahkan</td></tr>';
-    return;
-  }
-  tbody.innerHTML = state.diagnosaList.map((d,i) => `
-    <tr>
-      <td>${i+1}</td>
-      <td>${esc(d.kategori||'—')}</td>
-      <td>${esc(d.nama)}</td>
-      <td><button class="btn-remove-obat" onclick="hapusDiagnosa(${i})"><i class="fas fa-times"></i></button></td>
-    </tr>`).join('');
+  tbody.innerHTML = state.diagnosaList.length
+    ? state.diagnosaList.map((d,i)=>`<tr><td>${i+1}</td><td>${esc(d.kategori||'-')}</td><td>${esc(d.nama)}</td><td><button class="btn btn-sm btn-outline-danger" onclick="hapusDiagnosa(${i})"><i class="bi bi-x"></i></button></td></tr>`).join('')
+    : '<tr><td colspan="4" class="text-center text-muted py-3">Belum ada diagnosa</td></tr>';
 }
 
-// OBAT LIST
 function tambahObat() {
-  const kat    = document.getElementById('b-kat-obat')?.value;
-  const nama   = document.getElementById('b-nama-obat')?.value;
+  const kat = document.getElementById('b-kat-obat')?.value;
+  const nama = document.getElementById('b-nama-obat')?.value;
   const jumlah = document.getElementById('b-jumlah-obat')?.value;
   const satuan = document.getElementById('b-satuan-obat')?.value;
-  if (!nama) { toast('warning','Perhatian','Pilih nama obat terlebih dahulu.'); return; }
+  if (!nama) return toast('warning','Perhatian','Pilih nama obat.');
   state.obatList.push({ kategori: kat, nama, jumlah, satuan });
   renderObatList();
-  
-  const bKatObat = document.getElementById('b-kat-obat');
-  const bNamaObat = document.getElementById('b-nama-obat');
-  const bJumlah = document.getElementById('b-jumlah-obat');
-  const bSatuan = document.getElementById('b-satuan-obat');
-  if (bKatObat) bKatObat.value = '';
-  if (bNamaObat) bNamaObat.innerHTML = '<option value="">-- Pilih Nama --</option>';
-  if (bJumlah) bJumlah.value = '';
-  if (bSatuan) bSatuan.value = '';
+  document.getElementById('b-kat-obat').value = '';
+  document.getElementById('b-nama-obat').innerHTML = '<option value="">-- Pilih Nama --</option>';
+  document.getElementById('b-jumlah-obat').value = '';
+  document.getElementById('b-satuan-obat').value = '';
 }
-
-function hapusObat(idx) {
-  state.obatList.splice(idx, 1);
-  renderObatList();
-}
-
+function hapusObat(i) { state.obatList.splice(i,1); renderObatList(); }
 function renderObatList() {
   const tbody = document.getElementById('obat-list-tbody');
   if (!tbody) return;
-  if (!state.obatList.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3" style="font-size:12px">Belum ada obat ditambahkan</td></tr>';
-    return;
-  }
-  tbody.innerHTML = state.obatList.map((o,i) => `
-    <tr>
-      <td>${i+1}</td>
-      <td>${esc(o.kategori||'—')}</td>
-      <td>${esc(o.nama)}</td>
-      <td>${esc(o.jumlah||'')}</td>
-      <td>${esc(o.satuan||'')}</td>
-      <td><button class="btn-remove-obat" onclick="hapusObat(${i})"><i class="fas fa-times"></i></button></td>
-    </tr>`).join('');
+  tbody.innerHTML = state.obatList.length
+    ? state.obatList.map((o,i)=>`<tr><td>${i+1}</td><td>${esc(o.kategori||'-')}</td><td>${esc(o.nama)}</td><td>${esc(o.jumlah||'')}</td><td>${esc(o.satuan||'')}</td><td><button class="btn btn-sm btn-outline-danger" onclick="hapusObat(${i})"><i class="bi bi-x"></i></button></td></tr>`).join('')
+    : '<tr><td colspan="6" class="text-center text-muted py-3">Belum ada obat</td></tr>';
 }
 
-// SAVE FUNCTIONS
+// ════════════════════════════════════════════════════════
+//  SAVE FUNCTIONS
+// ════════════════════════════════════════════════════════
 async function saveBerobat() {
-  const nama = document.getElementById('b-nama')?.value.trim();
-  const tgl  = document.getElementById('b-tanggal')?.value;
-  const dept = document.getElementById('b-departemen')?.value;
-  if (!nama || !tgl || !dept) { toast('warning','Form Tidak Lengkap','Nama, Tanggal, dan Departemen wajib diisi.'); return; }
-  
+  if (!validateRequired(['b-tanggal','b-waktu','b-departemen','b-nama','b-jk','b-keluhan'])) return;
   await doSave('berobat', {
-    'Tanggal'              : inputToDate(tgl),
-    'Waktu'                : document.getElementById('b-waktu')?.value || '',
-    'Perusahaan'           : state.company,
-    'Departemen'           : dept,
-    'Nama'                 : nama,
-    'Jenis Kelamin'        : document.getElementById('b-jk')?.value || '',
-    'Keluhan'              : document.getElementById('b-keluhan')?.value.trim() || '',
-    'Kategori Diagnosa'    : state.diagnosaList.map(d=>d.kategori).join('|'),
-    'Nama Diagnosa'        : state.diagnosaList.map(d=>d.nama).join('|'),
-    'Kategori Obat'        : state.obatList.map(o=>o.kategori).join('|'),
-    'Nama Obat'            : state.obatList.map(o=>o.nama).join('|'),
-    'Jumlah Obat'          : state.obatList.map(o=>o.jumlah).join('|'),
-    'Satuan Obat'          : state.obatList.map(o=>o.satuan).join('|'),
-    'Tindakan'             : document.getElementById('b-tindakan')?.value.trim() || '',
-    'Perlu Istirahat'      : document.getElementById('b-istirahat')?.value || '',
-    'Jumlah Hari Istirahat': document.getElementById('b-hari-istirahat')?.value || '',
-    'Keterangan Berobat'   : document.getElementById('b-keterangan')?.value.trim() || '',
+    'Tanggal': inputToDate(document.getElementById('b-tanggal').value),
+    'Waktu': document.getElementById('b-waktu').value,
+    'Perusahaan': state.company,
+    'Departemen': document.getElementById('b-departemen').value,
+    'Nama': document.getElementById('b-nama').value.trim(),
+    'Jenis Kelamin': document.getElementById('b-jk').value,
+    'Keluhan': document.getElementById('b-keluhan').value.trim(),
+    'Kategori Diagnosa': state.diagnosaList.map(d=>d.kategori).join('|'),
+    'Nama Diagnosa': state.diagnosaList.map(d=>d.nama).join('|'),
+    'Kategori Obat': state.obatList.map(o=>o.kategori).join('|'),
+    'Nama Obat': state.obatList.map(o=>o.nama).join('|'),
+    'Jumlah Obat': state.obatList.map(o=>o.jumlah).join('|'),
+    'Satuan Obat': state.obatList.map(o=>o.satuan).join('|'),
+    'Tindakan': document.getElementById('b-tindakan').value.trim(),
+    'Perlu Istirahat': document.getElementById('b-istirahat').value,
+    'Jumlah Hari Istirahat': document.getElementById('b-hari-istirahat').value,
+    'Keterangan Berobat': document.getElementById('b-keterangan').value.trim(),
   });
 }
 
 async function saveKecelakaan() {
-  const nama = document.getElementById('k-nama')?.value.trim();
-  const tgl  = document.getElementById('k-tanggal')?.value;
-  const dept = document.getElementById('k-departemen')?.value;
-  if (!nama || !tgl || !dept) { toast('warning','Form Tidak Lengkap','Nama, Tanggal, dan Departemen wajib diisi.'); return; }
-  
+  if (!validateRequired(['k-tanggal','k-waktu','k-departemen','k-nama','k-jk','k-lokasi','k-penyebab','k-bagian-terluka','k-tindakan','k-deskripsi'])) return;
   await doSave('kecelakaan', {
-    'Tanggal'             : inputToDate(tgl),
-    'Waktu'               : document.getElementById('k-waktu')?.value || '',
-    'Perusahaan'          : state.company,
-    'Departemen'          : dept,
-    'Nama'                : nama,
-    'Jenis Kelamin'       : document.getElementById('k-jk')?.value || '',
-    'Lokasi Kejadian'     : document.getElementById('k-lokasi')?.value.trim() || '',
-    'Penyebab'            : document.getElementById('k-penyebab')?.value.trim() || '',
-    'Bagian Yang Terluka' : document.getElementById('k-bagian-terluka')?.value.trim() || '',
-    'Tindakan'            : document.getElementById('k-tindakan')?.value.trim() || '',
-    'Deskripsi Kejadian'  : document.getElementById('k-deskripsi')?.value.trim() || '',
+    'Tanggal': inputToDate(document.getElementById('k-tanggal').value),
+    'Waktu': document.getElementById('k-waktu').value,
+    'Perusahaan': state.company,
+    'Departemen': document.getElementById('k-departemen').value,
+    'Nama': document.getElementById('k-nama').value.trim(),
+    'Jenis Kelamin': document.getElementById('k-jk').value,
+    'Lokasi Kejadian': document.getElementById('k-lokasi').value.trim(),
+    'Penyebab': document.getElementById('k-penyebab').value.trim(),
+    'Bagian Yang Terluka': document.getElementById('k-bagian-terluka').value.trim(),
+    'Tindakan': document.getElementById('k-tindakan').value.trim(),
+    'Deskripsi Kejadian': document.getElementById('k-deskripsi').value.trim(),
   });
 }
 
 async function saveKonsultasi() {
-  const nama = document.getElementById('ko-nama')?.value.trim();
-  const tgl  = document.getElementById('ko-tanggal')?.value;
-  const dept = document.getElementById('ko-departemen')?.value;
-  if (!nama || !tgl || !dept) { toast('warning','Form Tidak Lengkap','Nama, Tanggal, dan Departemen wajib diisi.'); return; }
-  
+  if (!validateRequired(['ko-tanggal','ko-waktu','ko-departemen','ko-nama','ko-jk','ko-keluhan'])) return;
   await doSave('konsultasi', {
-    'Tanggal'         : inputToDate(tgl),
-    'Waktu'           : document.getElementById('ko-waktu')?.value || '',
-    'Perusahaan'      : state.company,
-    'Departemen'      : dept,
-    'Nama'            : nama,
-    'Jenis Kelamin'   : document.getElementById('ko-jk')?.value || '',
-    'Keluhan'         : document.getElementById('ko-keluhan')?.value.trim() || '',
-    'Riwayat Penyakit': document.getElementById('ko-riwayat')?.value.trim() || '',
-    'Saran'           : document.getElementById('ko-saran')?.value.trim() || '',
+    'Tanggal': inputToDate(document.getElementById('ko-tanggal').value),
+    'Waktu': document.getElementById('ko-waktu').value,
+    'Perusahaan': state.company,
+    'Departemen': document.getElementById('ko-departemen').value,
+    'Nama': document.getElementById('ko-nama').value.trim(),
+    'Jenis Kelamin': document.getElementById('ko-jk').value,
+    'Keluhan': document.getElementById('ko-keluhan').value.trim(),
+    'Riwayat Penyakit': document.getElementById('ko-riwayat').value.trim(),
+    'Saran': document.getElementById('ko-saran').value.trim(),
   });
 }
 
+function validateRequired(ids) {
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (!el?.value?.toString().trim()) {
+      toast('warning', 'Form Tidak Lengkap', `${el?.labels?.[0]?.textContent || id} wajib diisi.`);
+      el?.focus(); return false;
+    }
+  }
+  return true;
+}
+
 async function doSave(type, row) {
-  if (GAS_URL === 'GANTI_DENGAN_URL_GAS_WEB_APP') {
-    toast('info','Mode Demo','GAS_URL belum dikonfigurasi. Data tidak tersimpan.'); 
-    return;
-  }
-  
   const isEdit = state.editMode.sheet === type;
-  const modalIdMap = { berobat:'modalBerobat', kecelakaan:'modalKecelakaan', konsultasi:'modalKonsultasi' };
-  const btnIdMap   = { berobat:'btn-save-berobat', kecelakaan:'btn-save-kecelakaan', konsultasi:'btn-save-konsultasi' };
-  const btn = document.getElementById(btnIdMap[type]);
-  const origHTML = btn ? btn.innerHTML : '';
-  
-  if (btn) { 
-    btn.disabled = true; 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...'; 
-  }
+  const btn = document.getElementById(`btn-save-${type}`);
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
   
   try {
     let res;
     if (isEdit) {
-      const orig = state.data[type].rows.find(r => r._rowIndex === state.editMode.rowIndex);
-      row['Timestamp'] = orig?.['Timestamp'] || '';
-      row['ID']        = orig?.['ID']        || '';
+      const origRow = state.data[type].rows.find(r => r._rowIndex === state.editMode.rowIndex);
+      row['Timestamp'] = origRow?.['Timestamp'] || '';
+      row['ID'] = origRow?.['ID'] || '';
       res = await gasRequest('updateRow', { sheet: sheetMap[type], rowIndex: state.editMode.rowIndex, row });
     } else {
       res = await gasRequest('addRow', { sheet: sheetMap[type], row });
     }
-    
     if (res.status !== 'success') throw new Error(res.message);
-    
-    toast('success', isEdit ? 'Data Diperbarui' : 'Data Ditambahkan', 'Operasi berhasil dilakukan.');
-    closeModal(modalIdMap[type]);
+    toast('success', isEdit ? 'Data Diperbarui' : 'Data Ditambahkan', 'Operasi berhasil.');
+    closeModal('modal' + type.charAt(0).toUpperCase() + type.slice(1));
     state.editMode = { sheet: null, rowIndex: null };
     await loadData(type);
   } catch (e) {
     toast('error','Gagal Menyimpan', e.message);
   } finally {
-    if (btn) { 
-      btn.disabled = false; 
-      btn.innerHTML = origHTML; 
-    }
+    btn.disabled = false;
+    btn.innerHTML = orig;
   }
 }
 
@@ -814,136 +653,80 @@ async function doSave(type, row) {
 // ════════════════════════════════════════════════════════
 function openEditModal(type, rowIndex) {
   const record = state.data[type].rows.find(r => r._rowIndex === rowIndex);
-  if (!record) { toast('error','Error','Data tidak ditemukan.'); return; }
-  
-  state.editMode   = { sheet: type, rowIndex };
-  state.obatList     = [];
-  state.diagnosaList = [];
+  if (!record) return toast('error','Error','Data tidak ditemukan.');
+  state.editMode = { sheet: type, rowIndex };
+  state.obatList = []; state.diagnosaList = [];
 
   if (type === 'berobat') {
     resetBerobatForm();
-    const title = document.getElementById('title-berobat');
-    if (title) title.innerHTML = '<i class="fas fa-pencil-alt me-2"></i>Edit Data Berobat';
-    
-    const bTanggal = document.getElementById('b-tanggal');
-    const bWaktu = document.getElementById('b-waktu');
-    const bNama = document.getElementById('b-nama');
-    const bJk = document.getElementById('b-jk');
-    const bDept = document.getElementById('b-departemen');
-    const bKeluhan = document.getElementById('b-keluhan');
-    const bTindakan = document.getElementById('b-tindakan');
-    const bKeterangan = document.getElementById('b-keterangan');
-    const bIstirahat = document.getElementById('b-istirahat');
-    const bHari = document.getElementById('b-hari-istirahat');
-    
-    if (bTanggal) bTanggal.value = dateToInput(record['Tanggal'] || '');
-    if (bWaktu) bWaktu.value = record['Waktu'] || '';
-    if (bNama) bNama.value = record['Nama']||'';
-    if (bJk) bJk.value = record['Jenis Kelamin']||'';
-    if (bDept) bDept.value = record['Departemen']||'';
-    if (bKeluhan) bKeluhan.value = record['Keluhan']||'';
-    if (bTindakan) bTindakan.value = record['Tindakan']||'';
-    if (bKeterangan) bKeterangan.value = record['Keterangan Berobat']||'';
-    if (bIstirahat) bIstirahat.value = record['Perlu Istirahat']||'';
-    if (bHari) bHari.value = record['Jumlah Hari Istirahat']||'';
-    
+    document.getElementById('title-berobat').innerHTML = '<i class="bi bi-pencil me-2"></i>Edit Data Berobat';
+    setVal('b-tanggal', dateToInput(record['Tanggal']));
+    setVal('b-waktu', record['Waktu']);
+    setVal('b-nama', record['Nama']);
+    setVal('b-jk', record['Jenis Kelamin']);
+    setVal('b-departemen', record['Departemen']);
+    setVal('b-keluhan', record['Keluhan']);
+    setVal('b-tindakan', record['Tindakan']);
+    setVal('b-keterangan', record['Keterangan Berobat']);
+    setVal('b-istirahat', record['Perlu Istirahat']);
+    setVal('b-hari-istirahat', record['Jumlah Hari Istirahat']);
     toggleIstirahat();
     
-    const katDiagArr  = (record['Kategori Diagnosa']||'').split('|').filter(Boolean);
-    const namaDiagArr = (record['Nama Diagnosa']||'').split('|').filter(Boolean);
-    namaDiagArr.forEach((n,i) => state.diagnosaList.push({ kategori: katDiagArr[i]||'', nama: n }));
+    const katDiag = (record['Kategori Diagnosa']||'').split('|').filter(Boolean);
+    const namaDiag = (record['Nama Diagnosa']||'').split('|').filter(Boolean);
+    namaDiag.forEach((n,i) => state.diagnosaList.push({ kategori: katDiag[i]||'', nama: n }));
     renderDiagnosaList();
     
-    const katObatArr  = (record['Kategori Obat']||'').split('|').filter(Boolean);
-    const namaObatArr = (record['Nama Obat']||'').split('|').filter(Boolean);
-    const jumlahArr   = (record['Jumlah Obat']||'').split('|');
-    const satuanArr   = (record['Satuan Obat']||'').split('|');
-    namaObatArr.forEach((n,i) => state.obatList.push({ 
-      kategori: katObatArr[i]||'', 
-      nama: n, 
-      jumlah: jumlahArr[i]||'', 
-      satuan: satuanArr[i]||'' 
-    }));
+    const katObat = (record['Kategori Obat']||'').split('|').filter(Boolean);
+    const namaObat = (record['Nama Obat']||'').split('|').filter(Boolean);
+    const jumlah = (record['Jumlah Obat']||'').split('|');
+    const satuan = (record['Satuan Obat']||'').split('|');
+    namaObat.forEach((n,i) => state.obatList.push({ kategori: katObat[i]||'', nama: n, jumlah: jumlah[i]||'', satuan: satuan[i]||'' }));
     renderObatList();
-    
-    openModal('modalBerobat');
-    
   } else if (type === 'kecelakaan') {
     resetKecelakaanForm();
-    const title = document.getElementById('title-kecelakaan');
-    if (title) title.innerHTML = '<i class="fas fa-pencil-alt me-2"></i>Edit Data Kecelakaan';
-    
-    const kTanggal = document.getElementById('k-tanggal');
-    const kWaktu = document.getElementById('k-waktu');
-    const kNama = document.getElementById('k-nama');
-    const kJk = document.getElementById('k-jk');
-    const kDept = document.getElementById('k-departemen');
-    const kLokasi = document.getElementById('k-lokasi');
-    const kPenyebab = document.getElementById('k-penyebab');
-    const kBagian = document.getElementById('k-bagian-terluka');
-    const kTindakan = document.getElementById('k-tindakan');
-    const kDeskripsi = document.getElementById('k-deskripsi');
-    
-    if (kTanggal) kTanggal.value = dateToInput(record['Tanggal'] || '');
-    if (kWaktu) kWaktu.value = record['Waktu'] || '';
-    if (kNama) kNama.value = record['Nama']||'';
-    if (kJk) kJk.value = record['Jenis Kelamin']||'';
-    if (kDept) kDept.value = record['Departemen']||'';
-    if (kLokasi) kLokasi.value = record['Lokasi Kejadian']||'';
-    if (kPenyebab) kPenyebab.value = record['Penyebab']||'';
-    if (kBagian) kBagian.value = record['Bagian Yang Terluka']||'';
-    if (kTindakan) kTindakan.value = record['Tindakan']||'';
-    if (kDeskripsi) kDeskripsi.value = record['Deskripsi Kejadian']||'';
-    
-    openModal('modalKecelakaan');
-    
-  } else if (type === 'konsultasi') {
+    document.getElementById('title-kecelakaan').innerHTML = '<i class="bi bi-pencil me-2"></i>Edit Data Kecelakaan';
+    setVal('k-tanggal', dateToInput(record['Tanggal']));
+    setVal('k-waktu', record['Waktu']);
+    setVal('k-nama', record['Nama']);
+    setVal('k-jk', record['Jenis Kelamin']);
+    setVal('k-departemen', record['Departemen']);
+    setVal('k-lokasi', record['Lokasi Kejadian']);
+    setVal('k-penyebab', record['Penyebab']);
+    setVal('k-bagian-terluka', record['Bagian Yang Terluka']);
+    setVal('k-tindakan', record['Tindakan']);
+    setVal('k-deskripsi', record['Deskripsi Kejadian']);
+  } else {
     resetKonsultasiForm();
-    const title = document.getElementById('title-konsultasi');
-    if (title) title.innerHTML = '<i class="fas fa-pencil-alt me-2"></i>Edit Data Konsultasi';
-    
-    const koTanggal = document.getElementById('ko-tanggal');
-    const koWaktu = document.getElementById('ko-waktu');
-    const koNama = document.getElementById('ko-nama');
-    const koJk = document.getElementById('ko-jk');
-    const koDept = document.getElementById('ko-departemen');
-    const koKeluhan = document.getElementById('ko-keluhan');
-    const koRiwayat = document.getElementById('ko-riwayat');
-    const koSaran = document.getElementById('ko-saran');
-    
-    if (koTanggal) koTanggal.value = dateToInput(record['Tanggal'] || '');
-    if (koWaktu) koWaktu.value = record['Waktu'] || '';
-    if (koNama) koNama.value = record['Nama']||'';
-    if (koJk) koJk.value = record['Jenis Kelamin']||'';
-    if (koDept) koDept.value = record['Departemen']||'';
-    if (koKeluhan) koKeluhan.value = record['Keluhan']||'';
-    if (koRiwayat) koRiwayat.value = record['Riwayat Penyakit']||'';
-    if (koSaran) koSaran.value = record['Saran']||'';
-    
-    openModal('modalKonsultasi');
+    document.getElementById('title-konsultasi').innerHTML = '<i class="bi bi-pencil me-2"></i>Edit Data Konsultasi';
+    setVal('ko-tanggal', dateToInput(record['Tanggal']));
+    setVal('ko-waktu', record['Waktu']);
+    setVal('ko-nama', record['Nama']);
+    setVal('ko-jk', record['Jenis Kelamin']);
+    setVal('ko-departemen', record['Departemen']);
+    setVal('ko-keluhan', record['Keluhan']);
+    setVal('ko-riwayat', record['Riwayat Penyakit']);
+    setVal('ko-saran', record['Saran']);
   }
+  openModal('modal' + type.charAt(0).toUpperCase() + type.slice(1));
 }
+
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
 
 // ════════════════════════════════════════════════════════
 //  DELETE
 // ════════════════════════════════════════════════════════
 function confirmDelete(type, rowIndex) {
-  const btnConfirm = document.getElementById('btn-confirm-delete');
-  if (btnConfirm) btnConfirm.onclick = () => doDelete(type, rowIndex);
+  document.getElementById('btn-confirm-delete').onclick = () => doDelete(type, rowIndex);
   openModal('modalDelete');
 }
 
 async function doDelete(type, rowIndex) {
-  if (GAS_URL === 'GANTI_DENGAN_URL_GAS_WEB_APP') {
-    toast('info','Mode Demo','GAS_URL belum dikonfigurasi.'); 
-    closeModal('modalDelete'); 
-    return;
-  }
   closeModal('modalDelete');
   try {
     const res = await gasRequest('deleteRow', { sheet: sheetMap[type], rowIndex });
     if (res.status !== 'success') throw new Error(res.message);
-    toast('success','Data Dihapus','Data berhasil dihapus dari sistem.');
+    toast('success','Data Dihapus','Data berhasil dihapus.');
     await loadData(type);
   } catch (e) {
     toast('error','Gagal Menghapus', e.message);
@@ -953,27 +736,21 @@ async function doDelete(type, rowIndex) {
 // ════════════════════════════════════════════════════════
 //  TOAST
 // ════════════════════════════════════════════════════════
-const toastIcons  = { success:'fa-check-circle', error:'fa-times-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+const toastIcons = { success:'bi-check-circle-fill', error:'bi-x-circle-fill', warning:'bi-exclamation-triangle-fill', info:'bi-info-circle-fill' };
 const toastTitles = { success:'Berhasil', error:'Gagal', warning:'Perhatian', info:'Informasi' };
 
 function toast(type, title, message) {
   const container = document.getElementById('toast-container');
   if (!container) return;
-  
-  const id   = 'toast-' + Date.now();
+  const id = 'toast-' + Date.now();
   const item = document.createElement('div');
   item.className = `toast-item ${type}`;
-  item.id        = id;
-  item.innerHTML = `
-    <i class="fas ${toastIcons[type]||'fa-info-circle'} toast-icon"></i>
-    <div class="toast-body">
-      <strong>${esc(title||toastTitles[type])}</strong>
-      <span>${esc(message)}</span>
-    </div>
-    <button class="toast-close" onclick="closeToast('${id}')"><i class="fas fa-times"></i></button>`;
+  item.id = id;
+  item.innerHTML = `<i class="bi ${toastIcons[type]} toast-icon"></i>
+    <div class="toast-body"><strong>${esc(title||toastTitles[type])}</strong><span>${esc(message)}</span></div>
+    <button class="toast-close" onclick="closeToast('${id}')"><i class="bi bi-x"></i></button>`;
   container.appendChild(item);
-  
-  requestAnimationFrame(() => requestAnimationFrame(() => item.classList.add('show')));
+  requestAnimationFrame(() => item.classList.add('show'));
   setTimeout(() => closeToast(id), 4500);
 }
 
@@ -981,5 +758,5 @@ function closeToast(id) {
   const el = document.getElementById(id);
   if (!el) return;
   el.classList.remove('show');
-  setTimeout(() => el.remove(), 400);
+  setTimeout(() => el.remove(), 300);
 }
