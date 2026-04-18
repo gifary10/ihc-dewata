@@ -21,8 +21,41 @@ window.addEventListener('orientationchange', setVHVariable);
 // ════════════════════════════════════════════════════════
 //  CONFIGURATION & STATE
 // ════════════════════════════════════════════════════════
-const GAS_URL  = 'https://script.google.com/macros/s/AKfycbwPP6UKFtsFdFI3NbxB99rdB1YOyG-NDF9Yrc6bYHHzbdjtvW1FkbmWfc3YfqNRLM1i3A/exec';
-const PER_PAGE = 15;
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxLvKh9fs5RxonDa41x3gHf4XJ2iX7sdPFVpefTLBQiGjwUThMf1xcsDYR15GVCMngR6Q/exec';
+const PER_PAGE = 8;
+
+// Data types
+const DATA_TYPES = {
+  BEROBAT: 'berobat',
+  KECELAKAAN: 'kecelakaan',
+  KONSULTASI: 'konsultasi'
+};
+
+// Sheet mapping
+const SHEET_MAP = {
+  berobat: 'Berobat',
+  kecelakaan: 'Kecelakaan',
+  konsultasi: 'Konsultasi'
+};
+
+// Form IDs
+const FORM_FIELDS = {
+  berobat: {
+    main: ['b-tanggal', 'b-waktu', 'b-departemen', 'b-nama', 'b-jk', 'b-keluhan'],
+    form: ['b-nama','b-keluhan','b-tindakan','b-keterangan'],
+    extras: ['b-jk','b-istirahat','b-hari-istirahat','b-kat-diagnosa','b-kat-obat']
+  },
+  kecelakaan: {
+    main: ['k-tanggal','k-waktu','k-departemen','k-nama','k-jk','k-lokasi','k-penyebab','k-bagian-terluka','k-tindakan','k-deskripsi'],
+    form: ['k-nama','k-lokasi','k-penyebab','k-bagian-terluka','k-tindakan','k-deskripsi']
+  },
+  konsultasi: {
+    main: ['ko-tanggal','ko-waktu','ko-departemen','ko-nama','ko-jk','ko-keluhan'],
+    form: ['ko-nama','ko-keluhan','ko-riwayat','ko-saran']
+  }
+};
+
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 const state = {
   master: null,
@@ -33,9 +66,9 @@ const state = {
     konsultasi: { rows: [], total: 0, page: 1, totalPages: 1 },
   },
   filters: {
-    berobat:    { search: '', tahun: '', bulan: '', dept: '' },
-    kecelakaan: { search: '', tahun: '', bulan: '', dept: '' },
-    konsultasi: { search: '', tahun: '', bulan: '', dept: '' },
+    berobat:    { search: '', tahun: '', bulan: '', date: '', dept: '' },
+    kecelakaan: { search: '', tahun: '', bulan: '', date: '', dept: '' },
+    konsultasi: { search: '', tahun: '', bulan: '', date: '', dept: '' },
   },
   editMode:       { sheet: null, rowIndex: null },
   obatList:       [],
@@ -138,51 +171,39 @@ function hideLoading() {
 
 function populateMasterDropdowns() {
   if (!state.master) return;
-  const sel = document.getElementById('select-perusahaan');
-  if (sel) {
-    sel.innerHTML = '<option value="">-- Pilih Perusahaan --</option>';
-    state.master.perusahaan.forEach(p =>
-      sel.insertAdjacentHTML('beforeend', `<option value="${esc(p)}">${esc(p)}</option>`)
-    );
-  }
-  const katDiag = document.getElementById('b-kat-diagnosa');
-  if (katDiag) {
-    katDiag.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-    Object.keys(state.master.diagnosa).forEach(k =>
-      katDiag.insertAdjacentHTML('beforeend', `<option value="${esc(k)}">${esc(k)}</option>`)
-    );
-  }
-  const katObat = document.getElementById('b-kat-obat');
-  if (katObat) {
-    katObat.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-    Object.keys(state.master.obat).forEach(k =>
-      katObat.insertAdjacentHTML('beforeend', `<option value="${esc(k)}">${esc(k)}</option>`)
-    );
-  }
+  
+  // Populate company selector
+  populateDropdown('select-perusahaan', '<option value="">-- Pilih Perusahaan --</option>', 
+    state.master.perusahaan, p => p, p => p);
+  
+  // Populate diagnosa category
+  populateDropdown('b-kat-diagnosa', '<option value="">-- Pilih Kategori --</option>',
+    Object.keys(state.master.diagnosa), k => k, k => k);
+  
+  // Populate obat category
+  populateDropdown('b-kat-obat', '<option value="">-- Pilih Kategori --</option>',
+    Object.keys(state.master.obat), k => k, k => k);
+}
+
+// Helper: Generic dropdown population (DRY principle)
+function populateDropdown(elementId, firstOption, data, valueFn, labelFn) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.innerHTML = firstOption;
+  data.forEach(v => el.insertAdjacentHTML('beforeend',
+    `<option value="${esc(String(valueFn(v)))}">${esc(String(labelFn(v)))}</option>`));
 }
 
 function filterNamaDiagnosa() {
   const kat = document.getElementById('b-kat-diagnosa')?.value;
-  const sel = document.getElementById('b-nama-diagnosa');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">-- Pilih Nama --</option>';
-  if (kat && state.master?.diagnosa[kat]) {
-    state.master.diagnosa[kat].forEach(n =>
-      sel.insertAdjacentHTML('beforeend', `<option value="${esc(n)}">${esc(n)}</option>`)
-    );
-  }
+  const data = kat && state.master?.diagnosa[kat] ? state.master.diagnosa[kat] : [];
+  populateDropdown('b-nama-diagnosa', '<option value="">-- Pilih Nama --</option>', data, n => n, n => n);
 }
 
 function filterNamaObat() {
   const kat = document.getElementById('b-kat-obat')?.value;
-  const sel = document.getElementById('b-nama-obat');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">-- Pilih Nama --</option>';
-  if (kat && state.master?.obat[kat]) {
-    state.master.obat[kat].forEach(n =>
-      sel.insertAdjacentHTML('beforeend', `<option value="${esc(n)}">${esc(n)}</option>`)
-    );
-  }
+  const data = kat && state.master?.obat[kat] ? state.master.obat[kat] : [];
+  populateDropdown('b-nama-obat', '<option value="">-- Pilih Nama --</option>', data, n => n, n => n);
 }
 
 function fillDepartemenDropdown(selectId) {
@@ -219,17 +240,25 @@ function applyCompany(company) {
   
   toast('success', 'Perusahaan Dipilih', company);
   
-  ['berobat', 'kecelakaan', 'konsultasi'].forEach(type => {
-    state.filters[type] = { search: '', tahun: '', bulan: '', dept: '' };
-    ['search', 'filter-tahun', 'filter-bulan', 'filter-dept'].forEach(prefix => {
-      const el = document.getElementById(`${prefix}-${type}`);
-      if (el) el.value = '';
-    });
+  // Reset all filters and reload data
+  Object.values(DATA_TYPES).forEach(type => {
+    state.filters[type] = { search: '', tahun: '', bulan: '', date: '', dept: '' };
+    const searchEl = document.getElementById(`search-${type}`);
+    if (searchEl) searchEl.value = '';
+    const tahunEl = document.getElementById(`filter-tahun-${type}`);
+    if (tahunEl) tahunEl.value = '';
+    const bulanEl = document.getElementById(`filter-bulan-${type}`);
+    if (bulanEl) bulanEl.value = '';
+    const dateEl = document.getElementById(`filter-date-${type}`);
+    if (dateEl) dateEl.value = '';
+    const deptEl = document.getElementById(`filter-dept-${type}`);
+    if (deptEl) deptEl.value = '';
   });
   
-  loadData('berobat', 1);
-  loadData('kecelakaan', 1);
-  loadData('konsultasi', 1);
+  // Reload all data
+  loadData(DATA_TYPES.BEROBAT, 1);
+  loadData(DATA_TYPES.KECELAKAAN, 1);
+  loadData(DATA_TYPES.KONSULTASI, 1);
 }
 
 // ════════════════════════════════════════════════════════
@@ -242,8 +271,8 @@ function showPage(name) {
   document.getElementById('page-' + name)?.classList.add('active');
   document.querySelectorAll(`[data-page="${name}"]`).forEach(el => el.classList.add('active'));
 
-  // Toggle sidebar filter group
-  ['berobat','kecelakaan','konsultasi'].forEach(p => {
+  // Toggle sidebar filter groups
+  Object.values(DATA_TYPES).forEach(p => {
     const fg = document.getElementById('sidebar-filters-' + p);
     if (fg) fg.classList.toggle('d-none', p !== name);
   });
@@ -252,8 +281,6 @@ function showPage(name) {
 // ════════════════════════════════════════════════════════
 //  DATA LOADING
 // ════════════════════════════════════════════════════════
-const sheetMap = { berobat:'Berobat', kecelakaan:'Kecelakaan', konsultasi:'Konsultasi' };
-
 async function loadData(type, page) {
   if (GAS_URL.includes('GANTI')) return;
   if (page !== undefined) state.data[type].page = page;
@@ -261,11 +288,12 @@ async function loadData(type, page) {
   const f = state.filters[type];
   try {
     const res = await gasRequest('getData', {
-      sheet      : sheetMap[type],
+      sheet      : SHEET_MAP[type],
       perusahaan : state.company,
       search     : f.search,
       tahun      : f.tahun,
       bulan      : f.bulan,
+      date       : f.date,
       dept       : f.dept,
       page       : state.data[type].page,
       perPage    : PER_PAGE,
@@ -279,8 +307,10 @@ async function loadData(type, page) {
     populateFilterOptions(type, res.filterOptions || {});
     renderTable(type);
   } catch (e) {
-    document.getElementById('tbody-' + type).innerHTML = 
-      `<tr><td colspan="6"><div class="empty-state"><i class="bi bi-wifi-off"></i><p>Gagal memuat: ${esc(e.message)}</p></div></td></tr>`;
+    const tbody = document.getElementById('tbody-' + type);
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="bi bi-wifi-off"></i><p>Gagal memuat: ${esc(e.message)}</p></div></td></tr>`;
+    }
     toast('error', 'Gagal Memuat', e.message);
   }
 }
@@ -306,8 +336,6 @@ function populateFilterOptions(type, options) {
   if (options.dept) fill(`filter-dept-${type}`, options.dept, v=>v, v=>v);
 }
 
-const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-
 function debounceSearch(type) {
   clearTimeout(state.debounceTimers[type]);
   state.debounceTimers[type] = setTimeout(() => {
@@ -319,6 +347,7 @@ function debounceSearch(type) {
 function applyFilter(type) {
   state.filters[type].tahun = document.getElementById(`filter-tahun-${type}`)?.value || '';
   state.filters[type].bulan = document.getElementById(`filter-bulan-${type}`)?.value || '';
+  state.filters[type].date  = document.getElementById(`filter-date-${type}`)?.value || '';
   state.filters[type].dept  = document.getElementById(`filter-dept-${type}`)?.value  || '';
   loadData(type, 1);
 }
@@ -334,7 +363,7 @@ function renderTable(type) {
   
   tbody.innerHTML = rows.length
     ? rows.map((r, i) => buildRow(type, r, start + i + 1)).join('')
-    : `<tr><td colspan="6"><div class="empty-state"><i class="bi bi-inbox"></i><p>Tidak ada data ditemukan</p></div></td></tr>`;
+    : `<tr><td colspan="7"><div class="empty-state"><i class="bi bi-inbox"></i><p>Tidak ada data ditemukan</p></div></td></tr>`;
   
   const info = document.getElementById('info-' + type);
   if (info) {
@@ -350,7 +379,7 @@ function renderSkeleton(type) {
   const tbody = document.getElementById('tbody-' + type);
   if (!tbody) return;
   tbody.innerHTML = Array(5).fill(
-    '<tr>' + Array(6).fill('<td><div class="skeleton"></div></td>').join('') + '</tr>'
+    '<tr>' + Array(7).fill('<td><div class="skeleton"></div></td>').join('') + '</tr>'
   ).join('');
 }
 
@@ -377,18 +406,30 @@ function formatDateDisplay(val) {
 
 function buildRow(type, r, no) {
   const idx = r._rowIndex;
-  return `<tr>
+  let row = `<tr>
     <td>${no}</td>
-    <td><small class="text-secondary">${esc(r['Timestamp'] || '')}</small></td>
-    <td>${esc(formatDateDisplay(r['Tanggal']))}</td>
     <td><strong>${esc(r['Nama'] || '')}</strong></td>
-    <td>${esc(r['Departemen'] || '')}</td>
-    <td><div class="action-btns">
-      <button class="btn-icon-sm btn-detail" onclick="openDetailModal('${type}',${idx})" title="Detail"><i class="bi bi-eye"></i></button>
-      <button class="btn-icon-sm btn-edit" onclick="openEditModal('${type}',${idx})" title="Edit"><i class="bi bi-pencil"></i></button>
-      <button class="btn-icon-sm btn-delete" onclick="confirmDelete('${type}',${idx})" title="Hapus"><i class="bi bi-trash3"></i></button>
-    </div></td>
+    <td>${esc(formatDateDisplay(r['Tanggal']))}</td>
+    <td>${esc(r['Departemen'] || '')}</td>`;
+  
+  if (type === 'berobat') {
+    row += `<td>${esc(r['Keluhan'] || '')}</td>
+    <td>${esc((r['Nama Diagnosa'] || '').replace(/\|/g, ', '))}</td>`;
+  } else if (type === 'kecelakaan') {
+    row += `<td>${esc(r['Lokasi Kejadian'] || '')}</td>
+    <td>${esc(r['Penyebab'] || '')}</td>`;
+  } else if (type === 'konsultasi') {
+    row += `<td>${esc(r['Keluhan'] || '')}</td>
+    <td>${esc(r['Riwayat Penyakit'] || '')}</td>`;
+  }
+  
+  row += `<td><div class="action-btns">
+    <button class="btn-icon-sm btn-detail" onclick="openDetailModal('${type}',${idx})" title="Detail"><i class="bi bi-eye"></i></button>
+    <button class="btn-icon-sm btn-delete" onclick="confirmDelete('${type}',${idx})" title="Hapus"><i class="bi bi-trash3"></i></button>
+  </div></td>
   </tr>`;
+  
+  return row;
 }
 
 function renderPagination(type, page, totalPages) {
@@ -420,7 +461,7 @@ function gotoPage(type, page) { loadData(type, page); }
 function openDetailModal(type, rowIndex) {
   const record = state.data[type].rows.find(r => r._rowIndex === rowIndex);
   if (!record) return toast('error','Error','Data tidak ditemukan.');
-  state.detailRecord = record;
+  state.detailRecord = { type, rowIndex, data: record };
   
   document.getElementById('detail-modal-title').innerHTML = 
     `<i class="bi bi-${type==='berobat'?'clipboard2-pulse':type==='kecelakaan'?'exclamation-triangle':'chat-dots'} me-2"></i>Detail Data`;
@@ -435,7 +476,8 @@ function openDetailModal(type, rowIndex) {
   if (type === 'berobat') {
     fields.push(['Keluhan', record['Keluhan']], ['Kategori Diagnosa', (record['Kategori Diagnosa']||'').replace(/\|/g, ', ')],
       ['Nama Diagnosa', (record['Nama Diagnosa']||'').replace(/\|/g, ', ')], ['Kategori Obat', (record['Kategori Obat']||'').replace(/\|/g, ', ')],
-      ['Nama Obat', (record['Nama Obat']||'').replace(/\|/g, ', ')], ['Tindakan', record['Tindakan']],
+      ['Nama Obat', (record['Nama Obat']||'').replace(/\|/g, ', ')], ['Jumlah Obat', (record['Jumlah Obat']||'').replace(/\|/g, ', ')],
+      ['Satuan Obat', (record['Satuan Obat']||'').replace(/\|/g, ', ')], ['Tindakan', record['Tindakan']],
       ['Perlu Istirahat', record['Perlu Istirahat']], ['Jumlah Hari Istirahat', record['Jumlah Hari Istirahat']],
       ['Keterangan Berobat', record['Keterangan Berobat']]);
   } else if (type === 'kecelakaan') {
@@ -451,6 +493,12 @@ function openDetailModal(type, rowIndex) {
   `).join('');
   
   openModal('modalDetail');
+}
+
+function editFromDetail() {
+  if (!state.detailRecord) return toast('error', 'Error', 'Data tidak ditemukan.');
+  closeModal('modalDetail');
+  openEditModal(state.detailRecord.type, state.detailRecord.rowIndex);
 }
 
 // ════════════════════════════════════════════════════════
@@ -621,9 +669,12 @@ function validateRequired(ids) {
 async function doSave(type, row) {
   const isEdit = state.editMode.sheet === type;
   const btn = document.getElementById(`btn-save-${type}`);
-  const orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+  const orig = btn?.innerHTML || '';
+  
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+  }
   
   try {
     let res;
@@ -631,9 +682,9 @@ async function doSave(type, row) {
       const origRow = state.data[type].rows.find(r => r._rowIndex === state.editMode.rowIndex);
       row['Timestamp'] = origRow?.['Timestamp'] || '';
       row['ID'] = origRow?.['ID'] || '';
-      res = await gasRequest('updateRow', { sheet: sheetMap[type], rowIndex: state.editMode.rowIndex, row });
+      res = await gasRequest('updateRow', { sheet: SHEET_MAP[type], rowIndex: state.editMode.rowIndex, row });
     } else {
-      res = await gasRequest('addRow', { sheet: sheetMap[type], row });
+      res = await gasRequest('addRow', { sheet: SHEET_MAP[type], row });
     }
     if (res.status !== 'success') throw new Error(res.message);
     toast('success', isEdit ? 'Data Diperbarui' : 'Data Ditambahkan', 'Operasi berhasil.');
@@ -643,8 +694,10 @@ async function doSave(type, row) {
   } catch (e) {
     toast('error','Gagal Menyimpan', e.message);
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = orig;
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
   }
 }
 
@@ -724,7 +777,7 @@ function confirmDelete(type, rowIndex) {
 async function doDelete(type, rowIndex) {
   closeModal('modalDelete');
   try {
-    const res = await gasRequest('deleteRow', { sheet: sheetMap[type], rowIndex });
+    const res = await gasRequest('deleteRow', { sheet: SHEET_MAP[type], rowIndex });
     if (res.status !== 'success') throw new Error(res.message);
     toast('success','Data Dihapus','Data berhasil dihapus.');
     await loadData(type);

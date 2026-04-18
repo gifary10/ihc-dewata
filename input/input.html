@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Custom CSS -->
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style-input.css">
 </head>
 <body>
 
@@ -42,25 +42,20 @@
         <small>In House Clinic</small>
       </div>
     </div>
-    <div class="sidebar-company" onclick="openCompanyModal()">
-      <i class="bi bi-building"></i>
-      <span id="sidebar-company-name">Pilih Perusahaan</span>
-      <i class="bi bi-chevron-down ms-auto"></i>
-    </div>
     <nav class="sidebar-nav">
       <a class="nav-item active" data-page="berobat" onclick="showPage('berobat')">
         <i class="bi bi-clipboard2-pulse"></i>
-        <span>Data Berobat</span>
+        <span>Berobat</span>
         <span class="badge-count" id="sidebar-badge-berobat">0</span>
       </a>
       <a class="nav-item" data-page="kecelakaan" onclick="showPage('kecelakaan')">
         <i class="bi bi-exclamation-triangle"></i>
-        <span>Data Kecelakaan</span>
+        <span>Kecelakaan</span>
         <span class="badge-count" id="sidebar-badge-kecelakaan">0</span>
       </a>
       <a class="nav-item" data-page="konsultasi" onclick="showPage('konsultasi')">
         <i class="bi bi-chat-dots"></i>
-        <span>Data Konsultasi</span>
+        <span>Konsultasi</span>
         <span class="badge-count" id="sidebar-badge-konsultasi">0</span>
       </a>
     </nav>
@@ -77,6 +72,8 @@
         <select class="form-select sidebar-filter-select" id="filter-bulan-berobat" onchange="applyFilter('berobat')">
           <option value="">Semua Bulan</option>
         </select>
+        <label class="sidebar-filter-label mt-2">Pilih Tanggal</label>
+        <input type="date" class="form-control sidebar-filter-select" id="filter-date-berobat" onchange="applyFilter('berobat')">
         <label class="sidebar-filter-label mt-2">Departemen</label>
         <select class="form-select sidebar-filter-select" id="filter-dept-berobat" onchange="applyFilter('berobat')">
           <option value="">Semua Dept</option>
@@ -91,6 +88,8 @@
         <select class="form-select sidebar-filter-select" id="filter-bulan-kecelakaan" onchange="applyFilter('kecelakaan')">
           <option value="">Semua Bulan</option>
         </select>
+        <label class="sidebar-filter-label mt-2">Pilih Tanggal</label>
+        <input type="date" class="form-control sidebar-filter-select" id="filter-date-kecelakaan" onchange="applyFilter('kecelakaan')">
         <label class="sidebar-filter-label mt-2">Departemen</label>
         <select class="form-select sidebar-filter-select" id="filter-dept-kecelakaan" onchange="applyFilter('kecelakaan')">
           <option value="">Semua Dept</option>
@@ -105,6 +104,8 @@
         <select class="form-select sidebar-filter-select" id="filter-bulan-konsultasi" onchange="applyFilter('konsultasi')">
           <option value="">Semua Bulan</option>
         </select>
+        <label class="sidebar-filter-label mt-2">Pilih Tanggal</label>
+        <input type="date" class="form-control sidebar-filter-select" id="filter-date-konsultasi" onchange="applyFilter('konsultasi')">
         <label class="sidebar-filter-label mt-2">Departemen</label>
         <select class="form-select sidebar-filter-select" id="filter-dept-konsultasi" onchange="applyFilter('konsultasi')">
           <option value="">Semua Dept</option>
@@ -120,11 +121,7 @@
       <div class="topbar-brand">
         <img src="logo.png" alt="Logo" class="text-navy" style="width: auto; height: 34px;">
       </div>
-      <div class="topbar-company-mobile" onclick="openCompanyModal()">
-        <i class="bi bi-building"></i>
-        <span id="mobile-company-name">Perusahaan</span>
-        <i class="bi bi-chevron-down"></i>
-      </div>
+
     </header>
 
     <!-- PAGE CONTAINER -->
@@ -133,7 +130,13 @@
       <!-- ===== BEROBAT PAGE ===== -->
       <section id="page-berobat" class="page-section active">
         <div class="page-header">
-          <h2><i class="bi bi-clipboard2-pulse me-2" style="color: var(--navy);"></i>Data Berobat</h2>
+          <div class="header-left">
+            <div class="company-selector d-md-block d-none" onclick="openCompanyModal()">
+              <i class="bi bi-building"></i>
+              <span id="page-company-name">Pilih Perusahaan</span>
+              <i class="bi bi-chevron-down ms-auto"></i>
+            </div>
+          </div>
           <div class="header-actions">
             <div class="search-wrapper">
               <i class="bi bi-search"></i>
@@ -144,31 +147,38 @@
             </button>
           </div>
         </div>
-        <div class="pagination-bar">
-          <span class="page-info" id="info-berobat">Memuat...</span>
-          <div class="pagination" id="pages-berobat"></div>
-        </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead>
               <tr>
                 <th style="width: 50px">#</th>
-                <th>Timestamp</th>
-                <th>Tanggal</th>
                 <th>Nama</th>
+                <th>Tanggal</th>
                 <th>Departemen</th>
+                <th>Keluhan</th>
+                <th>Diagnosa</th>
                 <th class="text-center">Aksi</th>
               </tr>
             </thead>
             <tbody id="tbody-berobat"></tbody>
           </table>
         </div>
+        <div class="pagination-bar">
+          <span class="page-info" id="info-berobat">Memuat...</span>
+          <div class="pagination" id="pages-berobat"></div>
+        </div>
       </section>
 
       <!-- ===== KECELAKAAN PAGE ===== -->
       <section id="page-kecelakaan" class="page-section">
         <div class="page-header">
-          <h2><i class="bi bi-exclamation-triangle me-2" style="color: #dc3545;"></i>Data Kecelakaan</h2>
+          <div class="header-left">
+            <div class="company-selector d-md-block d-none" onclick="openCompanyModal()">
+              <i class="bi bi-building"></i>
+              <span id="page-company-name">Pilih Perusahaan</span>
+              <i class="bi bi-chevron-down ms-auto"></i>
+            </div>
+          </div>
           <div class="header-actions">
             <div class="search-wrapper">
               <i class="bi bi-search"></i>
@@ -179,31 +189,38 @@
             </button>
           </div>
         </div>
-        <div class="pagination-bar">
-          <span class="page-info" id="info-kecelakaan">Memuat...</span>
-          <div class="pagination" id="pages-kecelakaan"></div>
-        </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead>
               <tr>
                 <th style="width: 50px">#</th>
-                <th>Timestamp</th>
-                <th>Tanggal</th>
                 <th>Nama</th>
+                <th>Tanggal</th>
                 <th>Departemen</th>
+                <th>Lokasi Kejadian</th>
+                <th>Penyebab</th>
                 <th class="text-center">Aksi</th>
               </tr>
             </thead>
             <tbody id="tbody-kecelakaan"></tbody>
           </table>
         </div>
+        <div class="pagination-bar">
+          <span class="page-info" id="info-kecelakaan">Memuat...</span>
+          <div class="pagination" id="pages-kecelakaan"></div>
+        </div>
       </section>
 
       <!-- ===== KONSULTASI PAGE ===== -->
       <section id="page-konsultasi" class="page-section">
         <div class="page-header">
-          <h2><i class="bi bi-chat-dots me-2" style="color: #198754;"></i>Data Konsultasi</h2>
+          <div class="header-left">
+            <div class="company-selector d-md-block d-none" onclick="openCompanyModal()">
+              <i class="bi bi-building"></i>
+              <span id="page-company-name">Pilih Perusahaan</span>
+              <i class="bi bi-chevron-down ms-auto"></i>
+            </div>
+          </div>
           <div class="header-actions">
             <div class="search-wrapper">
               <i class="bi bi-search"></i>
@@ -214,24 +231,25 @@
             </button>
           </div>
         </div>
-        <div class="pagination-bar">
-          <span class="page-info" id="info-konsultasi">Memuat...</span>
-          <div class="pagination" id="pages-konsultasi"></div>
-        </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead>
               <tr>
                 <th style="width: 50px">#</th>
-                <th>Timestamp</th>
-                <th>Tanggal</th>
                 <th>Nama</th>
+                <th>Tanggal</th>
                 <th>Departemen</th>
+                <th>Keluhan</th>
+                <th>Riwayat Penyakit</th>
                 <th class="text-center">Aksi</th>
               </tr>
             </thead>
             <tbody id="tbody-konsultasi"></tbody>
           </table>
+        </div>
+        <div class="pagination-bar">
+          <span class="page-info" id="info-konsultasi">Memuat...</span>
+          <div class="pagination" id="pages-konsultasi"></div>
         </div>
       </section>
     </div>
@@ -299,6 +317,7 @@
         <!-- Content will be injected here -->
       </div>
       <div class="modal-footer">
+        <button type="button" id="btn-edit-detail" class="btn btn-primary" onclick="editFromDetail()"><i class="bi bi-pencil me-1"></i>Edit</button>
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
       </div>
     </div>
