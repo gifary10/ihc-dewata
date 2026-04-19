@@ -1,168 +1,252 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Sistem In House Clinic - Klinik Dewata Tirta Medika</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0d9488">
-  <meta name="description" content="Sistem manajemen klinik untuk Klinik Dewata Tirta Medika.">
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-  <!-- Icons (Font Awesome 6) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Menu - Klinik Dewata Titra Medika</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- Header -->
-<header class="header">
-  <div class="header-inner">
-    <div class="header-brand">
-      <div class="header-logo">
-        <img src="logo/logo.png" alt="Logo" onerror="this.style.display='none'">
-        <i class="fa-solid fa-hospital-user" style="display: none;"></i>
-      </div>
-      <div class="header-text">
-        <span class="header-subtitle">In House Clinic</span>
-        <h1 class="header-title">Klinik Dewata Tirta Medika</h1>
-      </div>
+    <div class="content-wrapper">
+        
+        <!-- HEADER -->
+        <header class="header-section">
+            <div class="container">
+                <div class="header-brand">
+                    <img src="logo.png" alt="Logo Klinik" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%231B2B48\'/%3E%3Ctext x=\'50\' y=\'55\' font-family=\'Arial\' font-size=\'40\' fill=\'white\' text-anchor=\'middle\'%3E+%3C/text%3E%3C/svg%3E'">
+                    <div class="header-title-group">
+                        <h1 class="header-title">Klinik Dewata Titra Medika</h1>
+                        <p class="header-subtitle">In House Clinic</p>
+                    </div>
+                </div>
+
+                <div class="header-social d-none d-md-flex">
+                    <a href="https://www.instagram.com/klinikdewatatirtaofficial" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram Klinik Dewata Titra Medika">
+                        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1112.324 0 6.162 6.162 0 01-12.324 0zM12 16a4 4 0 110-8 4 4 0 010 8zm4.965-10.322a1.44 1.44 0 110-2.881 1.44 1.44 0 010 2.881z"></path></svg>
+                        <span>Instagram</span>
+                    </a>
+                    <a href="https://www.tiktok.com/@klinikdewatatirta" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="TikTok Klinik Dewata Titra Medika">
+                        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.82 2.9 2.9 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.96-.1z"></path></svg>
+                        <span>TikTok</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN / HERO SECTION -->
+        <main class="main-section container">
+            <div class="row align-items-center g-4">
+                <!-- Left: Hero text -->
+                <div class="col-12 col-lg-6 hero-left">
+                    <h2 class="mb-2">Selamat Datang di</h2>
+                    <h2 class="mb-2">Klinik Dewata Titra Medika</h2>
+                    <p class="lead text-muted">Pusat layanan in house clinic perusahaan menyediakan pelayanan kesehatan terpadu bagi karyawan, dilengkapi dengan dashboard monitoring serta sistem input data pasien yang mencakup kunjungan berobat, kecelakaan kerja, dan konsultasi karyawan terkait kesehatan.</p>
+                </div>
+
+                <!-- Right: Action Cards -->
+                <div class="col-12 col-lg-6">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="card menu-card card-accent-navy text-center">
+                                <div class="card-icon mb-2">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M2 12h4l2-9 5 18 4-10h5"/>
+                                    </svg>
+                                </div>
+                                <h4 class="card-title">Dashboard Monitoring</h4>
+                                <p class="card-text d-none d-md-block">Akses dashboard untuk memantau data dan statistik klinik.</p>
+                                <form class="mt-auto" onsubmit="handleLogin(event, 'dewata', 'Dashboard/dash.html', 'btnMonitor', 'inputMonitor')">
+                                    <input type="password" id="inputMonitor" class="form-control" placeholder="Kode Akses" required autocomplete="off">
+                                    <button type="submit" id="btnMonitor" class="btn btn-custom btn-navy mt-2">
+                                        <span class="btn-text">Masuk <span class="d-none d-sm-inline">Dashboard</span></span>
+                                        <div class="spinner-border spinner-border-sm custom-spinner d-none ms-2" role="status"></div>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="card menu-card card-accent-orange text-center">
+                                <div class="card-icon mb-2">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="card-title">Petugas Klinik</h4>
+                                <p class="card-text d-none d-md-block">Akses khusus petugas untuk input data pasien & rekam medis.</p>
+                                <form class="mt-auto" onsubmit="handleLogin(event, 'ihc', 'input/input.html', 'btnPetugas', 'inputPetugas')">
+                                    <input type="password" id="inputPetugas" class="form-control" placeholder="Kode Akses" required autocomplete="off">
+                                    <button type="submit" id="btnPetugas" class="btn btn-custom btn-orange mt-2">
+                                        <span class="btn-text">Masuk <span class="d-none d-sm-inline">Form Input</span></span>
+                                        <div class="spinner-border spinner-border-sm custom-spinner d-none ms-2" role="status"></div>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
     </div>
-  </div>
-</header>
 
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-content">
-    <h2 class="hero-heading">Portal Manajemen<br><span class="hero-accent">Klinik Digital</span></h2>
-  </div>
-</section>
+    <!-- FOOTER SECTION -->
+    <footer class="footer-section">
+        <div class="footer-content">
+            <!-- Grid Footer 3 Kolom -->
+            <div class="row g-4 w-100">
+                <!-- Kolom 1: Layanan Kami -->
+                <div class="col-12 col-md-4">
+                    <div class="footer-grid-item">
+                        <h3 class="footer-grid-title">Layanan Kami</h3>
+                        <div class="footer-services-grid">
+                            <div class="service-item">
+                                <svg class="service-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                <span>Klinik Kesehatan</span>
+                            </div>
+                            <div class="service-item">
+                                <svg class="service-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                                <span>Homecare</span>
+                            </div>
+                            <div class="service-item">
+                                <svg class="service-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v2H9z"></path><rect x="6" y="5" width="12" height="15" rx="1"></rect></svg>
+                                <span>Lab</span>
+                            </div>
+                            <div class="service-item">
+                                <svg class="service-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg>
+                                <span>MCU</span>
+                            </div>
+                            <div class="service-item">
+                                <svg class="service-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                                <span>IHC</span>
+                            </div>
+                            <div class="service-item">
+                                <svg class="service-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10z"></path></svg>
+                                <span>Poli Umum</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<!-- Main Content -->
-<main id="main-content" class="main-container">
-  <div class="section-header">
-    <div class="section-label"><i class="fa-solid fa-grid-2"></i> Menu Utama</div>
-  </div>
+                <!-- Kolom 2: Map -->
+                <div class="col-12 col-md-4">
+                    <div class="footer-grid-item">
+                        <h3 class="footer-grid-title">Lokasi Kami</h3>
+                        <div class="footer-map">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.481881244488!2d107.28237437355602!3d-6.331557961949011!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e699d100906e753%3A0x93b13d843b9dfa4a!2sKlinik%20Dewata%20Tirta%20Medika%20Karawang!5e0!3m2!1sen!2sid!4v1776524588503!5m2!1sen!2sid" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
 
-  <div class="menu-grid">
+                <!-- Kolom 3: Alamat -->
+                <div class="col-12 col-md-4">
+                    <div class="footer-grid-item">
+                        <h3 class="footer-grid-title">Alamat</h3>
+                        <div class="footer-address">
+                            <p><strong>Klinik Dewata Titra Medika</strong></p>
+                            <p>Jl. Bharata Raya No.10 Blok K, Sukaluyu, Telukjambe Timur, Karawang, Jawa Barat 41361</p>
+                            
+                            <div class="footer-divider my-3"></div>
+                            
+                            <div class="footer-social">
+                                <a href="https://www.instagram.com/klinikdewatatirtaofficial" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1112.324 0 6.162 6.162 0 01-12.324 0zM12 16a4 4 0 110-8 4 4 0 010 8zm4.965-10.322a1.44 1.44 0 110-2.881 1.44 1.44 0 010 2.881z"></path></svg>
+                                    <span>Instagram</span>
+                                </a>
+                                <a href="https://www.tiktok.com/@klinikdewatatirta" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.82 2.9 2.9 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.96-.1z"></path></svg>
+                                    <span>TikTok</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Card: Monitoring Klinik -->
-    <button class="menu-card" onclick="navigateTo('clinic-monitoring')" aria-label="Monitoring Klinik">
-      <div class="card-lock"><i class="fa-solid fa-lock"></i></div>
-      <div class="card-icon-wrap">
-        <div class="card-icon">
-          <i class="fa-solid fa-chart-line"></i>
+            <div class="footer-divider"></div>
+
+            <div class="footer-credit">
+                <p>© 2026 Klinik Dewata Titra Medika. All rights reserved.</p>
+            </div>
         </div>
-      </div>
-      <div class="card-body">
-        <h3 class="card-title">Monitoring Klinik</h3>
-        <p class="card-desc">Pantau data kunjungan, statistik layanan, dan laporan klinik secara real-time.</p>
-      </div>
-      <div class="card-footer">
-        <span class="card-tag"><i class="fa-solid fa-chart-simple"></i> Dashboard</span>
-        <span class="card-arrow"><i class="fa-solid fa-arrow-right"></i></span>
-      </div>
-    </button>
+    </footer>
 
-    <!-- Card: Petugas Klinik -->
-    <button class="menu-card" onclick="navigateTo('clinic-staff')" aria-label="Petugas Klinik">
-      <div class="card-lock"><i class="fa-solid fa-lock"></i></div>
-      <div class="card-icon-wrap">
-        <div class="card-icon card-icon-alt">
-          <i class="fa-solid fa-id-card"></i>
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+        <div id="statusToast" class="toast toast-custom align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center">
+                    <svg class="me-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span id="toastMessage">Pesan Notifikasi</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
         </div>
-      </div>
-      <div class="card-body">
-        <h3 class="card-title">Petugas Klinik</h3>
-        <p class="card-desc">Kelola data administrasi, input rekam medis, dan manajemen catatan petugas.</p>
-      </div>
-      <div class="card-footer">
-        <span class="card-tag card-tag-alt"><i class="fa-solid fa-users"></i> Administrasi</span>
-        <span class="card-arrow"><i class="fa-solid fa-arrow-right"></i></span>
-      </div>
-    </button>
-
-  </div>
-</main>
-
-<!-- Access Code Modal -->
-<div id="accessModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="accessModalTitle">
-  <div class="modal-card">
-    <div class="modal-header">
-      <div class="modal-icon">
-        <i class="fa-solid fa-shield-halved"></i>
-      </div>
-      <h4 id="accessModalTitle">Verifikasi Akses</h4>
-      <p class="modal-subtitle">Masukkan kode akses untuk melanjutkan</p>
     </div>
 
-    <form class="modal-form" id="accessForm" novalidate>
-      <div class="input-group-custom">
-        <label for="accessCodeInput" class="input-label">Kode Akses</label>
-        <div class="input-wrapper">
-          <i class="fa-solid fa-key input-icon"></i>
-          <input type="password"
-                 id="accessCodeInput"
-                 class="access-input"
-                 placeholder="••••••••"
-                 autocomplete="current-password"
-                 required>
-          <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Tampilkan sandi">
-            <i class="fa-solid fa-eye" id="eyeIcon"></i>
-          </button>
-        </div>
-        <div id="accessError" class="access-error" role="alert"></div>
-      </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-      <div class="modal-actions">
-        <button type="button" class="btn-cancel" onclick="closeAccessModal()">Batal</button>
-        <button type="submit" class="btn-submit">
-          <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+    <!-- JS Logic -->
+    <script>
+        function handleLogin(event, expectedCode, redirectUrl, btnId, inputId) {
+            event.preventDefault();
+            
+            const btn = document.getElementById(btnId);
+            const input = document.getElementById(inputId);
+            const btnText = btn.querySelector('.btn-text');
+            const spinner = btn.querySelector('.spinner-border');
+            
+            const userCode = input.value.trim();
 
-<!-- Footer -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-copy">
-      <p>&copy; <span id="current-year"></span> Klinik Dewata Tirta Medika. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
+            btn.disabled = true;
+            btnText.classList.add('d-none');
+            spinner.classList.remove('d-none');
+            input.disabled = true;
 
-<!-- Scripts -->
-<script src="script.js"></script>
+            setTimeout(() => {
+                if (userCode === expectedCode) {
+                    showToast('Kode diterima! Mengalihkan halaman...', true);
+                    setTimeout(() => { window.location.href = redirectUrl; }, 500);
+                } else {
+                    btn.disabled = false;
+                    btnText.classList.remove('d-none');
+                    spinner.classList.add('d-none');
+                    input.disabled = false;
+                    
+                    input.value = '';
+                    input.focus();
+                    
+                    showToast('Kode Akses salah! Silakan periksa kembali.', false);
+                }
+            }, 800);
+        }
 
-<!-- Fallback logo icon -->
-<script>
-  // Jika gambar logo tidak ada, tampilkan ikon fallback
-  document.addEventListener('DOMContentLoaded', function() {
-    const logoImg = document.querySelector('.header-logo img');
-    const logoIcon = document.querySelector('.header-logo i');
-    
-    if (logoImg && logoIcon) {
-      logoImg.addEventListener('error', function() {
-        this.style.display = 'none';
-        logoIcon.style.display = 'flex';
-      });
-      
-      // Trigger manual jika gambar sudah gagal sebelum event listener
-      if (logoImg.complete && logoImg.naturalHeight === 0) {
-        logoImg.style.display = 'none';
-        logoIcon.style.display = 'flex';
-      }
-    }
-  });
-</script>
+        function showToast(message, isSuccess = false) {
+            const toastEl = document.getElementById('statusToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.innerText = message;
+            toastEl.style.backgroundColor = isSuccess ? 'var(--navy-dark)' : 'var(--notify)';
 
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+        }
+    </script>
 </body>
 </html>
