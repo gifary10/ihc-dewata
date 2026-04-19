@@ -51,7 +51,8 @@ function showDetailModal(title, data, columns) {
 }
 
 function closeDetailModal(e) {
-    if (e && e.target !== el('detail-modal')) return;
+    // If called with an event (overlay click), only close if clicked directly on the overlay
+    if (e instanceof Event && e.target !== el('detail-modal')) return;
     el('detail-modal').classList.add('hidden');
     document.body.style.overflow = '';
 }

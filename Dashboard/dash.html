@@ -72,6 +72,25 @@
 <!-- Main Dashboard -->
 <div id="dashboard" class="hidden">
 
+    <!-- DESKTOP NAVBAR -->
+    <nav class="app-navbar">
+        <div class="navbar-company">
+            <span class="navbar-company-label">Unit:</span>
+            <span class="navbar-company-name" id="navbar-company-name">—</span>
+        </div>
+
+        <div class="navbar-actions">
+            <button class="navbar-btn navbar-btn-sync" onclick="app.fetchData()" title="Sinkronisasi data">
+                <i class="bi bi-arrow-repeat" id="sync-icon"></i>
+                <span>Sinkronisasi</span>
+            </button>
+            <button class="navbar-btn navbar-btn-switch" onclick="app.showLoginGate()" title="Ganti unit">
+                <i class="bi bi-arrow-left-right"></i>
+                <span>Ganti Unit</span>
+            </button>
+        </div>
+    </nav>
+
     <!-- APP WRAPPER -->
     <div class="app-wrapper">
 
@@ -80,12 +99,12 @@
 
             <!-- Brand -->
             <div class="sidebar-brand">
-                <div class="brand-icon">
-                    <img src="logo.png" alt="Logo" class="text-navy" style="width: auto; height: 34px;">
+                <div class="navbar-logo">
+                    <img src="logo.png" alt="Logo" style="width: auto; height: 30px;">
                 </div>
-                <div class="brand-text">
-                    <h6>Klinik Dewata Tirta Medika</h6>
-                    <small id="sidebar-company-name">— Pilih Unit —</small>
+                <div>
+                    <div class="navbar-title">Klinik Dewata Tirta Medika</div>
+                    <div class="navbar-subtitle">Dashboard Monitoring IHC</div>
                 </div>
             </div>
 
@@ -148,18 +167,6 @@
 
                 <button class="sidebar-filter-reset" onclick="app.resetFilters()">
                     <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter
-                </button>
-            </div>
-
-            <!-- Sidebar Actions -->
-            <div class="sidebar-actions">
-                <button class="sidebar-action-btn" onclick="app.fetchData()" title="Sinkronisasi data">
-                    <i class="bi bi-arrow-repeat" id="sync-icon"></i>
-                    <span>Sinkronisasi</span>
-                </button>
-                <button class="sidebar-action-btn" onclick="app.showLoginGate()" title="Ganti unit">
-                    <i class="bi bi-arrow-left-right"></i>
-                    <span>Ganti Unit</span>
                 </button>
             </div>
 
@@ -238,6 +245,7 @@
 
 <script src="utils.js"></script>
 <script src="charts.js"></script>
+<script src="download.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -106,6 +106,7 @@ const app = {
         this._populateCompanySelect();
         el('company-password').value = '';
         el('pw-error').classList.add('hidden');
+        el('dashboard').classList.add('hidden');
         el('login-modal').classList.remove('hidden');
     },
 
@@ -116,7 +117,10 @@ const app = {
         sel.innerHTML = '<option value="">— Pilih Unit —</option>' +
             companies.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
         // restore if previously selected
-        if (this.unit) sel.value = this.unit;
+        if (this.unit) {
+            sel.value = this.unit;
+            setText('navbar-company-name', this.unit);
+        }
     },
 
     enterDashboard() {
@@ -147,7 +151,7 @@ const app = {
         errEl.classList.add('hidden');
         this.unit = company;
         setText('active-company', company);
-        setText('sidebar-company-name', company);
+        setText('navbar-company-name', company);
 
         el('login-modal').classList.add('hidden');
         el('dashboard').classList.remove('hidden');
@@ -399,12 +403,17 @@ const app = {
         const panel = el('panel-Download');
         if (!panel) return;
 
-        panel.innerHTML = `
-            <div class="download-empty">
-                <div class="download-empty-icon"><i class="fa-solid fa-download"></i></div>
-                <div class="download-empty-title">Halaman Download</div>
-                <div class="download-empty-desc">Fitur unduhan akan tersedia di sini.</div>
-            </div>`;
+        // Use downloadReport if available, otherwise show placeholder
+        if (typeof downloadReport !== 'undefined') {
+            panel.innerHTML = downloadReport.generateReport(this.filtered, this.filteredDiagnosa, this.filteredObat);
+        } else {
+            panel.innerHTML = `
+                <div class="download-empty">
+                    <div class="download-empty-icon"><i class="fa-solid fa-download"></i></div>
+                    <div class="download-empty-title">Halaman Download</div>
+                    <div class="download-empty-desc">Fitur unduhan sedang dimuat...</div>
+                </div>`;
+        }
     },
 
     // ── Table Builders ────────────────────────────
@@ -542,11 +551,17 @@ const app = {
     },
 
     goToPage(type, page) {
+        // For Data panel, type is one of Berobat/Kecelakaan/Konsultasi
         const total = this.filtered.filter(r => r._type === type).length;
         const max   = Math.ceil(total / this.rowsPerPage) || 1;
         if (page < 1 || page > max) return;
         this.page[type] = page;
-        this.renderActiveTab();
+        // If we're on the Data tab, re-render the Data panel; otherwise render active tab
+        if (this.activeTab === 'Data') {
+            this._renderDataPanel();
+        } else {
+            this.renderActiveTab();
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
@@ -559,7 +574,7 @@ const app = {
     _setSyncing(on) {
         const icon = el('sync-icon');
         if (!icon) return;
-        icon.parentElement.classList.toggle('spinning', on);
+        icon.classList.toggle('spinning', on);
     },
 
     showToast(msg, type = 'info') {
@@ -595,10 +610,10 @@ function togglePassword() {
     if (!input || !icon) return;
     if (input.type === 'password') {
         input.type = 'text';
-        icon.className = 'fa-solid fa-eye-slash';
+        icon.className = 'bi bi-eye-slash';
     } else {
         input.type = 'password';
-        icon.className = 'fa-solid fa-eye';
+        icon.className = 'bi bi-eye';
     }
 }
 
