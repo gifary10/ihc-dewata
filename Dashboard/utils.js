@@ -28,10 +28,27 @@ function extractDayFromDate(tanggal) {
 }
 
 // ── Aggregate Helpers ───────────────────────────────
+
+// Returns month (1–12) from a row; uses pre-computed r.bulan when available,
+// otherwise falls back to parsing r.Tanggal (dd/MM/yyyy).
+function _rowMonth(r) {
+    if (r.bulan >= 1 && r.bulan <= 12) return r.bulan;
+    const d = parseDMY(r.Tanggal);
+    return d ? d.month : 0;
+}
+
+// Returns year from a row; uses pre-computed r.tahun when available.
+function _rowYear(r) {
+    if (r.tahun && r.tahun > 1900) return r.tahun;
+    const d = parseDMY(r.Tanggal);
+    return d ? d.year : 0;
+}
+
 function getMonthlyData(data) {
     const monthly = Array(12).fill(0);
     data.forEach(r => {
-        if (r.bulan >= 1 && r.bulan <= 12) monthly[r.bulan - 1]++;
+        const m = _rowMonth(r);
+        if (m >= 1 && m <= 12) monthly[m - 1]++;
     });
     return monthly;
 }

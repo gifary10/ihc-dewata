@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════════
-//  charts.js — Chart & Visualization Logic
-// ═══════════════════════════════════════════════════
-
 let charts = {};
 
 // Register after Chart.js loads
@@ -52,8 +48,10 @@ function showDetailModal(title, data, columns) {
 
 function closeDetailModal(e) {
     // If called with an event (overlay click), only close if clicked directly on the overlay
-    if (e instanceof Event && e.target !== el('detail-modal')) return;
-    el('detail-modal').classList.add('hidden');
+    const modal = el('detail-modal');
+    if (!modal) return;
+    if (e instanceof Event && e.target !== modal) return;
+    modal.classList.add('hidden');
     document.body.style.overflow = '';
 }
 
@@ -112,7 +110,7 @@ const lightTicks = {
 
 // Tooltip light theme using monochrome scale
 const lightTooltip = {
-    backgroundColor: '#f97316', 
+    backgroundColor: '#1e293b', 
     borderColor: '#0f172a', 
     borderWidth: 1,
     titleColor: '#ffffff',
@@ -247,7 +245,7 @@ function makeBarChart(canvasId, label, chartData, color, onClickFn) {
                 tooltip: lightTooltip
             },
             scales: {
-                x: { grid: { display: false }, ticks: { ...lightTicks, maxRotation: 0, autoSkip: true, maxTicksLimit: 16 } },
+                x: { grid: { display: false }, ticks: { ...lightTicks, maxRotation: 0, autoSkip: false } },
                 y: { beginAtZero: true, grid: lightGrid, ticks: { ...lightTicks, stepSize: 1 } }
             },
             onClick: (_, els) => { if (els.length && onClickFn) onClickFn(els[0].index); }
@@ -274,8 +272,9 @@ function getVisitTimeCategory(waktu) {
 function getYearlyData(data) {
     const yearCount = {};
     data.forEach(r => {
-        if (r.tahun && r.tahun > 0) {
-            yearCount[r.tahun] = (yearCount[r.tahun] || 0) + 1;
+        const y = _rowYear(r);
+        if (y && y > 1900) {
+            yearCount[y] = (yearCount[y] || 0) + 1;
         }
     });
     const sorted = Object.keys(yearCount).sort();
@@ -492,14 +491,14 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
 
     // ── Monthly
     makeLineChart('ch-berobat-monthly', 'Kunjungan', getMonthlyData(data), baseChartColors.navy, idx => {
-        showDetailModal(`Berobat — ${MONTH_LABELS[idx]}`, data.filter(r => r.bulan === idx + 1), cols);
+        showDetailModal(`Berobat — ${MONTH_LABELS[idx]}`, data.filter(r => _rowMonth(r) === idx + 1), cols);
     });
 
     // ── Yearly
     const yearlyData = getYearlyData(data);
     makeBarChart('ch-berobat-yearly', 'Kunjungan', yearlyData, baseChartColors.navyDark, idx => {
         const yr = parseInt(yearlyData.labels[idx]);
-        showDetailModal(`Berobat — Tahun ${yr}`, data.filter(r => r.tahun === yr), cols);
+        showDetailModal(`Berobat — Tahun ${yr}`, data.filter(r => _rowYear(r) === yr), cols);
     });
 
     // ── Gender (doughnut)
@@ -634,7 +633,7 @@ function createKecelakaanCharts(data, containerId) {
         </div>`;
 
     makeLineChart('ch-kec-monthly', 'Kecelakaan', getMonthlyData(data), baseChartColors.gray, idx => {
-        showDetailModal(`Kecelakaan — ${MONTH_LABELS[idx]}`, data.filter(r => r.bulan === idx + 1), cols);
+        showDetailModal(`Kecelakaan — ${MONTH_LABELS[idx]}`, data.filter(r => _rowMonth(r) === idx + 1), cols);
     });
 
     const deptData = getTopData(data, 'Departemen', 10);
@@ -712,7 +711,7 @@ function createKonsultasiCharts(data, containerId) {
         </div>`;
 
     makeLineChart('ch-kon-monthly', 'Konsultasi', getMonthlyData(data), baseChartColors.green, idx => {
-        showDetailModal(`Konsultasi — ${MONTH_LABELS[idx]}`, data.filter(r => r.bulan === idx + 1), cols);
+        showDetailModal(`Konsultasi — ${MONTH_LABELS[idx]}`, data.filter(r => _rowMonth(r) === idx + 1), cols);
     });
 
     const deptData = getTopData(data, 'Departemen', 10);

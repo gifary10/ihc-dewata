@@ -131,18 +131,13 @@
                 </a>
                 <a class="nav-item" data-tab="Download" onclick="app.setTab('Download')">
                     <i class="bi bi-download"></i>
-                    <span>Download</span>
+                    <span>Laporan</span>
                 </a>
             </nav>
 
-            <!-- Filter -->
+            <!-- Filter - Tanpa search nama dan reset button -->
             <div class="sidebar-filter">
                 <div class="sidebar-filter-title"><i class="bi bi-funnel me-2"></i> Filter</div>
-
-                <div class="sidebar-search-wrap">
-                    <i class="bi bi-search"></i>
-                    <input type="text" class="sidebar-filter-search" id="filter-nama" placeholder="Cari Nama..." autocomplete="off">
-                </div>
 
                 <label class="sidebar-filter-label mt-2">Departemen</label>
                 <select class="sidebar-filter-select" id="filter-dept">
@@ -164,10 +159,6 @@
                 <select class="sidebar-filter-select" id="filter-tahun">
                     <option value="">Semua Tahun</option>
                 </select>
-
-                <button class="sidebar-filter-reset" onclick="app.resetFilters()">
-                    <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter
-                </button>
             </div>
 
         </aside>
@@ -241,11 +232,11 @@
     </div>
 </div>
 
-<div id="toast" class="toast-item hidden"></div>
+<div id="toast" class="toast-item hidden" style="border-left-color: var(--navy);"></div>
 
 <script src="utils.js"></script>
 <script src="charts.js"></script>
 <script src="download.js"></script>
-<script src="app.js"></script>
+<script src="app-dash.js"></script>
 </body>
 </html>

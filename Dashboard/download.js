@@ -1,4 +1,4 @@
-﻿const downloadReport = {
+const downloadReport = {
     // Check if filters are complete (require year and month)
     isFilterComplete() {
         const tahun = el('filter-tahun')?.value;
@@ -11,8 +11,7 @@
         return {
             tahun: el('filter-tahun')?.value || '',
             bulan: el('filter-bulan')?.value || '',
-            dept:  el('filter-dept')?.value || '',
-            nama:  el('filter-nama')?.value || '',
+            dept:  el('filter-dept')?.value  || '',
         };
     },
 
@@ -156,7 +155,7 @@
                 </div>
 
                 <div class="report-analysis">
-                    <h4>Ringkasan Kualitatif</h4>
+                    <h4>Ringkasan</h4>
                     ${this._generateBerobatQualitative(totalKunjungan, uniquePasien, totalIstirahat, totalHariIst, genderData)}
                 </div>
 
@@ -252,7 +251,7 @@
 
         // Get previous month data from rawData
         const prevData = app.rawData.filter(r => {
-            if (r.Perusahaan !== app.unit) return false;
+            if (app.unit && r.Perusahaan && r.Perusahaan !== app.unit) return false;
             const parsed = parseDateString(r.Tanggal);
             return parsed.m === prevMonth && parsed.y === prevYear && r._type === 'Berobat';
         });
@@ -985,17 +984,24 @@
         app.showToast('PDF siap untuk diunduh. Pilih "Simpan sebagai PDF" di print dialog', 'success');
     },
 
+    // Helper: escape nilai untuk CSV (bukan HTML escape)
+    _csvVal(v) {
+        if (v === null || v === undefined) return '""';
+        return '"' + String(v).replace(/"/g, '""') + '"';
+    },
+
     // Export to CSV
     exportCSV() {
         const filters = this.getFilterState();
         const filename = `IHC_Report_${filters.tahun}-${filters.bulan}.csv`;
-        
+        const c = this._csvVal.bind(this);
+
         let csv = 'IHC Klinik - Laporan Analisis\n';
         csv += `Unit: ${app.unit}\n`;
         csv += `Periode: ${this._formatMonth(filters.bulan)} ${filters.tahun}\n`;
         csv += `Tanggal: ${new Date().toLocaleDateString('id-ID')}\n\n`;
 
-        const berobatData = app.filtered.filter(r => r._type === 'Berobat');
+        const berobatData    = app.filtered.filter(r => r._type === 'Berobat');
         const kecelakaanData = app.filtered.filter(r => r._type === 'Kecelakaan');
         const konsultasiData = app.filtered.filter(r => r._type === 'Konsultasi');
 
@@ -1003,7 +1009,7 @@
             csv += '\n--- DATA BEROBAT ---\n';
             csv += 'Nama,Departemen,Tanggal,Diagnosa,Istirahat,Hari Istirahat\n';
             berobatData.slice(0, 100).forEach(r => {
-                csv += `"${escapeHtml(r.Nama)}","${escapeHtml(r.Departemen)}","${r.Tanggal}","${escapeHtml(r['Nama Diagnosa'])}","${r['Perlu Istirahat']}","${r['Jumlah Hari Istirahat']}"\n`;
+                csv += `${c(r.Nama)},${c(r.Departemen)},${c(r.Tanggal)},${c(r['Nama Diagnosa'])},${c(r['Perlu Istirahat'])},${c(r['Jumlah Hari Istirahat'])}\n`;
             });
         }
 
@@ -1011,7 +1017,7 @@
             csv += '\n--- DATA KECELAKAAN ---\n';
             csv += 'Nama,Departemen,Tanggal,Lokasi,Deskripsi Kejadian\n';
             kecelakaanData.slice(0, 100).forEach(r => {
-                csv += `"${escapeHtml(r.Nama)}","${escapeHtml(r.Departemen)}","${r.Tanggal}","${escapeHtml(r['Lokasi Kejadian'])}","${escapeHtml(r['Deskripsi Kejadian'] || '')}"\n`;
+                csv += `${c(r.Nama)},${c(r.Departemen)},${c(r.Tanggal)},${c(r['Lokasi Kejadian'])},${c(r['Deskripsi Kejadian'] || '')}\n`;
             });
         }
 
@@ -1019,15 +1025,19 @@
             csv += '\n--- DATA KONSULTASI ---\n';
             csv += 'Nama,Departemen,Tanggal,Keluhan,Saran\n';
             konsultasiData.slice(0, 100).forEach(r => {
-                csv += `"${escapeHtml(r.Nama)}","${escapeHtml(r.Departemen)}","${r.Tanggal}","${escapeHtml(r.Keluhan || '')}","${escapeHtml(r.Saran || '')}"\n`;
+                csv += `${c(r.Nama)},${c(r.Departemen)},${c(r.Tanggal)},${c(r.Keluhan || '')},${c(r.Saran || '')}\n`;
             });
         }
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const BOM  = '\uFEFF'; // UTF-8 BOM agar Excel bisa baca karakter Indonesia
+        const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = filename;
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
 
         app.showToast('File CSV berhasil diunduh', 'success');
     }
