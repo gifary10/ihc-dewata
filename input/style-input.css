@@ -176,6 +176,13 @@ a {
 .table tbody tr:hover {
   background: var(--navy-soft);
 }
+.table tbody tr.row-error {
+  background: #fee2e2 !important;
+  border-left: 4px solid var(--red);
+}
+.table tbody tr.row-error:hover {
+  background: #fecaca !important;
+}
 
 .modal-content {
   border-radius: var(--radius);
@@ -330,6 +337,44 @@ a {
   color: white;
 }
 
+/* ----- Notification Button in Sidebar ----- */
+.sidebar-notification-btn {
+  margin: 8px 16px;
+  padding: 8px 10px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: white;
+}
+.sidebar-notification-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: var(--red);
+}
+.sidebar-notification-btn i {
+  color: var(--red);
+  font-size: 16px;
+}
+.sidebar-notification-btn span {
+  font-weight: 600;
+  font-size: 12px;
+  flex: 1;
+}
+.sidebar-notification-btn .notification-count {
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 20px;
+  min-width: 24px;
+  text-align: center;
+}
+
 /* ----- MAIN CONTENT ----- */
 .app-main {
   flex: 1;
@@ -373,6 +418,35 @@ a {
   border: 1px solid var(--border-light);
   font-size: 13px;
   font-weight: 600;
+}
+
+/* ----- Notification Button in Topbar (Mobile) ----- */
+.topbar-notification-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-right: 8px;
+}
+.topbar-notification-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+.topbar-notification-btn i {
+  color: var(--red);
+  font-size: 16px;
+}
+.topbar-notification-btn .notification-count {
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
 }
 
 /* ----- PAGE CONTAINER ----- */
@@ -562,6 +636,47 @@ a {
   cursor: not-allowed;
 }
 
+/* ----- NOTIFICATION TABS ----- */
+.notification-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 16px;
+}
+.notification-tab {
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius) var(--radius) 0 0;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.notification-tab:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.notification-tab.active {
+  background: var(--navy);
+  color: white;
+}
+.notification-tab .tab-badge {
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
+}
+.notification-tab.active .tab-badge {
+  background: var(--orange);
+}
+
 /* ----- ACTION BUTTONS (TABLE) ----- */
 .action-btns {
   display: flex;
@@ -603,6 +718,14 @@ a {
 }
 .btn-icon-sm.btn-delete:hover {
   background: #fecaca;
+}
+.btn-icon-sm.btn-fix {
+  background: #fef3c7;
+  color: var(--yellow);
+}
+.btn-icon-sm.btn-fix:hover {
+  background: #fde68a;
+  color: #b45309;
 }
 
 /* ----- BOTTOM NAVIGATION (Mobile) ----- */
@@ -724,6 +847,67 @@ a {
   color: var(--text-primary);
   word-break: break-word;
   line-height: 1.5;
+}
+
+/* Notification Modal Specific */
+.notification-item {
+  background: #fee2e2;
+  border-left: 4px solid var(--red);
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.notification-item:hover {
+  background: #fecaca;
+  transform: translateX(2px);
+}
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  font-size: 18px;
+}
+.notification-content {
+  flex: 1;
+}
+.notification-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.notification-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.notification-badge {
+  background: var(--red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.notification-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-tertiary);
+}
+.notification-empty i {
+  font-size: 48px;
+  opacity: 0.3;
+  margin-bottom: 12px;
+  color: var(--green);
 }
 
 /* ----- TOAST ----- */

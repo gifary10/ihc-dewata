@@ -1,9 +1,4 @@
 // ════════════════════════════════════════════════════════
-//  IHC Klinik - Material Flat App
-//  Bootstrap 5 + Custom JS
-// ════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════════════
 //  VIEWPORT HEIGHT FIX (Mobile Browser Address Bar)
 // ════════════════════════════════════════════════════════
 function setVHVariable() {
@@ -21,8 +16,8 @@ window.addEventListener('orientationchange', setVHVariable);
 // ════════════════════════════════════════════════════════
 //  CONFIGURATION & STATE
 // ════════════════════════════════════════════════════════
-const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxLvKh9fs5RxonDa41x3gHf4XJ2iX7sdPFVpefTLBQiGjwUThMf1xcsDYR15GVCMngR6Q/exec';
-const PER_PAGE = 8;
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxLD0ItE6aHtnnHtIZUfpIkRynaSL34o_gnOI1144iGe1r0EUiQ4G2sF7IcvPMlKZ1mHA/exec';
+const PER_PAGE = 7;
 
 // Data types
 const DATA_TYPES = {
@@ -76,6 +71,8 @@ const state = {
   debounceTimers: {},
   detailRecord:   null,
   modalInstances: {},
+  incompleteData: { berobat: [], kecelakaan: [], konsultasi: [] },
+  notificationTab: 'berobat'
 };
 
 // Bootstrap Modal helpers
@@ -259,6 +256,141 @@ function applyCompany(company) {
   loadData(DATA_TYPES.BEROBAT, 1);
   loadData(DATA_TYPES.KECELAKAAN, 1);
   loadData(DATA_TYPES.KONSULTASI, 1);
+  
+  // Load incomplete data for notifications
+  loadIncompleteData();
+}
+
+// ════════════════════════════════════════════════════════
+//  INCOMPLETE DATA (NOTIFICATION) FUNCTIONS
+// ════════════════════════════════════════════════════════
+async function loadIncompleteData() {
+  if (!state.company) return;
+  
+  try {
+    const res = await gasRequest('getIncompleteData', { perusahaan: state.company });
+    if (res.status !== 'success') throw new Error(res.message);
+    
+    state.incompleteData = res.data;
+    updateNotificationBadges();
+  } catch (e) {
+    console.error('Failed to load incomplete data:', e);
+  }
+}
+
+function updateNotificationBadges() {
+  const total = (state.incompleteData.berobat?.length || 0) + 
+                (state.incompleteData.kecelakaan?.length || 0) + 
+                (state.incompleteData.konsultasi?.length || 0);
+  
+  // Update sidebar notification button
+  const sidebarCount = document.getElementById('sidebar-notification-count');
+  if (sidebarCount) {
+    sidebarCount.textContent = total;
+    sidebarCount.style.display = total > 0 ? 'inline-block' : 'none';
+  }
+  
+  // Update topbar notification button (mobile)
+  const topbarCount = document.getElementById('topbar-notification-count');
+  if (topbarCount) {
+    topbarCount.textContent = total;
+    topbarCount.style.display = total > 0 ? 'inline-block' : 'none';
+  }
+  
+  // Update tab badges
+  ['berobat', 'kecelakaan', 'konsultasi'].forEach(type => {
+    const badge = document.getElementById(`notification-badge-${type}`);
+    if (badge) {
+      const count = state.incompleteData[type]?.length || 0;
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+  });
+}
+
+function openNotificationModal() {
+  if (!state.company) {
+    toast('warning', 'Perhatian', 'Pilih perusahaan terlebih dahulu.');
+    openCompanyModal();
+    return;
+  }
+  
+  // Refresh incomplete data
+  loadIncompleteData().then(() => {
+    renderNotificationContent('berobat');
+    openModal('modalNotification');
+  });
+}
+
+function switchNotificationTab(type) {
+  state.notificationTab = type;
+  
+  // Update tab active states
+  document.querySelectorAll('.notification-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelector(`.notification-tab[data-type="${type}"]`)?.classList.add('active');
+  
+  renderNotificationContent(type);
+}
+
+function renderNotificationContent(type) {
+  const container = document.getElementById('notification-content');
+  if (!container) return;
+  
+  const items = state.incompleteData[type] || [];
+  
+  if (items.length === 0) {
+    container.innerHTML = `
+      <div class="notification-empty">
+        <i class="bi bi-check-circle-fill"></i>
+        <p>Tidak ada data yang perlu diperbaiki untuk kategori ini.</p>
+        <small class="text-muted">Semua data sudah lengkap.</small>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '';
+  items.forEach(item => {
+    const emptyCols = item._emptyColumns || [];
+    const typeLabel = type === 'berobat' ? 'Berobat' : type === 'kecelakaan' ? 'Kecelakaan' : 'Konsultasi';
+    
+    html += `
+      <div class="notification-item" onclick="fixIncompleteData('${type}', ${item._rowIndex})">
+        <div class="notification-icon">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="notification-content">
+          <div class="notification-title">${esc(item['Nama'] || '-')}</div>
+          <div class="notification-desc">
+            ${esc(formatDateDisplay(item['Tanggal']))} · ${esc(item['Departemen'] || '-')}<br>
+            <span class="text-danger">Kolom kosong: ${esc(emptyCols.join(', '))}</span>
+          </div>
+        </div>
+        <div class="notification-badge">
+          ${emptyCols.length} kolom
+        </div>
+        <button class="btn-icon-sm btn-fix ms-2" onclick="event.stopPropagation(); fixIncompleteData('${type}', ${item._rowIndex})" title="Perbaiki Data">
+          <i class="bi bi-pencil-square"></i>
+        </button>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+function fixIncompleteData(type, rowIndex) {
+  closeModal('modalNotification');
+  
+  // Switch to the correct page
+  showPage(type);
+  
+  // Open edit modal for the specific row
+  setTimeout(() => {
+    openEditModal(type, rowIndex);
+  }, 200);
 }
 
 // ════════════════════════════════════════════════════════
@@ -306,6 +438,9 @@ async function loadData(type, page) {
     updateBadges(type, res.total);
     populateFilterOptions(type, res.filterOptions || {});
     renderTable(type);
+    
+    // Refresh incomplete data after loading
+    loadIncompleteData();
   } catch (e) {
     const tbody = document.getElementById('tbody-' + type);
     if (tbody) {
@@ -386,9 +521,7 @@ function renderSkeleton(type) {
 function formatDateDisplay(val) {
   if (!val) return '';
   const s = String(val).trim();
-  // Jika sudah format dd/MM/yyyy
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
-  // Jika Date object atau format lain, coba parse dan reformat
   if (s.startsWith('Sat') || s.startsWith('Sun') || s.startsWith('Mon') || s.startsWith('Tue') || s.startsWith('Wed') || s.startsWith('Thu') || s.startsWith('Fri')) {
     try {
       const d = new Date(s);
@@ -396,7 +529,6 @@ function formatDateDisplay(val) {
         const dd = String(d.getDate()).padStart(2, '0');
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const yyyy = d.getFullYear();
-        // Cegah tanggal 1899 (epoch Google Sheets)
         if (yyyy >= 1900) return `${dd}/${mm}/${yyyy}`;
       }
     } catch (e) { }
@@ -406,9 +538,13 @@ function formatDateDisplay(val) {
 
 function buildRow(type, r, no) {
   const idx = r._rowIndex;
-  let row = `<tr>
+  const hasError = r._hasEmptyColumns || false;
+  const emptyColumns = r._emptyColumns || [];
+  const errorTitle = hasError ? `Kolom kosong: ${emptyColumns.join(', ')}` : '';
+  
+  let row = `<tr class="${hasError ? 'row-error' : ''}" title="${esc(errorTitle)}">
     <td>${no}</td>
-    <td><strong>${esc(r['Nama'] || '')}</strong></td>
+    <td><strong>${esc(r['Nama'] || '')}</strong>${hasError ? ' <i class="bi bi-exclamation-circle-fill text-danger ms-1" title="Ada data yang kosong"></i>' : ''}</td>
     <td>${esc(formatDateDisplay(r['Tanggal']))}</td>
     <td>${esc(r['Departemen'] || '')}</td>`;
   
@@ -424,7 +560,8 @@ function buildRow(type, r, no) {
   }
   
   row += `<td><div class="action-btns">
-    <button class="btn-icon-sm btn-detail" onclick="openDetailModal('${type}',${idx})" title="Detail"><i class="bi bi-eye"></i></button>
+    <button class="btn-icon-sm btn-detail" onclick="openDetailModal('${type}',${idx})" title="${hasError ? 'Lihat detail & perbaiki' : 'Detail'}" style="${hasError ? 'background: #fecaca !important; color: var(--red) !important;' : ''}"><i class="bi bi-${hasError ? 'exclamation' : 'eye'}"></i></button>
+    <button class="btn-icon-sm btn-edit" onclick="openEditModal('${type}',${idx})" title="Edit"><i class="bi bi-pencil"></i></button>
     <button class="btn-icon-sm btn-delete" onclick="confirmDelete('${type}',${idx})" title="Hapus"><i class="bi bi-trash3"></i></button>
   </div></td>
   </tr>`;
@@ -463,10 +600,27 @@ function openDetailModal(type, rowIndex) {
   if (!record) return toast('error','Error','Data tidak ditemukan.');
   state.detailRecord = { type, rowIndex, data: record };
   
+  const hasError = record._hasEmptyColumns;
+  const emptyColumns = record._emptyColumns || [];
+  
   document.getElementById('detail-modal-title').innerHTML = 
-    `<i class="bi bi-${type==='berobat'?'clipboard2-pulse':type==='kecelakaan'?'exclamation-triangle':'chat-dots'} me-2"></i>Detail Data`;
+    `<i class="bi bi-${type==='berobat'?'clipboard2-pulse':type==='kecelakaan'?'exclamation-triangle':'chat-dots'} me-2"></i>Detail Data${hasError ? ' <span class="badge bg-danger ms-2">Ada data kosong</span>' : ''}`;
   
   const body = document.getElementById('detail-modal-body');
+  
+  // Tampilkan warning jika ada sel kosong
+  let warningHtml = '';
+  if (hasError) {
+    warningHtml = `
+      <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>Data Tidak Lengkap!</strong><br>
+        Kolom berikut masih kosong dan harus diisi: <strong>${esc(emptyColumns.join(', '))}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+  }
+  
   const fields = [
     ['ID', record['ID']], ['Timestamp', record['Timestamp']], ['Tanggal', formatDateDisplay(record['Tanggal'])],
     ['Waktu', record['Waktu']], ['Perusahaan', record['Perusahaan']], ['Departemen', record['Departemen']],
@@ -474,23 +628,48 @@ function openDetailModal(type, rowIndex) {
   ];
   
   if (type === 'berobat') {
-    fields.push(['Keluhan', record['Keluhan']], ['Kategori Diagnosa', (record['Kategori Diagnosa']||'').replace(/\|/g, ', ')],
-      ['Nama Diagnosa', (record['Nama Diagnosa']||'').replace(/\|/g, ', ')], ['Kategori Obat', (record['Kategori Obat']||'').replace(/\|/g, ', ')],
-      ['Nama Obat', (record['Nama Obat']||'').replace(/\|/g, ', ')], ['Jumlah Obat', (record['Jumlah Obat']||'').replace(/\|/g, ', ')],
-      ['Satuan Obat', (record['Satuan Obat']||'').replace(/\|/g, ', ')], ['Tindakan', record['Tindakan']],
-      ['Perlu Istirahat', record['Perlu Istirahat']], ['Jumlah Hari Istirahat', record['Jumlah Hari Istirahat']],
-      ['Keterangan Berobat', record['Keterangan Berobat']]);
+    fields.push(
+      ['Keluhan', record['Keluhan']], 
+      ['Kategori Diagnosa', (record['Kategori Diagnosa']||'').replace(/\|/g, ', ')],
+      ['Nama Diagnosa', (record['Nama Diagnosa']||'').replace(/\|/g, ', ')], 
+      ['Kategori Obat', (record['Kategori Obat']||'').replace(/\|/g, ', ')],
+      ['Nama Obat', (record['Nama Obat']||'').replace(/\|/g, ', ')], 
+      ['Jumlah Obat', (record['Jumlah Obat']||'').replace(/\|/g, ', ')],
+      ['Satuan Obat', (record['Satuan Obat']||'').replace(/\|/g, ', ')], 
+      ['Tindakan', record['Tindakan']],
+      ['Perlu Istirahat', record['Perlu Istirahat']], 
+      ['Jumlah Hari Istirahat', record['Jumlah Hari Istirahat']],
+      ['Keterangan Berobat', record['Keterangan Berobat']]
+    );
   } else if (type === 'kecelakaan') {
-    fields.push(['Lokasi Kejadian', record['Lokasi Kejadian']], ['Penyebab', record['Penyebab']],
-      ['Bagian Yang Terluka', record['Bagian Yang Terluka']], ['Tindakan', record['Tindakan']],
-      ['Deskripsi Kejadian', record['Deskripsi Kejadian']]);
+    fields.push(
+      ['Lokasi Kejadian', record['Lokasi Kejadian']], 
+      ['Penyebab', record['Penyebab']],
+      ['Bagian Yang Terluka', record['Bagian Yang Terluka']], 
+      ['Tindakan', record['Tindakan']],
+      ['Deskripsi Kejadian', record['Deskripsi Kejadian']]
+    );
   } else {
-    fields.push(['Keluhan', record['Keluhan']], ['Riwayat Penyakit', record['Riwayat Penyakit']], ['Saran', record['Saran']]);
+    fields.push(
+      ['Keluhan', record['Keluhan']], 
+      ['Riwayat Penyakit', record['Riwayat Penyakit']], 
+      ['Saran', record['Saran']]
+    );
   }
   
-  body.innerHTML = fields.map(([l, v]) => `
-    <div class="detail-row"><div class="detail-label">${esc(l)}</div><div class="detail-value">${esc(v||'-')}</div></div>
-  `).join('');
+  const fieldsHtml = fields.map(([l, v]) => {
+    const isEmpty = !v || v === '-';
+    const isRequired = emptyColumns.includes(l);
+    const style = (isEmpty && isRequired) ? 'background: #fee2e2; border-left: 4px solid var(--red);' : '';
+    return `
+    <div class="detail-row" style="${style}">
+      <div class="detail-label">${esc(l)}${(isEmpty && isRequired) ? ' <i class="bi bi-exclamation-circle-fill text-danger ms-1"></i>' : ''}</div>
+      <div class="detail-value">${esc(v||'-')}</div>
+    </div>
+  `;
+  }).join('');
+  
+  body.innerHTML = warningHtml + fieldsHtml;
   
   openModal('modalDetail');
 }
@@ -601,7 +780,19 @@ function renderObatList() {
 //  SAVE FUNCTIONS
 // ════════════════════════════════════════════════════════
 async function saveBerobat() {
-  if (!validateRequired(['b-tanggal','b-waktu','b-departemen','b-nama','b-jk','b-keluhan'])) return;
+  // UPDATED: Tambahkan validasi untuk Nama Diagnosa dan Nama Obat
+  if (!validateRequired(['b-tanggal','b-waktu','b-departemen','b-nama','b-jk','b-keluhan','b-tindakan'])) return;
+  
+  // Validasi tambahan: pastikan diagnosa dan obat tidak kosong
+  if (state.diagnosaList.length === 0) {
+    toast('warning', 'Form Tidak Lengkap', 'Minimal satu diagnosa harus ditambahkan.');
+    return;
+  }
+  if (state.obatList.length === 0) {
+    toast('warning', 'Form Tidak Lengkap', 'Minimal satu obat harus ditambahkan.');
+    return;
+  }
+  
   await doSave('berobat', {
     'Tanggal': inputToDate(document.getElementById('b-tanggal').value),
     'Waktu': document.getElementById('b-waktu').value,
