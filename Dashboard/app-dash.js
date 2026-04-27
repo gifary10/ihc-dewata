@@ -90,8 +90,8 @@ const app = {
   // Search handlers untuk panel Data
   onDataSearch(type, value) { _onDataSearch(type, value); },
   
-  // Export CSV untuk data yang sedang ditampilkan
-  exportDataToCSV() {
+  // Export Excel (.xls) untuk data yang sedang ditampilkan
+  exportDataToExcel() {
     const type = _state.activeDataSubTab.toLowerCase();
     const dataMap = {
       'berobat': _searchedBerobat,
@@ -127,46 +127,176 @@ const app = {
     
     const headers = headersMap[type] || [];
     
-    // Build CSV content
-    let csv = '\uFEFF'; // BOM untuk Excel
+    // Build HTML table untuk Excel
+    let html = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+            xmlns:x="urn:schemas-microsoft-com:office:excel" 
+            xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!--[if gte mso 9]><xml>
+          <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+              <x:ExcelWorksheet>
+                <x:Name>IHC Data</x:Name>
+                <x:WorksheetOptions>
+                  <x:DisplayGridlines/>
+                </x:WorksheetOptions>
+              </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+          </x:ExcelWorkbook>
+        </xml><![endif]-->
+        <style>
+          @page {
+            margin: 0.5cm;
+            size: landscape;
+          }
+          body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 10pt;
+            margin: 10px;
+          }
+          .report-header {
+            margin-bottom: 15px;
+          }
+          .report-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+          }
+          .report-meta {
+            font-size: 9pt;
+            color: #64748b;
+            margin-bottom: 3px;
+          }
+          table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+          }
+          th {
+            background-color: #1e293b;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 9pt;
+            padding: 8px 10px;
+            border: 1px solid #334155;
+            text-align: left;
+          }
+          td {
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 9pt;
+            color: #1e293b;
+          }
+          tr:nth-child(even) {
+            background-color: #f8fafc;
+          }
+          tr:hover {
+            background-color: #e2e8f0;
+          }
+          .number-col {
+            text-align: center;
+          }
+          .date-col {
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="report-header">
+          <div class="report-title">IHC Klinik - Data ${_state.activeDataSubTab}</div>
+          <div class="report-meta">Unit: ${_state.company}</div>`;
     
-    // Header perusahaan dan periode
     const filters = _state.filters;
-    csv += `Unit: ${_state.company}\n`;
-    csv += `Jenis Data: ${_state.activeDataSubTab}\n`;
-    if (filters.tahun) csv += `Tahun: ${filters.tahun}\n`;
+    if (filters.tahun) {
+      html += `<div class="report-meta">Tahun: ${filters.tahun}</div>`;
+    }
     if (filters.bulan) {
       const bulanNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-      csv += `Bulan: ${bulanNames[parseInt(filters.bulan) - 1]}\n`;
+      html += `<div class="report-meta">Bulan: ${bulanNames[parseInt(filters.bulan) - 1]}</div>`;
     }
-    if (filters.dept) csv += `Departemen: ${filters.dept}\n`;
-    csv += `Tanggal Export: ${new Date().toLocaleDateString('id-ID')}\n\n`;
+    if (filters.dept) {
+      html += `<div class="report-meta">Departemen: ${filters.dept}</div>`;
+    }
     
-    // Header kolom
-    csv += headers.join(',') + '\n';
-    
-    // Data rows
-    data.forEach(row => {
-      const values = headers.map(h => {
-        let val = row[h] || '';
-        // Escape CSV special characters
-        if (typeof val === 'string') {
-          val = val.replace(/"/g, '""');
-          if (val.includes(',') || val.includes('"') || val.includes('\n')) {
-            val = `"${val}"`;
-          }
-        }
-        return val;
-      });
-      csv += values.join(',') + '\n';
+    const now = new Date();
+    const tanggalExport = now.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
+    html += `<div class="report-meta">Tanggal Export: ${tanggalExport}</div>`;
+    html += `<div class="report-meta">Jumlah Data: ${data.length}</div>`;
+    html += `</div>`;
+    
+    // Build table
+    html += `<table>`;
+    
+    // Header
+    html += `<thead><tr>`;
+    html += `<th style="text-align:center;width:40px;">No</th>`;
+    headers.forEach(h => {
+      const isNumberCol = ['Jumlah Obat', 'Jumlah Hari Istirahat'].includes(h);
+      const isDateCol = ['Tanggal', 'Timestamp'].includes(h);
+      let style = '';
+      if (isNumberCol || isDateCol) {
+        style = 'text-align:center;';
+      }
+      html += `<th style="${style}">${h}</th>`;
+    });
+    html += `</tr></thead>`;
+    
+    // Body
+    html += `<tbody>`;
+    data.forEach((row, idx) => {
+      html += `<tr>`;
+      html += `<td style="text-align:center;font-weight:500;">${idx + 1}</td>`;
+      headers.forEach(h => {
+        let val = row[h] || '';
+        if (typeof val === 'string') {
+          val = val.replace(/\|/g, ', ');
+        }
+        
+        const isNumberCol = ['Jumlah Obat', 'Jumlah Hari Istirahat'].includes(h);
+        const isDateCol = ['Tanggal', 'Timestamp'].includes(h);
+        let style = '';
+        if (isNumberCol) {
+          style = 'text-align:center;';
+        } else if (isDateCol) {
+          style = 'text-align:center;';
+        }
+        
+        // Escape HTML
+        const escapedVal = String(val)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+        
+        html += `<td style="${style}">${escapedVal || '—'}</td>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody>`;
+    html += `</table>`;
+    
+    html += `
+      </body>
+      </html>`;
     
     // Create and trigger download
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([html], { 
+      type: 'application/vnd.ms-excel;charset=utf-8' 
+    });
     const link = document.createElement('a');
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const filename = `IHC_${_state.activeDataSubTab}_${_state.company.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}.csv`;
+    const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const companySafe = _state.company.replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `IHC_${_state.activeDataSubTab}_${companySafe}_${timestamp}.xls`;
     
     link.href = URL.createObjectURL(blob);
     link.download = filename;
@@ -175,7 +305,7 @@ const app = {
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
     
-    _showToast(`File CSV berhasil diunduh (${data.length} data)`, 'success');
+    _showToast(`File Excel berhasil diunduh (${data.length} data)`, 'success');
   }
 };
 
@@ -691,10 +821,10 @@ function _renderData() {
           <span class="data-tab-count">${_searchedKonsultasi.length}</span>
         </button>
         
-        <!-- Tombol Export CSV -->
-        <button class="data-export-btn" onclick="app.exportDataToCSV()" title="Export data ke CSV">
-          <i class="bi bi-download"></i>
-          <span>Export CSV</span>
+        <!-- Tombol Export Excel -->
+        <button class="data-export-btn" onclick="app.exportDataToExcel()" title="Export data ke Excel">
+          <i class="bi bi-file-earmark-excel"></i>
+          <span>Export Excel</span>
         </button>
       </div>
       
