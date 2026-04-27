@@ -89,6 +89,94 @@ const app = {
   resetFilters()    { _resetFilters(); },
   // Search handlers untuk panel Data
   onDataSearch(type, value) { _onDataSearch(type, value); },
+  
+  // Export CSV untuk data yang sedang ditampilkan
+  exportDataToCSV() {
+    const type = _state.activeDataSubTab.toLowerCase();
+    const dataMap = {
+      'berobat': _searchedBerobat,
+      'kecelakaan': _searchedKecelakaan,
+      'konsultasi': _searchedKonsultasi
+    };
+    
+    const data = dataMap[type] || [];
+    
+    if (data.length === 0) {
+      _showToast('Tidak ada data untuk diexport', 'warning');
+      return;
+    }
+    
+    // Definisikan headers sesuai jenis data
+    const headersMap = {
+      'berobat': [
+        'Timestamp', 'ID', 'Tanggal', 'Waktu', 'Perusahaan', 'Departemen', 
+        'Nama', 'Jenis Kelamin', 'Keluhan', 'Kategori Diagnosa', 'Nama Diagnosa',
+        'Kategori Obat', 'Nama Obat', 'Jumlah Obat', 'Satuan Obat', 'Tindakan',
+        'Perlu Istirahat', 'Jumlah Hari Istirahat', 'Keterangan Berobat'
+      ],
+      'kecelakaan': [
+        'Timestamp', 'ID', 'Tanggal', 'Waktu', 'Perusahaan', 'Departemen',
+        'Nama', 'Jenis Kelamin', 'Lokasi Kejadian', 'Penyebab', 
+        'Bagian Yang Terluka', 'Tindakan', 'Deskripsi Kejadian'
+      ],
+      'konsultasi': [
+        'Timestamp', 'ID', 'Tanggal', 'Waktu', 'Perusahaan', 'Departemen',
+        'Nama', 'Jenis Kelamin', 'Keluhan', 'Riwayat Penyakit', 'Saran'
+      ]
+    };
+    
+    const headers = headersMap[type] || [];
+    
+    // Build CSV content
+    let csv = '\uFEFF'; // BOM untuk Excel
+    
+    // Header perusahaan dan periode
+    const filters = _state.filters;
+    csv += `Unit: ${_state.company}\n`;
+    csv += `Jenis Data: ${_state.activeDataSubTab}\n`;
+    if (filters.tahun) csv += `Tahun: ${filters.tahun}\n`;
+    if (filters.bulan) {
+      const bulanNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      csv += `Bulan: ${bulanNames[parseInt(filters.bulan) - 1]}\n`;
+    }
+    if (filters.dept) csv += `Departemen: ${filters.dept}\n`;
+    csv += `Tanggal Export: ${new Date().toLocaleDateString('id-ID')}\n\n`;
+    
+    // Header kolom
+    csv += headers.join(',') + '\n';
+    
+    // Data rows
+    data.forEach(row => {
+      const values = headers.map(h => {
+        let val = row[h] || '';
+        // Escape CSV special characters
+        if (typeof val === 'string') {
+          val = val.replace(/"/g, '""');
+          if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+            val = `"${val}"`;
+          }
+        }
+        return val;
+      });
+      csv += values.join(',') + '\n';
+    });
+    
+    // Create and trigger download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const filename = `IHC_${_state.activeDataSubTab}_${_state.company.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}.csv`;
+    
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+    
+    _showToast(`File CSV berhasil diunduh (${data.length} data)`, 'success');
+  }
 };
 
 // ════════════════════════════════════════════════════════
@@ -601,6 +689,12 @@ function _renderData() {
           <i class="bi bi-chat-dots"></i>
           <span>Konsultasi</span>
           <span class="data-tab-count">${_searchedKonsultasi.length}</span>
+        </button>
+        
+        <!-- Tombol Export CSV -->
+        <button class="data-export-btn" onclick="app.exportDataToCSV()" title="Export data ke CSV">
+          <i class="bi bi-download"></i>
+          <span>Export CSV</span>
         </button>
       </div>
       

@@ -517,6 +517,13 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
                 <div class="chart-wrap h-320"><canvas id="ch-berobat-diagnosa"></canvas></div>
             </div>
         </div>
+
+        <div class="chart-grid">
+            <div class="chart-card col-12">
+                <div class="chart-title"><i class="fa-solid fa-users"></i> Top 10 Nama Karyawan Sering Berobat <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-wrap h-320"><canvas id="ch-berobat-nama"></canvas></div>
+            </div>
+        </div>
         <div id="berobat-obat-tables"></div>
     `;
 
@@ -586,6 +593,13 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
     makeHBarChart('ch-berobat-diagnosa', 'Jumlah', diagnosaData, baseChartColors.navyDark, idx => {
         const val = diagnosaData.labels[idx];
         showDetailModal(`Diagnosa: ${val}`, dataDiagnosa.filter(r => r['Nama Diagnosa'] === val), colsDiagnosa);
+    });
+
+    // ── Top 10 Nama Karyawan
+    const namaData = getTopData(data, 'Nama', 10);
+    makeHBarChart('ch-berobat-nama', 'Kunjungan', namaData, baseChartColors.navy, idx => {
+        const val = namaData.labels[idx];
+        showDetailModal(`Berobat — ${val}`, data.filter(r => r.Nama === val), cols);
     });
 
     // ── Status Istirahat (doughnut)
