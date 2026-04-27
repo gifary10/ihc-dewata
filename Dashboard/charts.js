@@ -22,10 +22,10 @@ function destroyCharts(...keys) {
 // ── Detail Modal ─────────────────────────────────────
 
 function showDetailModal(title, data, columns) {
-    const modal = el('detail-modal');
-    const body  = el('modal-body');
-    const titleEl = el('modal-title');
-    const countEl = el('modal-count');
+    const modal = document.getElementById('detail-modal');
+    const body  = document.getElementById('modal-body');
+    const titleEl = document.getElementById('modal-title');
+    const countEl = document.getElementById('modal-count');
     if (!modal || !body) return;
 
     titleEl.textContent = title;
@@ -48,7 +48,7 @@ function showDetailModal(title, data, columns) {
 
 function closeDetailModal(e) {
     // If called with an event (overlay click), only close if clicked directly on the overlay
-    const modal = el('detail-modal');
+    const modal = document.getElementById('detail-modal');
     if (!modal) return;
     if (e instanceof Event && e.target !== modal) return;
     modal.classList.add('hidden');
@@ -121,7 +121,7 @@ const lightTooltip = {
 
 // ── Factory: Line Chart ──────────────────────────────
 function makeLineChart(canvasId, label, data, color, onClickFn) {
-    const canvas = el(canvasId);
+    const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
     destroyCharts(canvasId);
     return charts[canvasId] = new Chart(canvas, {
@@ -159,7 +159,7 @@ function makeLineChart(canvasId, label, data, color, onClickFn) {
 
 // ── Factory: Horizontal Bar Chart ───────────────────
 function makeHBarChart(canvasId, label, chartData, color, onClickFn) {
-    const canvas = el(canvasId);
+    const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
     destroyCharts(canvasId);
     return charts[canvasId] = new Chart(canvas, {
@@ -191,7 +191,7 @@ function makeHBarChart(canvasId, label, chartData, color, onClickFn) {
 
 // ── Factory: Doughnut Chart ──────────────────────────
 function makeDoughnutChart(canvasId, chartData, colors, onClickFn) {
-    const canvas = el(canvasId);
+    const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
     destroyCharts(canvasId);
     return charts[canvasId] = new Chart(canvas, {
@@ -223,7 +223,7 @@ function makeDoughnutChart(canvasId, chartData, colors, onClickFn) {
 
 // ── Factory: Bar Chart (Daily) ───────────────────────
 function makeBarChart(canvasId, label, chartData, color, onClickFn) {
-    const canvas = el(canvasId);
+    const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
     destroyCharts(canvasId);
     return charts[canvasId] = new Chart(canvas, {
@@ -317,7 +317,7 @@ function getGenderByDeptData(data) {
 }
 
 function makeGroupedHorizontalBarChart(canvasId, chartData, onClickFn) {
-    const canvas = el(canvasId);
+    const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
     destroyCharts(canvasId);
     return charts[canvasId] = new Chart(canvas, {
@@ -359,11 +359,23 @@ function makeGroupedHorizontalBarChart(canvasId, chartData, onClickFn) {
     });
 }
 
+/**
+ * Render tabel Top 10 & Top 20 Obat
+ * @param {Array} dataObat - Data dari sheet "D-Obat" yang sudah difilter
+ * @param {string} containerId - ID container untuk render
+ * @param {Array} colsObat - Kolom untuk detail modal
+ */
 function renderObatTable(dataObat, containerId, colsObat) {
-    const container = el(containerId);
+    const container = document.getElementById(containerId);
     if (!container) return;
     
+    // Kolom yang digunakan untuk detail modal
+    const detailCols = colsObat || ['Tanggal', 'Nama', 'Departemen', 'Nama Obat', 'Jumlah Obat', 'Satuan Obat'];
+    
+    // Top 10 Obat - Total Diberikan Kepada Pasien (berdasarkan frekuensi)
     const top10 = getTopData(dataObat, 'Nama Obat', 10);
+    
+    // Top 20 Obat — Total Jumlah Yang Digunakan (berdasarkan kuantitas)
     const top20Jumlah = getTopObatByJumlah(dataObat, 20);
     
     container.innerHTML = `
@@ -389,35 +401,61 @@ function renderObatTable(dataObat, containerId, colsObat) {
         </div>
     `;
     
-    const tbody10 = el('top10-obat-body');
+    // Isi tabel Top 10 (frekuensi)
+    const tbody10 = document.getElementById('top10-obat-body');
     if (tbody10) {
-        top10.labels.forEach((label, i) => {
+        if (top10.labels.length === 0) {
             const row = tbody10.insertRow();
-            row.insertCell().textContent = label;
-            row.insertCell().textContent = top10.values[i];
-            row.style.cursor = 'pointer';
-            row.addEventListener('click', () => {
-                showDetailModal(`Obat: ${label}`, dataObat.filter(r => r['Nama Obat'] === label), colsObat);
+            const cell = row.insertCell();
+            cell.colSpan = 2;
+            cell.textContent = 'Tidak ada data obat';
+            cell.style.textAlign = 'center';
+            cell.style.color = 'var(--text-tertiary)';
+            cell.style.padding = '24px';
+        } else {
+            top10.labels.forEach((label, i) => {
+                const row = tbody10.insertRow();
+                row.insertCell().textContent = label;
+                row.insertCell().textContent = top10.values[i];
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => {
+                    showDetailModal(`Obat: ${label}`, 
+                        dataObat.filter(r => (r['Nama Obat'] || '').trim() === label), 
+                        detailCols);
+                });
             });
-        });
+        }
     }
     
-    const tbody20 = el('top20-obat-jumlah-body');
+    // Isi tabel Top 20 (jumlah/kuantitas)
+    const tbody20 = document.getElementById('top20-obat-jumlah-body');
     if (tbody20) {
-        top20Jumlah.labels.forEach((label, i) => {
+        if (top20Jumlah.labels.length === 0) {
             const row = tbody20.insertRow();
-            row.insertCell().textContent = label;
-            row.insertCell().textContent = top20Jumlah.values[i];
-            row.style.cursor = 'pointer';
-            row.addEventListener('click', () => {
-                showDetailModal(`Obat (Jumlah): ${label}`, dataObat.filter(r => r['Nama Obat'] === label), colsObat);
+            const cell = row.insertCell();
+            cell.colSpan = 2;
+            cell.textContent = 'Tidak ada data obat';
+            cell.style.textAlign = 'center';
+            cell.style.color = 'var(--text-tertiary)';
+            cell.style.padding = '24px';
+        } else {
+            top20Jumlah.labels.forEach((label, i) => {
+                const row = tbody20.insertRow();
+                row.insertCell().textContent = label;
+                row.insertCell().textContent = top20Jumlah.values[i].toFixed(0);
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => {
+                    showDetailModal(`Obat (Jumlah): ${label}`, 
+                        dataObat.filter(r => (r['Nama Obat'] || '').trim() === label), 
+                        detailCols);
+                });
             });
-        });
+        }
     }
 }
 
 function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []) {
-    const container = el(containerId);
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     const cols = [
@@ -543,7 +581,7 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
         showDetailModal(`Berobat — ${cat}`, subset, cols);
     });
 
-    // ── Top 10 Diagnosa
+    // ── Top 10 Diagnosa (dari dataDiagnosa / D-Diagnosa)
     const diagnosaData = getTopData(dataDiagnosa, 'Nama Diagnosa', 10);
     makeHBarChart('ch-berobat-diagnosa', 'Jumlah', diagnosaData, baseChartColors.navyDark, idx => {
         const val = diagnosaData.labels[idx];
@@ -581,7 +619,7 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
         showDetailModal(`Berobat — Istirahat: ${nama}`, data.filter(r => r.Nama === nama), cols);
     });
 
-    // ── Obat Tables (Replace Top 10 Obat & Top 20 Obat Charts)
+    // ── Obat Tables (menggunakan dataObat dari D-Obat)
     renderObatTable(dataObat, 'berobat-obat-tables', colsObat);
 }
 
@@ -590,7 +628,7 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
 // ════════════════════════════════════════════════════
 
 function createKecelakaanCharts(data, containerId) {
-    const container = el(containerId);
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     const cols = [
@@ -679,7 +717,7 @@ function createKecelakaanCharts(data, containerId) {
 // ════════════════════════════════════════════════════
 
 function createKonsultasiCharts(data, containerId) {
-    const container = el(containerId);
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     const cols = [

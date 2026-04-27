@@ -100,11 +100,26 @@ function getTopData(data, field, limit = 10) {
 function getTopObatByJumlah(data, limit = 20) {
     const totals = {};
     data.forEach(r => {
-        const nama   = (r['Nama Obat'] || '').trim();
-        const jumlah = parseFloat(r['Jumlah Obat']) || 0;
+        const nama      = (r['Nama Obat'] || '').trim();
+        const jumlahRaw = r['Jumlah Obat'];
+        
+        // Skip jika nama obat kosong atau '-'
         if (!nama || nama === '-') return;
-        totals[nama] = (totals[nama] || 0) + jumlah;
+        
+        // Handle cell kosong - anggap 0 jika null/undefined/kosong
+        let jumlah = 0;
+        if (jumlahRaw !== null && jumlahRaw !== undefined && jumlahRaw !== '') {
+            jumlah = parseFloat(jumlahRaw);
+            // Jika hasil parse adalah NaN, anggap 0
+            if (isNaN(jumlah)) jumlah = 0;
+        }
+        
+        // Tetap tambahkan ke totals meskipun jumlah = 0
+        // agar obat tetap muncul dalam daftar, tapi jangan tambahkan 0
+        if (!totals[nama]) totals[nama] = 0;
+        totals[nama] += jumlah;
     });
+    
     const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, limit);
     return { labels: sorted.map(([k]) => k), values: sorted.map(([, v]) => v) };
 }

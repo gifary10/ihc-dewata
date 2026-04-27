@@ -32,6 +32,8 @@ const _state = {
     berobat:    [],
     kecelakaan: [],
     konsultasi: [],
+    dDiagnosa:  [], // Data dari sheet "D-Diagnosa"
+    dObat:      [], // Data dari sheet "D-Obat"
   },
   activeTab: 'Berobat',
   activeDataSubTab: 'Berobat',
@@ -52,6 +54,8 @@ const _state = {
 let _filteredBerobat    = [];
 let _filteredKecelakaan = [];
 let _filteredKonsultasi = [];
+let _filteredDDiagnosa  = []; // Data D-Diagnosa yang sudah difilter
+let _filteredDObat      = []; // Data D-Obat yang sudah difilter
 
 // Data setelah filter + search (untuk tampilan di panel Data)
 let _searchedBerobat    = [];
@@ -72,6 +76,8 @@ const app = {
     const konsultasi = _filteredKonsultasi.map(r => ({ ...r, _type: 'Konsultasi' }));
     return [...berobat, ...kecelakaan, ...konsultasi];
   },
+  get filteredDiagnosa() { return _filteredDDiagnosa; },
+  get filteredObat()     { return _filteredDObat; },
   showToast(msg, type = 'info') { _showToast(msg, type); },
 
   enterDashboard()  { _enterDashboard(); },
@@ -214,15 +220,20 @@ async function _fetchData() {
   if (syncIcon) syncIcon.classList.add('spinning');
 
   try {
-    const [bRes, kRes, koRes] = await Promise.all([
+    // Fetch semua sheet termasuk D-Diagnosa dan D-Obat
+    const [bRes, kRes, koRes, dRes, oRes] = await Promise.all([
       _gasRequest('getAll', { sheet: 'Berobat',    perusahaan: _state.company }),
       _gasRequest('getAll', { sheet: 'Kecelakaan', perusahaan: _state.company }),
       _gasRequest('getAll', { sheet: 'Konsultasi', perusahaan: _state.company }),
+      _gasRequest('getAll', { sheet: 'D-Diagnosa', perusahaan: _state.company }),
+      _gasRequest('getAll', { sheet: 'D-Obat',     perusahaan: _state.company }),
     ]);
 
     if (bRes.status  === 'success') _state.rawData.berobat    = _enrichRows(bRes.data  || []);
     if (kRes.status  === 'success') _state.rawData.kecelakaan = _enrichRows(kRes.data  || []);
     if (koRes.status === 'success') _state.rawData.konsultasi = _enrichRows(koRes.data || []);
+    if (dRes.status  === 'success') _state.rawData.dDiagnosa  = _enrichRows(dRes.data  || []);
+    if (oRes.status  === 'success') _state.rawData.dObat      = _enrichRows(oRes.data  || []);
 
     _buildFilterOptions();
     _applyFilters();
@@ -284,6 +295,8 @@ function _applyFilters() {
   _filteredBerobat    = filter(_state.rawData.berobat);
   _filteredKecelakaan = filter(_state.rawData.kecelakaan);
   _filteredKonsultasi = filter(_state.rawData.konsultasi);
+  _filteredDDiagnosa  = filter(_state.rawData.dDiagnosa);
+  _filteredDObat      = filter(_state.rawData.dObat);
 
   // Reset search results ke filtered data
   _applyDataSearch();
@@ -507,8 +520,9 @@ function _renderBerobat() {
   `;
 
   if (typeof createBerobatCharts === 'function') {
-    const dataDiagnosa = _expandField(data, 'Nama Diagnosa');
-    const dataObat     = _expandField(data, 'Nama Obat');
+    // Gunakan _filteredDDiagnosa dan _filteredDObat yang sudah difilter
+    const dataDiagnosa = _filteredDDiagnosa;
+    const dataObat     = _filteredDObat;
     createBerobatCharts(data, 'charts-berobat', dataDiagnosa, dataObat);
   }
 }
@@ -670,8 +684,9 @@ function _renderDownload() {
     return;
   }
 
-  const dataDiagnosa = _expandField(_filteredBerobat, 'Nama Diagnosa');
-  const dataObat     = _expandField(_filteredBerobat, 'Nama Obat');
+  // Gunakan data yang sudah difilter
+  const dataDiagnosa = _filteredDDiagnosa;
+  const dataObat     = _filteredDObat;
   const allData      = [
     ..._filteredBerobat.map(r    => ({ ...r, _type: 'Berobat' })),
     ..._filteredKecelakaan.map(r => ({ ...r, _type: 'Kecelakaan' })),
