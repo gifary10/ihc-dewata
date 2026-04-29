@@ -593,6 +593,7 @@ a { text-decoration: none; color: inherit; cursor: pointer; }
   border-radius: var(--radius);
   padding: 14px 16px;
   transition: box-shadow var(--transition);
+  position: relative;
 }
 .chart-card:hover { box-shadow: var(--shadow-md); }
 
@@ -607,6 +608,8 @@ a { text-decoration: none; color: inherit; cursor: pointer; }
   text-transform: uppercase; letter-spacing: 0.05em;
   margin-bottom: 12px;
   display: flex; align-items: center; gap: 7px;
+  position: relative;
+  padding-right: 40px;
 }
 .chart-title i { color: var(--orange-dark); }
 
@@ -614,10 +617,48 @@ a { text-decoration: none; color: inherit; cursor: pointer; }
   font-size: 10px; color: var(--mono-0);
   font-weight: 400; text-transform: none; letter-spacing: 0;
   margin-left: auto;
+  margin-right: 8px;
   background: var(--orange);
   border: 1px solid var(--orange-dark);
   border-radius: 4px;
   padding: 2px 6px;
+}
+
+/* ── Chart Download Button ──────────────────────────────── */
+.chart-download-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all var(--transition);
+  z-index: 10;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.chart-download-btn:hover {
+  background: var(--navy-dark);
+  opacity: 1;
+  box-shadow: var(--shadow-md);
+  transform: scale(1.1);
+}
+
+.chart-download-btn:active {
+  transform: scale(0.95);
+}
+
+.chart-download-btn i {
+  font-size: 14px;
 }
 
 .chart-wrap { position: relative; }
@@ -978,6 +1019,20 @@ tbody tr:hover td:first-child { background: var(--bg-tertiary); }
   
   .data-export-btn i {
     font-size: 16px;
+  }
+  
+  .chart-download-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+  
+  .chart-download-btn i {
+    font-size: 12px;
+  }
+  
+  .chart-hint {
+    display: none;
   }
 }
 
@@ -1622,6 +1677,12 @@ tbody tr:hover td:first-child { background: var(--bg-tertiary); }
   font-weight: 500;
 }
 
+.medicine-patients {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+
 .report-medicine-summary {
   padding: 12px;
   background: var(--bg-tertiary);
@@ -1734,6 +1795,40 @@ tbody tr:hover td:first-child { background: var(--bg-tertiary); }
 
 .conclusion-input::placeholder {
   color: var(--text-tertiary);
+}
+
+/* ── Download Empty State ────────────────────────────────── */
+.download-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  border: 2px dashed var(--border-light);
+}
+
+.download-empty-icon {
+  font-size: 48px;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+
+.download-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.download-empty-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.download-empty-desc strong {
+  color: var(--orange);
 }
 
 /* ── Utilities ──────────────────────────────────────────── */

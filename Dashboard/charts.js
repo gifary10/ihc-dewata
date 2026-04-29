@@ -19,6 +19,40 @@ function destroyCharts(...keys) {
     });
 }
 
+// ── Download Chart as PNG ───────────────────────────
+function downloadChart(canvasId, filename = 'chart') {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        console.warn('Canvas not found:', canvasId);
+        return;
+    }
+    
+    // Create a temporary link element
+    const link = document.createElement('a');
+    link.download = `${filename}.png`;
+    
+    // Convert canvas to blob and trigger download
+    canvas.toBlob(function(blob) {
+        if (blob) {
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+    }, 'image/png', 1.0);
+}
+
+// ── Create Download Button HTML ─────────────────────
+function createDownloadButton(canvasId, filename, buttonClass = '') {
+    return `
+        <button class="chart-download-btn ${buttonClass}" 
+                onclick="downloadChart('${canvasId}', '${filename}')" 
+                title="Download chart sebagai PNG">
+            <i class="bi bi-download"></i>
+        </button>
+    `;
+}
+
 // ── Detail Modal ─────────────────────────────────────
 
 function showDetailModal(title, data, columns) {
@@ -68,7 +102,7 @@ const baseChartColors = {
     // Primary colors
     navy:        '#1e293b',
     navyLight:   '#dbeafe',
-    navyDark:    '#1e40af',
+    navyDark:   '#1e40af',
     gray:        '#64748b',
     grayLight:   '#cbd5e1',
     grayDark:    '#475569',
@@ -381,7 +415,10 @@ function renderObatTable(dataObat, containerId, colsObat) {
     container.innerHTML = `
         <div class="chart-grid">
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-pills"></i> Top 10 Obat - Total Diberikan Kepada Pasien <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-pills"></i> Top 10 Obat - Total Diberikan Kepada Pasien 
+                    <span class="chart-hint">klik bar → detail</span>
+                </div>
                 <div class="table-wrap" style="max-height: 400px; overflow-y: auto;">
                     <table>
                         <thead><tr><th>Obat</th><th>Frekuensi</th></tr></thead>
@@ -390,7 +427,10 @@ function renderObatTable(dataObat, containerId, colsObat) {
                 </div>
             </div>
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-box-open"></i> Top 20 Obat — Total Jumlah Yang Digunakan <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-box-open"></i> Top 20 Obat — Total Jumlah Yang Digunakan 
+                    <span class="chart-hint">klik bar → detail</span>
+                </div>
                 <div class="table-wrap" style="max-height: 400px; overflow-y: auto;">
                     <table>
                         <thead><tr><th>Obat</th><th>Total Unit</th></tr></thead>
@@ -466,61 +506,105 @@ function createBerobatCharts(data, containerId, dataDiagnosa = [], dataObat = []
     const colsDiagnosa = ['Tanggal','Nama','Departemen','Perusahaan','Nama Diagnosa'];
     const colsObat     = ['Tanggal','Nama','Departemen','Perusahaan','Nama Obat','Jumlah Obat','Satuan Obat'];
 
-    // Build main structure
+    // Build main structure dengan tombol download di setiap chart
     container.innerHTML = `
         <div class="chart-grid">
             <div class="chart-card col-4">
-                <div class="chart-title"><i class="fa-solid fa-calendar-check"></i> Per Tahun <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-calendar-check"></i> Per Tahun 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-berobat-yearly', 'Berobat_Per_Tahun')}
+                </div>
                 <div class="chart-wrap h-240"><canvas id="ch-berobat-yearly"></canvas></div>
             </div>
             <div class="chart-card col-8">
-                <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Per Bulan <span class="chart-hint">klik titik → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-chart-line"></i> Per Bulan 
+                    <span class="chart-hint">klik titik → detail</span>
+                    ${createDownloadButton('ch-berobat-monthly', 'Berobat_Per_Bulan')}
+                </div>
                 <div class="chart-wrap h-240"><canvas id="ch-berobat-monthly"></canvas></div>
             </div>
             
             <div class="chart-card col-12">
-                <div class="chart-title"><i class="fa-solid fa-chart-column"></i> Kunjungan per Hari <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-chart-column"></i> Kunjungan per Hari 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-berobat-daily', 'Berobat_Kunjungan_per_Hari')}
+                </div>
                 <div class="chart-wrap h-240"><canvas id="ch-berobat-daily"></canvas></div>
             </div>
         </div>
 
         <div class="chart-grid">
             <div class="chart-card col-4">
-                <div class="chart-title"><i class="fa-solid fa-venus-mars"></i> Jenis Kelamin <span class="chart-hint">klik slice → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-venus-mars"></i> Jenis Kelamin 
+                    <span class="chart-hint">klik slice → detail</span>
+                    ${createDownloadButton('ch-berobat-gender', 'Berobat_Jenis_Kelamin')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-berobat-gender"></canvas></div>
             </div>
             <div class="chart-card col-8">
-                <div class="chart-title"><i class="fa-solid fa-building"></i> Per Departemen <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-building"></i> Per Departemen 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-berobat-dept', 'Berobat_Per_Departemen')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-berobat-dept"></canvas></div>
             </div>
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-venus-mars"></i> Jenis Kelamin per Departemen <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-venus-mars"></i> Jenis Kelamin per Departemen 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-berobat-gender-dept', 'Berobat_Gender_per_Departemen')}
+                </div>
                 <div class="chart-wrap h-400"><canvas id="ch-berobat-gender-dept"></canvas></div>
             </div>
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-clock"></i> Distribusi Waktu Kunjungan <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-clock"></i> Distribusi Waktu Kunjungan 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-berobat-waktu', 'Berobat_Waktu_Kunjungan')}
+                </div>
                 <div class="chart-wrap h-400"><canvas id="ch-berobat-waktu"></canvas></div>
             </div>
         </div>
 
         <div class="chart-grid">
             <div class="chart-card col-4">
-                <div class="chart-title"><i class="fa-solid fa-bed"></i> Status Perlu Istirahat <span class="chart-hint">klik slice → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-bed"></i> Status Perlu Istirahat 
+                    <span class="chart-hint">klik slice → detail</span>
+                    ${createDownloadButton('ch-berobat-istirahat-status', 'Berobat_Status_Istirahat')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-berobat-istirahat-status"></canvas></div>
             </div>
             <div class="chart-card col-8">
-                <div class="chart-title"><i class="fa-solid fa-calendar-days"></i> Top 10 Hari Istirahat <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-calendar-days"></i> Top 10 Hari Istirahat 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-berobat-istirahat', 'Berobat_Top_10_Hari_Istirahat')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-berobat-istirahat"></canvas></div>
             </div>
             <div class="chart-card col-12">
-                <div class="chart-title"><i class="fa-solid fa-stethoscope"></i> Top 10 Diagnosa <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-stethoscope"></i> Top 10 Diagnosa 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-berobat-diagnosa', 'Berobat_Top_10_Diagnosa')}
+                </div>
                 <div class="chart-wrap h-320"><canvas id="ch-berobat-diagnosa"></canvas></div>
             </div>
         </div>
 
         <div class="chart-grid">
             <div class="chart-card col-12">
-                <div class="chart-title"><i class="fa-solid fa-users"></i> Top 10 Nama Karyawan Sering Berobat <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-users"></i> Top 10 Nama Karyawan Sering Berobat 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-berobat-nama', 'Berobat_Top_10_Karyawan')}
+                </div>
                 <div class="chart-wrap h-320"><canvas id="ch-berobat-nama"></canvas></div>
             </div>
         </div>
@@ -653,33 +737,57 @@ function createKecelakaanCharts(data, containerId) {
     container.innerHTML = `
         <div class="chart-grid">
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Per Bulan <span class="chart-hint">klik titik → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-chart-line"></i> Per Bulan 
+                    <span class="chart-hint">klik titik → detail</span>
+                    ${createDownloadButton('ch-kec-monthly', 'Kecelakaan_Per_Bulan')}
+                </div>
                 <div class="chart-wrap h-240"><canvas id="ch-kec-monthly"></canvas></div>
             </div>
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-building"></i> Per Departemen <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-building"></i> Per Departemen 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-kec-dept', 'Kecelakaan_Per_Departemen')}
+                </div>
                 <div class="chart-wrap h-240"><canvas id="ch-kec-dept"></canvas></div>
             </div>
         </div>
 
         <div class="chart-grid">
             <div class="chart-card col-4">
-                <div class="chart-title"><i class="fa-solid fa-venus-mars"></i> Jenis Kelamin <span class="chart-hint">klik slice → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-venus-mars"></i> Jenis Kelamin 
+                    <span class="chart-hint">klik slice → detail</span>
+                    ${createDownloadButton('ch-kec-gender', 'Kecelakaan_Jenis_Kelamin')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-kec-gender"></canvas></div>
             </div>
             <div class="chart-card col-8">
-                <div class="chart-title"><i class="fa-solid fa-location-dot"></i> Top Lokasi Kejadian <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-location-dot"></i> Top Lokasi Kejadian 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-kec-lokasi', 'Kecelakaan_Lokasi_Kejadian')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-kec-lokasi"></canvas></div>
             </div>
         </div>
 
         <div class="chart-grid">
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-person-falling-burst"></i> Bagian Terluka <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-person-falling-burst"></i> Bagian Terluka 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-kec-luka', 'Kecelakaan_Bagian_Terluka')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-kec-luka"></canvas></div>
             </div>
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-circle-exclamation"></i> Penyebab <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-circle-exclamation"></i> Penyebab 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-kec-penyebab', 'Kecelakaan_Penyebab')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-kec-penyebab"></canvas></div>
             </div>
         </div>`;
@@ -742,22 +850,38 @@ function createKonsultasiCharts(data, containerId) {
     container.innerHTML = `
         <div class="chart-grid">
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Per Bulan <span class="chart-hint">klik titik → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-chart-line"></i> Per Bulan 
+                    <span class="chart-hint">klik titik → detail</span>
+                    ${createDownloadButton('ch-kon-monthly', 'Konsultasi_Per_Bulan')}
+                </div>
                 <div class="chart-wrap h-240"><canvas id="ch-kon-monthly"></canvas></div>
             </div>
             <div class="chart-card col-6">
-                <div class="chart-title"><i class="fa-solid fa-building"></i> Per Departemen <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-building"></i> Per Departemen 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-kon-dept', 'Konsultasi_Per_Departemen')}
+                </div>
                 <div class="chart-wrap h-240"><canvas id="ch-kon-dept"></canvas></div>
             </div>
         </div>
 
         <div class="chart-grid">
             <div class="chart-card col-4">
-                <div class="chart-title"><i class="fa-solid fa-venus-mars"></i> Jenis Kelamin <span class="chart-hint">klik slice → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-venus-mars"></i> Jenis Kelamin 
+                    <span class="chart-hint">klik slice → detail</span>
+                    ${createDownloadButton('ch-kon-gender', 'Konsultasi_Jenis_Kelamin')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-kon-gender"></canvas></div>
             </div>
             <div class="chart-card col-8">
-                <div class="chart-title"><i class="fa-solid fa-comment-medical"></i> Top Keluhan <span class="chart-hint">klik bar → detail</span></div>
+                <div class="chart-title">
+                    <i class="fa-solid fa-comment-medical"></i> Top Keluhan 
+                    <span class="chart-hint">klik bar → detail</span>
+                    ${createDownloadButton('ch-kon-keluhan', 'Konsultasi_Top_Keluhan')}
+                </div>
                 <div class="chart-wrap h-280"><canvas id="ch-kon-keluhan"></canvas></div>
             </div>
         </div>`;
